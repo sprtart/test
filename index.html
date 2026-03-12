@@ -1367,10 +1367,17 @@ function handleStart(e, r, c) {
         }
     }
 
-    if (!isMyPiece) {
-        if (selectedSq) { selectedSq = null; renderBoard(); }
-        return;
-    }
+// Если кликнули на уже выделенную фигуру — снимаем выделение
+if (selectedSq && selectedSq.r === r && selectedSq.c === c) {
+    selectedSq = null;
+    renderBoard();
+    return;
+}
+
+if (!isMyPiece) {
+    if (selectedSq) { selectedSq = null; renderBoard(); }
+    return;
+}
 
     if (e.cancelable) e.preventDefault();
 
