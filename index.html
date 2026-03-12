@@ -1804,19 +1804,13 @@ function showPieceBadge(pos, type) {
 
     const col = pos.charCodeAt(0) - 97; // a=0, h=7
 
-// Учитываем переворот доски
-const isRightEdge = (playerColor === 'w' && col >= 7) || (playerColor === 'b' && col <= 0);
+    // Учитываем переворот доски
+    const isRightEdge = (playerColor === 'w' && col >= 7) || (playerColor === 'b' && col <= 0);
 
-if (isRightEdge) {
-    badge.style.left = (sqRect.left - wrapRect.left - halfBadge) + 'px';
-} else {
-    badge.style.left = (sqRect.right - wrapRect.left - halfBadge) + 'px';
-}
     const badgeSize = sqRect.width * 0.4;
     const halfBadge = badgeSize / 2;
 
-    // Если крайний правый столбец (h) — рисуем слева
-    if (col >= 7) {
+    if (isRightEdge) {
         badge.style.left = (sqRect.left - wrapRect.left - halfBadge) + 'px';
     } else {
         badge.style.left = (sqRect.right - wrapRect.left - halfBadge) + 'px';
@@ -1831,7 +1825,8 @@ if (isRightEdge) {
     } else {
         badge.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
     }
-    boardWrapper.appendChild(badge); // Добавляем в wrapper, а не в клетку
+
+    boardWrapper.appendChild(badge);
     setTimeout(() => badge.remove(), 800);
 }
 
