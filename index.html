@@ -1346,8 +1346,7 @@ function renderBoard() {
 }
 
 function handleStart(e, r, c) {
-    console.log('handleStart вызван:', e.type, 'r:', r, 'c:', c, 'selectedSq:', selectedSq ? selectedSq.pos : null);
-    if (isLocked) return;
+if (e.type === 'mousedown' && Date.now() - lastTouchDeselect < 500) return;    if (isLocked) return;
 
     if (hintSquare) {
         hintSquare = null;
