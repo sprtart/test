@@ -837,6 +837,7 @@ function startGameMode(mode) {
     const valScore = document.getElementById('score-display');
 
     if (mode === 'survival') {
+        survivalFailed = false;
     // Сбрасываем ОБЕ кнопки обратно
     const hintBtns = document.querySelectorAll('.btn-hint');
     hintBtns.forEach(btn => {
@@ -1018,7 +1019,7 @@ let previousPuzzleElo = null;
 let hasMistake = false;
 let hasHint = false;
 let isAdLoading = false; 
-
+let survivalFailed = false;
 let gamesPlayedSinceAd = 0;
 let lastAdTime = Date.now(); // Отсчет времени с момента запуска
 const AD_COOLDOWN_MS = 4 * 60 * 1000; // 3 минуты
@@ -1537,23 +1538,41 @@ function handleMoveError(fromPos, toPos) {
     saveCurrentStats();   
     Platform.vibrate('error');
 
-    if (gameMode === 'survival') {
+if (gameMode === 'survival') {
+    showPieceBadge(fromPos, 'wrong'); // Сразу показываем ошибку
 
-        showPieceBadge(fromPos, 'wrong'); // ПОСЛЕ таймаута, доска уже на месте
-        
-        setTimeout(() => {
-            const hintBtns = document.querySelectorAll('.btn-hint');
-            hintBtns.forEach(btn => {
-                btn.onclick = () => startGameMode('survival');
-                const icon = btn.querySelector('.video-icon');
-                if (icon) icon.style.display = 'none';
-                const text = btn.querySelector('span');
-                if (text) text.textContent = i18n[lang].again;
-            });
-            isLocked = true;
-        }, 500);
-        return;
-    }
+    const fromSq = document.querySelector(`[data-pos="${fromPos}"]`);
+    const toSq = document.querySelector(`[data-pos="${toPos}"]`);
+    if (fromSq) fromSq.classList.add('error-move');
+    if (toSq) toSq.classList.add('error-move');
+    const boardWrapper = document.getElementById('board-wrapper');
+    boardWrapper.classList.add('shake');
+
+    setTimeout(() => {
+        boardWrapper.classList.remove('shake');
+        if (fromSq) fromSq.classList.remove('error-move');
+        if (toSq) toSq.classList.remove('error-move');
+        selectedSq = null;
+        renderBoard();
+    }, 400);
+
+    // Меняем кнопки — серия закончена
+    survivalStreak = 0;
+    document.getElementById('score-display').textContent = survivalStreak;
+    
+    const hintBtns = document.querySelectorAll('.btn-hint');
+    hintBtns.forEach(btn => {
+        btn.onclick = () => startGameMode('survival');
+        const icon = btn.querySelector('.video-icon');
+        if (icon) icon.style.display = 'none';
+        const text = btn.querySelector('span');
+        if (text) text.textContent = i18n[lang].again;
+    });
+
+    // Помечаем что после решения этой задачи нужно начать заново
+    survivalFailed = true;
+    return;
+}
 
     const fromSq = document.querySelector(`[data-pos="${fromPos}"]`);
     const toSq = document.querySelector(`[data-pos="${toPos}"]`);
@@ -1645,11 +1664,10 @@ function finalizeMove(moveStr, isOpponent, f, t) {
         boardState[f.r][rookCol[0]] = "";
     }
     
-boardState[t.r][t.c] = piece; 
-boardState[f.r][f.c] = "";
-currentStep++;
-renderBoard(); 
-//if (!isOpponent) showPieceBadge(idxToPos(t.r, t.c), 'correct'); // ПОСЛЕ renderBoard
+    boardState[t.r][t.c] = piece; 
+    boardState[f.r][f.c] = "";
+    currentStep++;
+    renderBoard(); 
     
     if (isOpponent) { 
         isLocked = false; 
@@ -1668,19 +1686,27 @@ renderBoard();
         const thisElo = Number(puzzles[currentPuzzleIndex].elo);
         const randomDelta = Math.floor(Math.random() * 16) + 80; 
 
-statsTotalSolved++; 
+        statsTotalSolved++; 
 
-if (gameMode === 'survival') {
-    survivalStreak++;
-    document.getElementById('score-display').textContent = survivalStreak;
-    
-    if (survivalStreak > statsMaxStreak) {
-        statsMaxStreak = survivalStreak;
-        document.getElementById('user-max-rating').textContent = statsMaxStreak;
-    }
-    // Поднимаем сложность: чем дольше серия, тем выше Эло
-   currentElo += Math.floor(Math.random() * 23) + 33;
-} else {
+        if (gameMode === 'survival') {
+            
+            if (survivalFailed) {
+                // Задача решена после ошибки — начинаем заново автоматически
+                survivalFailed = false;
+                setTimeout(() => startGameMode('survival'), 800);
+                return;
+            }
+
+            survivalStreak++;
+            document.getElementById('score-display').textContent = survivalStreak;
+            
+            if (survivalStreak > statsMaxStreak) {
+                statsMaxStreak = survivalStreak;
+                document.getElementById('user-max-rating').textContent = statsMaxStreak;
+            }
+            // Поднимаем сложность: чем дольше серия, тем выше Эло
+        currentElo += Math.floor(Math.random() * 23) + 33;
+        } else {
     // --- ЛОГИКА ОБЫЧНОГО РЕЖИМА --- else {
             // --- ЛОГИКА ОБЫЧНОГО РЕЖИМА ---
             if (!hasHint && !hasMistake) {
