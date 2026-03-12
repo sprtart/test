@@ -1773,13 +1773,14 @@ function showPieceBadge(pos, type) {
 
     const badge = document.createElement('div');
     badge.className = `piece-badge ${type}`;
-
+    const badgeSize = sqRect.width * 0.35;
+    const halfBadge = badgeSize / 2;
     // Позиционируем относительно board-wrapper
     badge.style.position = 'absolute';
-badge.style.left = (sqRect.right - wrapRect.left - sqRect.width * 0.1) + 'px'; // вправо на 10%
-badge.style.top = (sqRect.top - wrapRect.top - sqRect.width * 0.1) + 'px';     // вверх на 10%
-    badge.style.width = (sqRect.width * 0.35) + 'px';
-    badge.style.height = (sqRect.width * 0.35) + 'px';
+    badge.style.left = (sqRect.right - wrapRect.left - halfBadge) + 'px';
+    badge.style.top = (sqRect.top - wrapRect.top - halfBadge) + 'px';
+    badge.style.width = badgeSize + 'px';
+    badge.style.height = badgeSize + 'px';
     badge.style.zIndex = 100;
 
     if (type === 'correct') {
