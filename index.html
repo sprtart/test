@@ -1549,10 +1549,9 @@ function handleMoveError(fromPos, toPos) {
     boardWrapper.classList.add('shake');
 
     // Анимация возврата фигуры обратно
-    setTimeout(() => {
+setTimeout(() => {
         boardWrapper.classList.remove('shake');
 
-        // Анимируем полёт обратно
         const toSqEl = document.querySelector(`[data-pos="${toPos}"]`);
         const fromSqEl = document.querySelector(`[data-pos="${fromPos}"]`);
         const pieceEl = toSqEl?.querySelector('.piece');
@@ -1560,12 +1559,14 @@ function handleMoveError(fromPos, toPos) {
         if (pieceEl && fromSqEl) {
             const tR = toSqEl.getBoundingClientRect();
             const fR = fromSqEl.getBoundingClientRect();
+            
+            // Убираем бейдж СРАЗУ когда фигура начинает лететь обратно
+            document.querySelectorAll('.piece-badge').forEach(el => el.remove());
+            
             pieceEl.style.transition = 'transform 0.25s ease-in-out';
             pieceEl.style.transform = `translate(${fR.left - tR.left}px, ${fR.top - tR.top}px)`;
 
             setTimeout(() => {
-                // Убираем бейдж и возвращаем состояние доски
-                document.querySelectorAll('.piece-badge').forEach(el => el.remove());
                 boardState[posToIdx(fromPos).r][posToIdx(fromPos).c] = piece;
                 boardState[posToIdx(toPos).r][posToIdx(toPos).c] = "";
                 selectedSq = null;
