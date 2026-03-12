@@ -1372,7 +1372,6 @@ if (e.type === 'mousedown' && Date.now() - lastTouchDeselect < 500) return;    i
 
 // Если кликнули на уже выделенную фигуру — снимаем выделение
 if (selectedSq && selectedSq.r === r && selectedSq.c === c) {
-    console.log('Повторный клик, тип события:', e.type, 'время:', Date.now());
 
     if (e.type === 'touchstart') {
         lastTouchDeselect = Date.now();
@@ -1381,7 +1380,6 @@ if (selectedSq && selectedSq.r === r && selectedSq.c === c) {
     }
     selectedSq = null;
     renderBoard();
-    console.log('После сброса, selectedSq:', selectedSq);
     return;
 }
 
