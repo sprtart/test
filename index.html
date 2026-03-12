@@ -1539,7 +1539,8 @@ function handleMoveError(fromPos, toPos) {
     Platform.vibrate('error');
 
     const piece = boardState[posToIdx(fromPos).r][posToIdx(fromPos).c];
-    const capturedPiece = boardState[posToIdx(toPos).r][posToIdx(toPos).c]; // сохраняем фигуру соперника
+    const capturedPiece = boardState[posToIdx(toPos).r][posToIdx(toPos).c];
+    console.log('capturedPiece:', capturedPiece, 'toPos:', toPos);
     const boardWrapper = document.getElementById('board-wrapper');
 
     // Перемещаем фигуру на целевую клетку
@@ -1570,6 +1571,7 @@ function handleMoveError(fromPos, toPos) {
             setTimeout(() => {
                 boardState[posToIdx(fromPos).r][posToIdx(fromPos).c] = piece;
                 boardState[posToIdx(toPos).r][posToIdx(toPos).c] = capturedPiece; // восстанавливаем фигуру соперника
+                console.log('восстановлено, capturedPiece:', capturedPiece);
                 selectedSq = null;
                 renderBoard();
             }, 260);
