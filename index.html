@@ -1558,32 +1558,32 @@ function handleMoveError(fromPos, toPos) {
         const fromSqEl = document.querySelector(`[data-pos="${fromPos}"]`);
         const pieceEl = toSqEl?.querySelector('.piece');
 
-if (pieceEl && fromSqEl) {
-    const tR = toSqEl.getBoundingClientRect();
-    const fR = fromSqEl.getBoundingClientRect();
-    
-    document.querySelectorAll('.piece-badge').forEach(el => el.remove());
-    
-    // Восстанавливаем вражескую фигуру ДО начала анимации
-    boardState[posToIdx(toPos).r][posToIdx(toPos).c] = capturedPiece;
-    if (capturedPiece) renderBoard(); // перерисовываем только если была фигура
-    
-    // Заново берём pieceEl после renderBoard
-    const toSqElNew = document.querySelector(`[data-pos="${toPos}"]`);
-    const pieceElNew = toSqElNew?.querySelector('.piece:last-child'); // наша фигура последняя
-    
-    const pieceToAnimate = capturedPiece ? toSqElNew?.querySelectorAll('.piece')[0] : pieceEl;
-    
-    pieceToAnimate.style.transition = 'transform 0.25s ease-in-out';
-    pieceToAnimate.style.transform = `translate(${fR.left - tR.left}px, ${fR.top - tR.top}px)`;
+        if (pieceEl && fromSqEl) {
+            const tR = toSqEl.getBoundingClientRect();
+            const fR = fromSqEl.getBoundingClientRect();
+            
+            document.querySelectorAll('.piece-badge').forEach(el => el.remove());
+            
+            // Восстанавливаем вражескую фигуру ДО начала анимации
+            boardState[posToIdx(toPos).r][posToIdx(toPos).c] = capturedPiece;
+            if (capturedPiece) renderBoard(); // перерисовываем только если была фигура
+            
+            // Заново берём pieceEl после renderBoard
+            const toSqElNew = document.querySelector(`[data-pos="${toPos}"]`);
+            const pieceElNew = toSqElNew?.querySelector('.piece:last-child'); // наша фигура последняя
+            
+            const pieceToAnimate = capturedPiece ? toSqElNew?.querySelectorAll('.piece')[0] : pieceEl;
+            
+            pieceToAnimate.style.transition = 'transform 0.25s ease-in-out';
+            pieceToAnimate.style.transform = `translate(${fR.left - tR.left}px, ${fR.top - tR.top}px)`;
 
-    setTimeout(() => {
-        boardState[posToIdx(fromPos).r][posToIdx(fromPos).c] = piece;
-        boardState[posToIdx(toPos).r][posToIdx(toPos).c] = capturedPiece;
-        selectedSq = null;
-        renderBoard();
-    }, 260);
-} else {
+            setTimeout(() => {
+                boardState[posToIdx(fromPos).r][posToIdx(fromPos).c] = piece;
+                boardState[posToIdx(toPos).r][posToIdx(toPos).c] = capturedPiece;
+                selectedSq = null;
+                renderBoard();
+            }, 260);
+        } else {
             document.querySelectorAll('.piece-badge').forEach(el => el.remove());
             boardState[posToIdx(fromPos).r][posToIdx(fromPos).c] = piece;
             boardState[posToIdx(toPos).r][posToIdx(toPos).c] = capturedPiece; // восстанавливаем фигуру соперника
