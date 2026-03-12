@@ -837,6 +837,12 @@ function startGameMode(mode) {
     const valScore = document.getElementById('score-display');
 
     if (mode === 'survival') {
+    // Сбрасываем кнопку обратно
+    const hintBtn = document.getElementById('hint-btn');
+    hintBtn.onclick = requestHint;
+    hintBtn.querySelector('.video-icon').style.display = ''; // возвращаем SVG
+    document.getElementById('hint-btn-text').textContent = i18n[lang].hintBtn;
+
         currentElo = eloSurvival; // ВСЕГДА начинаем с простых задач
         survivalStreak = 0;
         
@@ -1513,13 +1519,19 @@ function handleMoveError(fromPos, toPos) {
     Platform.vibrate('error');
 
     // --- ЛОГИКА ВЫЖИВАНИЯ (ОШИБКА = СРАЗУ КОНЕЦ) ---
-    if (gameMode === 'survival') {
-        setTimeout(() => {
-            document.getElementById('survival-score').textContent = survivalStreak;
-            document.getElementById('game-over-modal').classList.remove('hidden');
-        }, 500);
-        return; // Прерываем функцию, чтобы дальше ничего не отрисовывалось
-    }
+// СТАЛО:
+if (gameMode === 'survival') {
+    setTimeout(() => {
+        // Меняем кнопку "Помощь" на "Заново" (без иконки)
+        const hintBtn = document.getElementById('hint-btn');
+        hintBtn.onclick = () => startGameMode('survival');
+        hintBtn.querySelector('.video-icon').style.display = 'none'; // скрываем SVG
+        document.getElementById('hint-btn-text').textContent = i18n[lang].again;
+
+        isLocked = true;
+    }, 500);
+    return;
+}
 
     // --- ЛОГИКА ОБЫЧНОГО РЕЖИМА ---
     const fromSq = document.querySelector(`[data-pos="${fromPos}"]`);
