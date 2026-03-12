@@ -1776,8 +1776,8 @@ function showPieceBadge(pos, type) {
 
     // Позиционируем относительно board-wrapper
     badge.style.position = 'absolute';
-    badge.style.left = (sqRect.right - wrapRect.left - sqRect.width * 0.1) + 'px';
-    badge.style.top = (sqRect.top - wrapRect.top - sqRect.width * 0.1) + 'px';
+badge.style.left = (sqRect.right - wrapRect.left - sqRect.width * 0.1) + 'px'; // вправо на 10%
+badge.style.top = (sqRect.top - wrapRect.top - sqRect.width * 0.1) + 'px';     // вверх на 10%
     badge.style.width = (sqRect.width * 0.35) + 'px';
     badge.style.height = (sqRect.width * 0.35) + 'px';
     badge.style.zIndex = 100;
