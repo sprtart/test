@@ -838,6 +838,8 @@ function startGameMode(mode) {
 
     if (mode === 'survival') {
         survivalFailed = false;
+            survivalStreak = 0; // <- здесь уже должно быть
+    document.getElementById('score-display').textContent = survivalStreak;
     // Сбрасываем ОБЕ кнопки обратно
     const hintBtns = document.querySelectorAll('.btn-hint');
     hintBtns.forEach(btn => {
@@ -1603,8 +1605,8 @@ function handleMoveError(fromPos, toPos) {
     }, 400);
 
     if (gameMode === 'survival') {
-        survivalStreak = 0;
-        document.getElementById('score-display').textContent = survivalStreak;
+        //survivalStreak = 0;
+        //document.getElementById('score-display').textContent = survivalStreak;
         
         const hintBtns = document.querySelectorAll('.btn-hint');
         hintBtns.forEach(btn => {
