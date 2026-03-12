@@ -1539,6 +1539,7 @@ function handleMoveError(fromPos, toPos) {
     Platform.vibrate('error');
 
     const piece = boardState[posToIdx(fromPos).r][posToIdx(fromPos).c];
+    const capturedPiece = boardState[posToIdx(toPos).r][posToIdx(toPos).c]; // сохраняем фигуру соперника
     const boardWrapper = document.getElementById('board-wrapper');
 
     // Перемещаем фигуру на целевую клетку
@@ -1549,7 +1550,7 @@ function handleMoveError(fromPos, toPos) {
     boardWrapper.classList.add('shake');
 
     // Анимация возврата фигуры обратно
-setTimeout(() => {
+    setTimeout(() => {
         boardWrapper.classList.remove('shake');
 
         const toSqEl = document.querySelector(`[data-pos="${toPos}"]`);
@@ -1568,14 +1569,14 @@ setTimeout(() => {
 
             setTimeout(() => {
                 boardState[posToIdx(fromPos).r][posToIdx(fromPos).c] = piece;
-                boardState[posToIdx(toPos).r][posToIdx(toPos).c] = "";
+                boardState[posToIdx(toPos).r][posToIdx(toPos).c] = capturedPiece; // восстанавливаем фигуру соперника
                 selectedSq = null;
                 renderBoard();
             }, 260);
         } else {
             document.querySelectorAll('.piece-badge').forEach(el => el.remove());
             boardState[posToIdx(fromPos).r][posToIdx(fromPos).c] = piece;
-            boardState[posToIdx(toPos).r][posToIdx(toPos).c] = "";
+            boardState[posToIdx(toPos).r][posToIdx(toPos).c] = capturedPiece; // восстанавливаем фигуру соперника
             selectedSq = null;
             renderBoard();
         }
@@ -1780,6 +1781,9 @@ function showPieceBadge(pos, type) {
     badge.className = `piece-badge ${type}`;
 
     const col = pos.charCodeAt(0) - 97; // a=0, h=7
+
+    const isRightEdge = (playerColor === 'w' && col >= 7) || (playerColor === 'b' && col <= 0);
+
     const badgeSize = sqRect.width * 0.4;
     const halfBadge = badgeSize / 2;
 
@@ -1793,7 +1797,7 @@ function showPieceBadge(pos, type) {
     badge.style.width = badgeSize + 'px';
     badge.style.height = badgeSize + 'px';
     badge.style.zIndex = 100;
-    
+
     if (type === 'correct') {
         badge.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
     } else {
