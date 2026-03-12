@@ -837,11 +837,15 @@ function startGameMode(mode) {
     const valScore = document.getElementById('score-display');
 
     if (mode === 'survival') {
-    // Сбрасываем кнопку обратно
-    const hintBtn = document.getElementById('hint-btn');
-    hintBtn.onclick = requestHint;
-    hintBtn.querySelector('.video-icon').style.display = ''; // возвращаем SVG
-    document.getElementById('hint-btn-text').textContent = i18n[lang].hintBtn;
+    // Сбрасываем ОБЕ кнопки обратно
+    const hintBtns = document.querySelectorAll('.btn-hint');
+    hintBtns.forEach(btn => {
+        btn.onclick = requestHint;
+        const icon = btn.querySelector('.video-icon');
+        if (icon) icon.style.display = '';
+        const text = btn.querySelector('span');
+        if (text) text.textContent = i18n[lang].hintBtn;
+    });
 
         currentElo = eloSurvival; // ВСЕГДА начинаем с простых задач
         survivalStreak = 0;
@@ -1522,11 +1526,15 @@ function handleMoveError(fromPos, toPos) {
 // СТАЛО:
 if (gameMode === 'survival') {
     setTimeout(() => {
-        // Меняем кнопку "Помощь" на "Заново" (без иконки)
-        const hintBtn = document.getElementById('hint-btn');
-        hintBtn.onclick = () => startGameMode('survival');
-        hintBtn.querySelector('.video-icon').style.display = 'none'; // скрываем SVG
-        document.getElementById('hint-btn-text').textContent = i18n[lang].again;
+        // Меняем ОБЕ кнопки — для портрета и для альбомной
+        const hintBtns = document.querySelectorAll('.btn-hint');
+        hintBtns.forEach(btn => {
+            btn.onclick = () => startGameMode('survival');
+            const icon = btn.querySelector('.video-icon');
+            if (icon) icon.style.display = 'none';
+            const text = btn.querySelector('span');
+            if (text) text.textContent = i18n[lang].again;
+        });
 
         isLocked = true;
     }, 500);
