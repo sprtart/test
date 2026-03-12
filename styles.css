@@ -1800,10 +1800,9 @@ background: #769656;
 
 
 
-/*.piece-badge {
+.piece-badge {
     position: absolute;
-    top: -8%;
-    right: -8%;
+
     width: 35%;
     height: 35%;
     border-radius: 50%;
@@ -1812,7 +1811,7 @@ background: #769656;
     align-items: center;
     justify-content: center;
     pointer-events: none;
-}*/
+}
 
 .piece-badge.correct {
     background-color: #16a34a;
