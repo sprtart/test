@@ -1538,6 +1538,9 @@ function handleMoveError(fromPos, toPos) {
     Platform.vibrate('error');
 
     if (gameMode === 'survival') {
+
+        showPieceBadge(fromPos, 'wrong'); // ПОСЛЕ таймаута, доска уже на месте
+        
         setTimeout(() => {
             const hintBtns = document.querySelectorAll('.btn-hint');
             hintBtns.forEach(btn => {
@@ -1547,7 +1550,6 @@ function handleMoveError(fromPos, toPos) {
                 const text = btn.querySelector('span');
                 if (text) text.textContent = i18n[lang].again;
             });
-            showPieceBadge(fromPos, 'wrong'); // ПОСЛЕ таймаута, доска уже на месте
             isLocked = true;
         }, 500);
         return;
