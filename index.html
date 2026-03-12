@@ -1532,33 +1532,27 @@ function checkLogicMove(tr, tc) {
 
 function handleMoveError(fromPos, toPos) {
     hasMistake = true;
-showPieceBadge(selectedSq.pos, 'wrong');
     safePlaySound(audioError); 
-
     statsTotalMistakes++; 
     saveCurrentStats();   
     Platform.vibrate('error');
 
-    // --- ЛОГИКА ВЫЖИВАНИЯ (ОШИБКА = СРАЗУ КОНЕЦ) ---
-// СТАЛО:
-if (gameMode === 'survival') {
-    setTimeout(() => {
-        // Меняем ОБЕ кнопки — для портрета и для альбомной
-        const hintBtns = document.querySelectorAll('.btn-hint');
-        hintBtns.forEach(btn => {
-            btn.onclick = () => startGameMode('survival');
-            const icon = btn.querySelector('.video-icon');
-            if (icon) icon.style.display = 'none';
-            const text = btn.querySelector('span');
-            if (text) text.textContent = i18n[lang].again;
-        });
+    if (gameMode === 'survival') {
+        setTimeout(() => {
+            const hintBtns = document.querySelectorAll('.btn-hint');
+            hintBtns.forEach(btn => {
+                btn.onclick = () => startGameMode('survival');
+                const icon = btn.querySelector('.video-icon');
+                if (icon) icon.style.display = 'none';
+                const text = btn.querySelector('span');
+                if (text) text.textContent = i18n[lang].again;
+            });
+            showPieceBadge(fromPos, 'wrong'); // ПОСЛЕ таймаута, доска уже на месте
+            isLocked = true;
+        }, 500);
+        return;
+    }
 
-        isLocked = true;
-    }, 500);
-    return;
-}
-
-    // --- ЛОГИКА ОБЫЧНОГО РЕЖИМА ---
     const fromSq = document.querySelector(`[data-pos="${fromPos}"]`);
     const toSq = document.querySelector(`[data-pos="${toPos}"]`);
     if (fromSq) fromSq.classList.add('error-move');
@@ -1572,6 +1566,7 @@ if (gameMode === 'survival') {
         if (toSq) toSq.classList.remove('error-move');
         selectedSq = null;
         renderBoard();
+        showPieceBadge(fromPos, 'wrong'); // ПОСЛЕ renderBoard
     }, 400);
 }
 function selectPromotion(type) {
@@ -1647,11 +1642,11 @@ function finalizeMove(moveStr, isOpponent, f, t) {
         boardState[f.r][rookCol[0]] = "";
     }
     
-    boardState[t.r][t.c] = piece; 
-    boardState[f.r][f.c] = "";
-    currentStep++;
-    if (!isOpponent) showPieceBadge(idxToPos(t.r, t.c), 'correct');
-    renderBoard(); 
+boardState[t.r][t.c] = piece; 
+boardState[f.r][f.c] = "";
+currentStep++;
+renderBoard(); 
+if (!isOpponent) showPieceBadge(idxToPos(t.r, t.c), 'correct'); // ПОСЛЕ renderBoard
     
     if (isOpponent) { 
         isLocked = false; 
