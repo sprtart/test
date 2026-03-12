@@ -1346,6 +1346,7 @@ function renderBoard() {
 }
 
 function handleStart(e, r, c) {
+    console.log('handleStart вызван:', e.type, 'r:', r, 'c:', c, 'selectedSq:', selectedSq ? selectedSq.pos : null);
     if (isLocked) return;
 
     if (hintSquare) {
@@ -1381,6 +1382,7 @@ if (selectedSq && selectedSq.r === r && selectedSq.c === c) {
     }
     selectedSq = null;
     renderBoard();
+    console.log('После сброса, selectedSq:', selectedSq);
     return;
 }
 
