@@ -1797,3 +1797,33 @@ background: #769656;
 
 
 
+
+
+
+.piece-badge {
+    position: absolute;
+    top: -8%;
+    right: -8%;
+    width: 35%;
+    height: 35%;
+    border-radius: 50%;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.piece-badge.correct {
+    background-color: #16a34a;
+}
+
+.piece-badge.wrong {
+    background-color: #ef4444;
+}
+
+.piece-badge svg {
+    width: 70%;
+    height: 70%;
+    fill: white;
+}
