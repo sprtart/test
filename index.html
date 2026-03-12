@@ -1663,7 +1663,7 @@ if (gameMode === 'survival') {
         document.getElementById('user-max-rating').textContent = statsMaxStreak;
     }
     // Поднимаем сложность: чем дольше серия, тем выше Эло
-    currentElo += 50; 
+   currentElo += Math.floor(Math.random() * 23) + 33;
 } else {
     // --- ЛОГИКА ОБЫЧНОГО РЕЖИМА --- else {
             // --- ЛОГИКА ОБЫЧНОГО РЕЖИМА ---
