@@ -1732,10 +1732,12 @@ if (gameMode === 'survival') {
 }
 
 function showPieceBadge(pos, type) {
+     console.log('showPieceBadge вызван, pos:', pos, 'type:', type);
     // Убираем старый бейдж если был
     document.querySelectorAll('.piece-badge').forEach(el => el.remove());
 
     const sq = document.querySelector(`[data-pos="${pos}"]`);
+    console.log('Найдена клетка:', sq);
     if (!sq) return;
 
     const badge = document.createElement('div');
@@ -1748,6 +1750,7 @@ function showPieceBadge(pos, type) {
     }
 
     sq.appendChild(badge);
+     console.log('Бейдж добавлен:', badge);
 
     // Убираем через 800мс (перед следующей задачей)
     setTimeout(() => badge.remove(), 800);
