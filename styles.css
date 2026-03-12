@@ -1802,10 +1802,10 @@ background: #769656;
 
 .piece-badge {
     position: absolute;
-    top: -8%;
-    right: -8%;
-    width: 35%;
-    height: 35%;
+    top: 2%;   /* внутрь, а не -8% */
+    right: 2%; /* внутрь, а не -8% */
+    width: 30%;
+    height: 30%;
     border-radius: 50%;
     z-index: 20;
     display: flex;

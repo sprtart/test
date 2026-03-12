@@ -1689,7 +1689,7 @@ function finalizeMove(moveStr, isOpponent, f, t) {
         statsTotalSolved++; 
 
         if (gameMode === 'survival') {
-
+            
             if (survivalFailed) {
                 // Задача решена после ошибки — начинаем заново автоматически
                 survivalFailed = false;
@@ -1761,23 +1761,14 @@ function finalizeMove(moveStr, isOpponent, f, t) {
 }
 
 function showPieceBadge(pos, type) {
+    // Убираем старый бейдж если был
     document.querySelectorAll('.piece-badge').forEach(el => el.remove());
 
     const sq = document.querySelector(`[data-pos="${pos}"]`);
     if (!sq) return;
 
-    const col = pos.charCodeAt(0) - 97; // 0-7, где 7 = столбец h
-    const row = 8 - parseInt(pos[1]);   // 0-7, где 0 = верхний ряд
-
     const badge = document.createElement('div');
     badge.className = `piece-badge ${type}`;
-
-    // Если правый край — показываем слева, иначе справа
-    badge.style.right = col >= 6 ? 'auto' : '-8%';
-    badge.style.left = col >= 6 ? '-8%' : 'auto';
-    // Если верхний край — показываем снизу, иначе сверху
-    badge.style.top = row <= 1 ? 'auto' : '-8%';
-    badge.style.bottom = row <= 1 ? '-8%' : 'auto';
 
     if (type === 'correct') {
         badge.innerHTML = `<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>`;
@@ -1786,6 +1777,8 @@ function showPieceBadge(pos, type) {
     }
 
     sq.appendChild(badge);
+
+    // Убираем через 800мс (перед следующей задачей)
     setTimeout(() => badge.remove(), 800);
 }
 
