@@ -1538,57 +1538,51 @@ function handleMoveError(fromPos, toPos) {
     saveCurrentStats();   
     Platform.vibrate('error');
 
-if (gameMode === 'survival') {
-    showPieceBadge(fromPos, 'wrong'); // Сразу показываем ошибку
-
-    const fromSq = document.querySelector(`[data-pos="${fromPos}"]`);
-    const toSq = document.querySelector(`[data-pos="${toPos}"]`);
-    if (fromSq) fromSq.classList.add('error-move');
-    if (toSq) toSq.classList.add('error-move');
+    const piece = boardState[posToIdx(fromPos).r][posToIdx(fromPos).c];
     const boardWrapper = document.getElementById('board-wrapper');
+
+    // Временно перемещаем фигуру на целевую клетку
+    boardState[posToIdx(toPos).r][posToIdx(toPos).c] = piece;
+    boardState[posToIdx(fromPos).r][posToIdx(fromPos).c] = "";
+    renderBoard();
+    showPieceBadge(toPos, 'wrong');
     boardWrapper.classList.add('shake');
 
+    if (gameMode === 'survival') {
+        setTimeout(() => {
+            boardWrapper.classList.remove('shake');
+            // Возвращаем фигуру обратно
+            boardState[posToIdx(fromPos).r][posToIdx(fromPos).c] = piece;
+            boardState[posToIdx(toPos).r][posToIdx(toPos).c] = "";
+            selectedSq = null;
+            renderBoard();
+        }, 400);
+
+        // Меняем кнопки — серия закончена
+        survivalStreak = 0;
+        document.getElementById('score-display').textContent = survivalStreak;
+        
+        const hintBtns = document.querySelectorAll('.btn-hint');
+        hintBtns.forEach(btn => {
+            btn.onclick = () => startGameMode('survival');
+            const icon = btn.querySelector('.video-icon');
+            if (icon) icon.style.display = 'none';
+            const text = btn.querySelector('span');
+            if (text) text.textContent = i18n[lang].again;
+        });
+
+        survivalFailed = true;
+        return;
+    }
+
+    // Обычный режим
     setTimeout(() => {
         boardWrapper.classList.remove('shake');
-        if (fromSq) fromSq.classList.remove('error-move');
-        if (toSq) toSq.classList.remove('error-move');
+        // Возвращаем фигуру обратно
+        boardState[posToIdx(fromPos).r][posToIdx(fromPos).c] = piece;
+        boardState[posToIdx(toPos).r][posToIdx(toPos).c] = "";
         selectedSq = null;
         renderBoard();
-    }, 400);
-
-    // Меняем кнопки — серия закончена
-    survivalStreak = 0;
-    document.getElementById('score-display').textContent = survivalStreak;
-    
-    const hintBtns = document.querySelectorAll('.btn-hint');
-    hintBtns.forEach(btn => {
-        btn.onclick = () => startGameMode('survival');
-        const icon = btn.querySelector('.video-icon');
-        if (icon) icon.style.display = 'none';
-        const text = btn.querySelector('span');
-        if (text) text.textContent = i18n[lang].again;
-    });
-
-    // Помечаем что после решения этой задачи нужно начать заново
-    survivalFailed = true;
-    return;
-}
-
-    const fromSq = document.querySelector(`[data-pos="${fromPos}"]`);
-    const toSq = document.querySelector(`[data-pos="${toPos}"]`);
-    if (fromSq) fromSq.classList.add('error-move');
-    if (toSq) toSq.classList.add('error-move');
-    const boardWrapper = document.getElementById('board-wrapper');
-    boardWrapper.classList.add('shake');
-    showPieceBadge(fromPos, 'wrong'); 
-
-    setTimeout(() => {
-        boardWrapper.classList.remove('shake');
-        if (fromSq) fromSq.classList.remove('error-move');
-        if (toSq) toSq.classList.remove('error-move');
-        selectedSq = null;
-        renderBoard();
-        //showPieceBadge(fromPos, 'wrong'); // ПОСЛЕ renderBoard
     }, 400);
 }
 function selectPromotion(type) {
