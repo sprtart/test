@@ -1802,9 +1802,6 @@ background: #769656;
 
 .piece-badge {
     position: absolute;
-
-    width: 35%;
-    height: 35%;
     border-radius: 50%;
     z-index: 20;
     display: flex;
