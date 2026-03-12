@@ -1772,28 +1772,33 @@ function showPieceBadge(pos, type) {
     const sq = document.querySelector(`[data-pos="${pos}"]`);
     if (!sq) return;
 
-    // Считаем позицию клетки относительно board-wrapper
     const boardWrapper = document.getElementById('board-wrapper');
     const sqRect = sq.getBoundingClientRect();
     const wrapRect = boardWrapper.getBoundingClientRect();
 
     const badge = document.createElement('div');
     badge.className = `piece-badge ${type}`;
+
+    const col = pos.charCodeAt(0) - 97; // a=0, h=7
     const badgeSize = sqRect.width * 0.4;
     const halfBadge = badgeSize / 2;
-    // Позиционируем относительно board-wrapper
-    badge.style.position = 'absolute';
-    badge.style.left = (sqRect.right - wrapRect.left - halfBadge) + 'px';
+
+    // Если крайний правый столбец (h) — рисуем слева
+    if (col >= 7) {
+        badge.style.left = (sqRect.left - wrapRect.left - halfBadge) + 'px';
+    } else {
+        badge.style.left = (sqRect.right - wrapRect.left - halfBadge) + 'px';
+    }
     badge.style.top = (sqRect.top - wrapRect.top - halfBadge) + 'px';
     badge.style.width = badgeSize + 'px';
     badge.style.height = badgeSize + 'px';
     badge.style.zIndex = 100;
-
-if (type === 'correct') {
-    badge.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
-} else {
-    badge.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
-}
+    
+    if (type === 'correct') {
+        badge.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+    } else {
+        badge.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
+    }
     boardWrapper.appendChild(badge); // Добавляем в wrapper, а не в клетку
     setTimeout(() => badge.remove(), 800);
 }
