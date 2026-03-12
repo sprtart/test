@@ -1010,6 +1010,8 @@ let lastMoveSquares =[], hintSquare = null;
 
 let eloStandard = 400; // Для обычного режима
 let eloSurvival = 400; // Для штурма
+// Если кликнули на уже выделенную фигуру — снимаем выделение
+let lastTouchDeselect = 0;
 
 let sessionScore = 0; 
 let previousPuzzleElo = null;
@@ -1367,8 +1369,14 @@ function handleStart(e, r, c) {
         }
     }
 
+
 // Если кликнули на уже выделенную фигуру — снимаем выделение
 if (selectedSq && selectedSq.r === r && selectedSq.c === c) {
+    if (e.type === 'touchstart') {
+        lastTouchDeselect = Date.now();
+    } else if (e.type === 'mousedown' && Date.now() - lastTouchDeselect < 500) {
+        return; // Блокируем синтетический mousedown
+    }
     selectedSq = null;
     renderBoard();
     return;
