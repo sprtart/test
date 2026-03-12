@@ -1658,7 +1658,7 @@ renderBoard();
         setTimeout(() => playMove(puzzles[currentPuzzleIndex].moves[currentStep], true), 600);
     } else {
         // --- ЗАДАЧА ПОЛНОСТЬЮ РЕШЕНА ---
-        howPieceBadge(idxToPos(t.r, t.c), 'correct');
+        showPieceBadge(idxToPos(t.r, t.c), 'correct');
         const currentId = puzzles[currentPuzzleIndex].id; // Берем ID текущей задачи
         solvedIds.add(currentId);                         // Добавляем в локальный набор
         Platform.saveSolvedIds(Array.from(solvedIds));    // Сохраняем весь список в облако ВК
