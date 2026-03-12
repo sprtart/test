@@ -1810,12 +1810,13 @@ background: #769656;
 
 .piece-badge.correct {
     background-color: #16a34a;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
 }
 
 .piece-badge.wrong {
     background-color: #ef4444;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
 }
-
 .piece-badge svg {
     width: 70%;
     height: 70%;
