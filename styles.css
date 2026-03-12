@@ -1,0 +1,1799 @@
+        :root {
+            --board-light: #f0d9b5;
+            --board-dark: #b58863;
+            --highlight-yellow: rgba(204, 204, 80, 0.7); 
+            --selected-yellow: rgba(204, 204, 80, 0.85);
+            --hint-blue: rgba(34, 197, 94, 0.8);
+            --move-hint: rgba(0, 0, 0, 0.15);
+            --error-overlay: rgba(239, 68, 68, 0.5);
+            --gray-100: #ebebeb;
+            --gray-200: #e5e7eb;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #ebebeb;
+            --gray-1000: #fff;
+            --gray-1100: #555E60;
+            --gray-1200: #3d4041;
+        }
+
+
+/* --- ПРОФИЛЬ НАД ДОСКОЙ --- */
+/* --- БАЗОВЫЕ СТИЛИ ПРОФИЛЯ (СМАРТФОН) --- */
+.right-column {
+    display: contents; /* Растворяет саму колонку, элементы встают в общую очередь */
+}
+
+#profile-header {
+    order: -1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: min(80vw, 45vh);
+    /*min-width: min(85vw, 72vh);*/
+    margin-bottom: 3vw;
+    padding: 1.5vh 3.3vw;
+    box-sizing: border-box;
+    background-color: #ffffff;
+    border-radius: 8vw;
+}
+
+#board-wrapper {
+    order: 0; /* Доска посередине */
+}
+
+.side-panel {
+    order: 1; /* Статистика под доской */
+}
+
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+#user-avatar {
+    width: 6vh;
+    height: 6vh;
+    border-radius: 50%;
+    object-fit: cover;
+    background-color: #374151;
+    /*box-shadow: 0 2px 5px rgba(0,0,0,0.1);*/
+}
+
+/* Контейнер для текста (Имя + Рейтинг) */
+.user-text-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    line-height: 1.2;
+    gap: 0.1vh;
+}
+
+#user-name {
+    font-size: min(4.5vw, 3vh); /* Чуть уменьшили, чтобы влезло две строки */
+    font-weight: 800;
+    color: var(--gray-1200);
+    max-width: 30vw;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#user-best-elo-container {
+    font-size: min(3vw, 1.8vh);
+    font-weight: 600;
+    color: var(--gray-1200); /* Сделаем чуть бледнее имени */
+    margin-top: 1px;
+}
+
+#user-max-rating {
+    color: var(--gray-1200); /* Цвет акцента для цифр рекорда */
+    font-weight: 800;
+}
+
+/* Адаптация для ПК */
+@media (orientation: landscape) {
+    #user-name { font-size: 1.2vw; max-width: 12vw; }
+    #user-best-elo-container { font-size: 1.2vw; }
+}
+
+.btn-stats, .btn-theme {
+    width: 10vw;
+    height: 10vw;
+    border-radius: 50%;
+    background: var(--gray-1100);
+    border: none;
+    /*box-shadow: 0 3px 0 var(--gray-200);*/
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s;
+    color: var(--gray-1000);
+}
+.btn-stats:active {
+    transform: translateY(3px);
+    box-shadow: 0 0px 0 var(--gray-200);
+}
+.btn-stats svg { width: 6.5vw;
+    height: 6.5vw;}
+
+/* --- МОДАЛЬНОЕ ОКНО СТАТИСТИКИ --- */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 5000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(3px);
+    opacity: 1;
+    transition: opacity 0.2s;
+}
+.modal-overlay.hidden { display: none !important; opacity: 0; }
+
+.modal-box {
+    background: white;
+    padding: 24px;
+    border-radius: 20px;
+    width: 85%;
+    max-width: 320px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+@keyframes popIn { 0% { transform: scale(0.8); } 100% { transform: scale(1); } }
+
+.modal-box h2 { margin: 0; text-align: center; color: var(--gray-800); font-size: 22px; font-weight: 900;}
+
+.stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 16px;
+    color: var(--gray-700);
+    border-bottom: 1px dashed var(--gray-200);
+    padding-bottom: 8px;
+}
+.stat-row b { font-size: 18px; color: #2563eb; }
+
+.btn-close-modal {
+    margin-top: 8px;
+    background: var(--gray-200);
+    border: none;
+    padding: 12px;
+    border-radius: 12px;
+    font-weight: bold;
+    font-size: 16px;
+    color: var(--gray-800);
+    cursor: pointer;
+}
+.btn-close-modal:active { background: var(--gray-400); }
+
+
+
+
+@media (orientation: landscape) {
+    /* ... ваши стили game-container ... */
+
+    /* Включаем колонку на ПК */
+    .right-column {
+        display: flex; 
+        flex-direction: column;
+        gap: 4vw; /* Отступ между профилем и нижней статистикой */
+        width: 25vw; 
+        /*min-width: 240px;*/
+    }
+
+    #profile-header {
+        order: unset; /* Возвращаем на место */
+        width: 100%;
+        margin-bottom: 0;
+        background: white; 
+        padding: 1.5vw 2vw; /* Делаем такой же отступ как у карточек статы */
+        border-radius: 1.5vw;
+        min-width: min(22vw, 85vh);
+        box-shadow: 0 4px 15px rgb(0 0 0 / 12%); /* Легкая тень карточки */
+    }
+
+    /* Адаптируем размеры профиля для ПК */
+    #user-avatar { width: 3.5vw; height: 3.5vw; min-width: 40px; min-height: 40px; }
+    .btn-stats, .btn-theme { width: 3.5vw; height: 3.5vw; min-width: 40px; min-height: 40px; border-radius: 1vw;}
+    #user-name { font-size: 1.5vw; max-width: 12vw;}
+    
+    .side-panel {
+        width: 100%;
+        align-items: stretch;
+        gap: 2vw;
+    }
+}
+
+
+
+
+/* --- ПРОСТАЯ ПУЛЬСАЦИЯ ЦВЕТОМ --- */
+.square.hint-blink::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 2; /* Слой под фигурой */
+    background-color: rgb(34, 197, 94); /* Чистый зеленый цвет */
+    animation: simplePulse 1.2s ease-in-out infinite;
+    pointer-events: none;
+}
+
+
+
+@keyframes simplePulse {
+    0% { 
+        opacity: 0.2; /* Почти прозрачный */
+    }
+    50% { 
+        opacity: 0.7; /* Насыщенный */
+    }
+    100% { 
+        opacity: 0.2; /* Снова прозрачный */
+    }
+}
+
+        * { 
+            touch-action: none; 
+            -webkit-user-select: none; 
+            user-select: none; 
+            box-sizing: border-box; 
+        }
+
+        body { 
+            overscroll-behavior: none; 
+            overflow: hidden; 
+            height: 100vh; 
+            background-color: var(--gray-100); 
+            /*background-image: radial-gradient(#ecedee 1px, transparent 1px);*/
+            background-size: 20px 20px;
+            background-attachment: fixed;
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            margin: 0; 
+        }
+
+        /* --- ЭКРАН ЗАГРУЗКИ --- */
+        #loading-screen {
+            position: fixed;
+            inset: 0;
+            background-color: var(--gray-100);
+            z-index: 3000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s;
+        }
+
+        .loader-logo {
+            width: 160px;
+            height: 160px;
+            object-contain: contain;
+            margin-bottom: 2rem;
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(-10%); animation-timing-function: cubic-bezier(0.8,0,1,1); }
+            50% { transform: none; animation-timing-function: cubic-bezier(0,0,0.2,1); }
+        }
+
+        .progress-container {
+            width: 256px;
+            background-color: var(--gray-200);
+            border-radius: 9999px;
+            height: 10px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+.square.in-check {
+    background-image: radial-gradient(circle, 
+        rgba(255, 0, 0, 0.9) 0%, 
+        rgba(255, 0, 0, 0.4) 50%, 
+        transparent 100%) !important;
+    /* Не добавляем свойство background, чтобы не сбросить background-color */
+}
+
+        #loading-bar {
+            background-color: #2563eb;
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        #loading-text {
+            color: var(--gray-500);
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+
+        /* Контейнер со списком игроков */
+#leaderboard-container {
+    max-height: 60vh;
+    overflow-y: auto !important;
+    
+    /* ОЧЕНЬ ВАЖНО: перебиваем глобальный touch-action: none */
+    touch-action: pan-y !important; 
+    
+    /* Чтобы скролл не передавался на доску под окном */
+    overscroll-behavior: contain; 
+    
+    /* Плавность для iPhone */
+    -webkit-overflow-scrolling: touch; 
+    
+    /* Убедимся, что клики проходят */
+    pointer-events: auto !important; 
+}
+
+/* Убедитесь, что само модальное окно не блокирует скролл внутри себя */
+.modal-overlay {
+    touch-action: none; /* Фон не скроллится */
+}
+.modal-box {
+    touch-action: none; /* Сама коробка не скроллится */
+}
+
+/* Настройка ползунка для Chrome/Yandex/Safari */
+#leaderboard-container::-webkit-scrollbar {
+    width: 6px;
+}
+#leaderboard-container::-webkit-scrollbar-thumb {
+    background-color: #81b64c;
+    border-radius: 10px;
+}
+html, body {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    touch-action: none; /* Глобально запрещаем всё */
+}
+.game-container.hidden-game {
+    display: none !important;
+}
+
+        /* --- ВЕРХНЯЯ ПАНЕЛЬ (КАРТОЧКИ) --- */
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 24px;
+            width: 100%;
+        }
+
+        .top-bar {
+            /*width: 100%;*/
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            /*max-width: min(92vw, 72vh);*/
+        }
+
+        .stat-card-left, .stat-card-right {
+            background-color: white;
+            border-bottom: 4px solid var(--gray-200);
+            padding: 8px 20px;
+            display: flex;
+            flex-direction: column;
+            min-width: 110px;
+            transition: all 0.2s;
+        }
+
+        .stat-card-left {
+            border-radius: 16px 8px 8px 16px;
+            align-items: flex-end;
+        }
+
+        .stat-card-right {
+            border-radius: 8px 16px 16px 8px;
+            align-items: flex-start;
+        }
+
+        .stat-label {
+            font-size: 8px;
+            text-transform: uppercase;
+            font-weight: 900;
+            color: var(--gray-400);
+            letter-spacing: 0.05em;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 900;
+            color: var(--gray-1100);
+            line-height: 1.1;
+        }
+
+        .vertical-divider {
+            height: 32px;
+            width: 2px;
+            background-color: var(--gray-200);
+            opacity: 0.5;
+        }
+
+        /* --- ДОСКА --- */
+        #board-wrapper { position: relative; }
+
+/* Найти и заменить стиль .chess-board */
+.chess-board { 
+    display: grid; 
+    grid-template-columns: repeat(8, 1fr); 
+    grid-template-rows: repeat(8, 1fr); 
+    width: min(97vw, 85vh); /* Используем одинаковые размеры */
+    height: min(97vw, 85vh);
+    aspect-ratio: 1 / 1; /* Жестко фиксируем пропорции */
+    /*border-radius: 4px; */
+    overflow: hidden; 
+    position: relative; 
+    box-shadow: 0 1px 10px rgba(0, 0, 0, 0.2);
+    /* Добавляем, чтобы предотвратить схлопывание */
+    /*min-width: min(97vw, 72vh);
+    min-height: min(97vw, 72vh);*/
+}
+
+        .square { display: flex; align-items: center; justify-content: center; position: relative; }
+        .square.light { background-color: var(--board-light); }
+        .square.dark { background-color: var(--board-dark); }
+
+        .square.enemy-move::before, .square.selected::before {
+            content: ""; position: absolute; inset: 0; z-index: 0;
+        }
+        .square.enemy-move::before { background-color: var(--highlight-yellow); }
+        .square.selected::before { background-color: var(--selected-yellow); }
+
+        .piece { 
+            width: 98%; height: 98%; 
+            background-size: contain; background-repeat: no-repeat; background-position: center; 
+            z-index: 10; cursor: grab; position: absolute; top: 1%; left: 1%;
+        }
+
+/* Убираем зазор между кнопками, чтобы они состыковались */
+.bottom-bar {
+    display: flex;
+    justify-content: center;
+    gap: 2vw; /* Убираем промежуток */
+}
+
+.top-btn {
+    border-radius: 1vw 7vw 7vw 1vw;
+    font-size: 5vw;
+    padding: 4vw 7vw;
+    background-color: var(--gray-1000);
+    border: none;
+    box-shadow: 0 4px 0 #b9bdc3;
+    color: var(--gray-1100);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    transition: transform 0.1s, box-shadow 0.1s;
+    cursor: pointer;
+    outline: none;
+    position: relative;
+    display: flex; /* Чтобы иконка и текст были в ряд */
+    align-items: center; /* Центровка по вертикали */
+    justify-content: center; /* Центровка по горизонтали */
+    gap: 2vw; /* Расстояние между иконкой и текстом */
+}
+
+/* Найти и заменить эти стили в блоке <style> */
+.btn-hint {
+    background-color: var(--gray-1100);
+    border: none;
+    box-shadow: 0 4px 0 var(--gray-1200);
+    color: var(--gray-1000);
+    padding: 4vw 7vw;
+    border-radius: 7vw 1vw 1vw 7vw;
+    font-weight: 900;
+    font-size: 5vw;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    transition: transform 0.1s, box-shadow 0.1s;
+    cursor: pointer;
+    outline: none;
+    position: relative;
+    display: flex; /* Чтобы иконка и текст были в ряд */
+    align-items: center; /* Центровка по вертикали */
+    justify-content: center; /* Центровка по горизонтали */
+    gap: 2vw; /* Расстояние между иконкой и текстом */
+
+}
+
+.video-icon svg {
+    width: 6vw;
+    height: 6vw;
+    display: block;
+    fill: currentColor; /* Иконка примет цвет текста кнопки */
+}
+
+.btn-hint:active {
+    /* Не меняем размер, только смещаем и уменьшаем тень */
+    box-shadow: 0 0px 0 var(--gray-200);
+    transform: translateY(4px);
+}
+
+        /* --- ПРОМОУШЕН (ВЫБОР ФИГУРЫ) --- */
+#promotion-dialog {
+    position: fixed;
+    z-index: 10000;
+    background: white;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+    border-radius: 4px;
+    padding: 0; /* Обязательно 0 */
+    margin: 0;  /* Обязательно 0 */
+    overflow: hidden;
+}
+
+.promotion-box {
+    display: flex;
+    flex-direction: column; /* Делаем колонку как на Lichess */
+}
+
+.prom-option {
+    width: 60px; /* Будет подстраиваться через JS */
+    height: 60px;
+    background-size: 80%;
+    background-repeat: no-repeat;
+    background-position: center;
+    cursor: pointer;
+    background-color: #f0f0f0;
+}
+
+.prom-option:hover {
+    background-color: #d0d0d0;
+}
+
+.hidden { display: none !important; }
+        /* Ошибки и анимации */
+        .square.error-move::after {
+            content: ""; position: absolute; inset: 0;
+            background-color: var(--error-overlay); z-index: 2; pointer-events: none;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-1px); }
+            40%, 80% { transform: translateX(1px); }
+        }
+        .shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+
+        .points-added { 
+            animation: floatUp 1s ease-out forwards; 
+            color: #16a34a; 
+            position: absolute; 
+            font-weight: 900; 
+            font-size: 24px; 
+            pointer-events: none; 
+        }
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-30px); } }
+        
+#drag-follower {
+    position: fixed;
+    pointer-events: none;
+    z-index: 1000;
+    display: none;
+    /* Центрируем фигуру относительно курсора/пальца */
+    transform: translate(-50%, -50%); 
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    /* Можно добавить небольшую прозрачность, чтобы видеть клетку под фигурой */
+    opacity: 0.9;
+    transition: transform 0.05s linear;
+}
+
+/* Точка для пустого поля */
+.hint-dot {
+    position: absolute;
+    width: 25%;
+    height: 25%;
+    background-color: rgba(0, 0, 0, 0.15);
+    border-radius: 50%;
+    z-index: 5; /* Выше подложки ячейки, ниже фигуры */
+    pointer-events: none;
+}
+
+/* Кольцо для захвата фигуры */
+.hint-ring {
+    position: absolute;
+    width: 90%;
+    height: 90%;
+    border: 6px solid rgba(0, 0, 0, 0.15);
+    border-radius: 50%;
+    z-index: 5;
+    pointer-events: none;
+    box-sizing: border-box;
+}
+
+/* Стили для координат */
+.square .coord {
+    position: absolute;
+    font-size: min(2.5vw, 2vh);
+    font-weight: 800;
+    pointer-events: none; /* Чтобы не мешали кликам */
+    user-select: none;
+    z-index: 5;
+}
+
+/* Цифры (слева сверху) */
+.coord-number {
+    top: 1%;
+    left: 4%;
+}
+
+/* Буквы (справа снизу) */
+.coord-letter {
+    bottom: 1%;
+    right: 4%;
+}
+
+/* Светлый текст на темных клетках, темный на светлых */
+.square.light .coord { color: var(--board-dark); }
+.square.dark .coord { color: var(--board-light); }
+
+
+.game-container {
+    width: 100vw;
+    height: 100vh;
+    padding: 0vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5vw;
+}
+
+.chess-board {
+    width: 100vw;
+    height: 100vw;
+
+}
+
+
+.side-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2vw;
+    width: 100%;
+}
+
+.top-bar {
+    display: flex;
+    gap: 2vw;
+    justify-content: center;
+}
+
+.stat-card {
+    padding: 1.5vw 1vw;
+    border-radius: 1.5vw;
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+    min-width: 18vw;
+    gap: 3vw;
+}
+
+
+.stat-label {
+    font-size: 3.7vw;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.stat-value {
+    font-size: 6vw;
+    font-weight: 900;
+}
+
+/* Анимация для кнопок темы */
+.theme-icon {
+    width: 5vw;
+    height: 5vw;
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s;
+}
+
+/* Эффект вращения при появлении */
+#theme-toggle:active .theme-icon {
+    transform: scale(0.7) rotate(45deg);
+}
+
+/* Плавный переход для всех цветов при смене темы */
+* {
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+/* Чтобы анимация не мешала во время игры, 
+   ограничим transition только для UI элементов */
+.piece, .square { transition: none; }
+
+
+
+.modal-box {
+    max-width: 360px;
+    width: 90%;
+}
+
+
+
+@media (orientation: landscape) {
+
+    .game-container {
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        gap: 2vw;
+    }
+
+    .chess-board {
+        width: 85vh;
+        height: 85vh;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        border-radius: 5px;
+    }
+
+    .side-panel {
+        align-items: stretch;
+        gap: 4vw;
+    }
+
+    .top-bar {
+        flex-direction: column;
+        gap: 1vw;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 1.5vw 3vw;
+        border-radius: 1.5vw;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0vw;
+        width: 100%;
+        box-sizing: border-box;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .stat-label {
+        font-size: 1.5vh;
+        font-weight: 900;
+        text-transform: uppercase;
+    }
+
+    .stat-value {
+        font-size: 3.2vw;
+        font-weight: 900;
+    }
+
+    .bottom-bar {
+        display: flex;
+        justify-content: center;
+    }
+
+    .btn-hint {
+        font-size: 1.5vw;
+        padding: 1.5vw 5vw;
+        border-radius: 2vh;
+            width: 100%;
+            gap: 1vw;
+    }
+
+
+        .video-icon svg {
+        width: 3vw;
+        height: 3vw;
+        display: block;
+        fill: currentColor; /* Иконка примет цвет текста кнопки */
+    }
+
+    .text {
+        display: none;
+    }
+}
+
+@media (min-aspect-ratio: 2/3) and (max-aspect-ratio: 4/5) {
+
+
+}
+
+
+@media (min-aspect-ratio: 4/5) and (max-aspect-ratio: 4/4) {
+
+}
+
+/* --- Ультра-длинные (21:9, 20:9) --- */
+@media (max-aspect-ratio: 32/100) { 
+        .chess-board {
+        width: 100vw;
+        height: 100vw;
+    }
+}
+
+/* --- Стандартные смартфоны (16:9, 18:9) --- */
+@media (min-aspect-ratio: 43/100) { 
+    .chess-board {
+        width: 100vw;   
+        height: 100vw;
+    }
+        /* Шрифты ЧИСТО НА VW */
+    .side-panel {
+        gap: 2vw;
+    }
+    .stat-label {
+        font-size: 3.7vw;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+
+    .stat-value {
+        font-size: 6vw;
+        font-weight: 900;
+    }
+    .bottom-bar {
+        display: flex;
+        justify-content: center;
+    }
+
+    .btn-hint {
+        font-size: 5vw;
+        padding: 4vw 8vw;
+        border-radius: 7vw 1vw 1vw 7vw;
+    }
+    .game-container {
+        gap: 3vw;
+    }
+    #profile-header {
+        border-radius: 95px;
+        margin-bottom: 4vw;
+    }
+}
+
+/* --- Широкие смартфоны (iPhone 8, старые Android 3:2) --- */
+/* Соотношение 0.63 - 0.72 */
+@media (min-aspect-ratio: 63/100) { 
+
+    #user-name {
+        font-size: min(4.5vw, 2.5vh);
+        max-width: 28vw;
+    }
+
+    #profile-header {
+        padding: 1.5vh 2.4vw;
+        margin-bottom: 3vw;
+    }
+
+    .chess-board {
+        width: 85vw;
+        height: 85vw;
+        border-radius: 1vw;
+    }
+        /* Шрифты ЧИСТО НА VW */
+    .side-panel {
+        gap: 2vw;
+    }
+    .stat-label {
+        font-size: 3.7vw;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+    .stat-value {
+        font-size: 6vw;
+        font-weight: 900;
+    }
+
+    .bottom-bar {
+        display: flex;
+        justify-content: center;
+        gap: 1.3vw
+    }
+
+    .btn-hint {
+        font-size: 3.4vw;
+        padding: 3vw 6vw;
+        border-radius: 7vw 1vw 1vw 7vw;
+    }
+    .top-btn {
+        font-size: 3.4vw;
+        padding: 3vw 6vw;
+        border-radius: 1vw 7vw 7vw 1vw;
+    }
+    .btn-stats, .btn-theme {
+        width: 6vh;
+        height: 6vh;
+        border-radius: 50%;
+    }
+    .game-container {
+        gap: 4vw;
+    }
+}
+
+
+@media (min-aspect-ratio: 73/100) { 
+
+#user-name {
+    font-size: min(4.5vw, 2.5vh);
+    max-width: 24vw;
+
+}
+
+#profile-header {
+    padding: 1.5vh 2.4vw;
+}
+    .chess-board {
+        width: 65vh;
+        height: 65vh;
+    }
+
+    .side-panel {
+        gap: 2vw;
+    }
+    .stat-label {
+        font-size: 3vw;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .stat-value {
+        font-size: 4.5vw;
+        font-weight: 900;
+    }
+
+    .bottom-bar {
+        display: flex;
+        justify-content: center;
+        gap: 1.1vw
+    }
+
+    .btn-hint {
+        font-size: 3.4vw;
+        padding: 2vw 4vw;
+        border-radius: 7vw 1vw 1vw 7vw;
+    }
+    .top-btn {
+        font-size: 3.4vw;
+        padding: 2vw 4vw;
+        border-radius: 1vw 7vw 7vw 1vw;
+    }
+    .btn-stats, .btn-theme {
+        width: 6vh;
+        height: 6vh;
+        border-radius: 50%;
+    }
+
+    .game-container {
+        gap: 2vw;
+    }
+}
+
+
+@media (min-aspect-ratio: 84/100) { 
+
+    .chess-board {
+        width: 65vh;
+        height: 65vh;
+    }
+#profile-header {
+    padding: 1.5vh 2vw;
+}
+    .side-panel {
+        gap: 2vw;
+    }
+    .stat-label {
+        font-size: 3vw;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .stat-value {
+        font-size: 4.5vw;
+        font-weight: 900;
+    }
+
+    .bottom-bar {
+        display: flex;
+        justify-content: center;
+        gap: 1.1vw
+    }
+
+    .btn-hint {
+        font-size: 3.4vw;
+        padding: 1.3vw 4vw;
+        border-radius: 7vw 1vw 1vw 7vw;
+    }
+    .top-btn {
+        font-size: 3.4vw;
+        padding: 1.3vw 4vw;
+        border-radius: 1vw 7vw 7vw 1vw;
+    }
+    .btn-stats, .btn-theme {
+        width: 6vh;
+        height: 6vh;
+        border-radius: 50%;
+    }
+
+    .game-container {
+        gap: 2vw;
+    }
+
+#user-name {
+    font-size: min(3.5vw, 2.5vh);
+    max-width: 18vw;
+}
+}
+
+@media (min-aspect-ratio: 92/100) { 
+
+    .chess-board {
+        width: 62vw;
+        height: 62vw;
+    }
+    .right-column {
+        width: 30vw;
+    }
+    
+    .side-panel {
+        gap: 1vw;
+    }
+    .stat-label {
+        font-size: 3vw;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .stat-value {
+        font-size: 4.5vw;
+        font-weight: 900;
+    }
+
+    .bottom-bar {
+        display: flex;
+        justify-content: center;
+        gap: 1vw;
+    }
+
+    .btn-hint {
+        font-size: 3.4vw;
+        padding: 1.3vw 4vw;
+        border-radius: 7vw 1vw 1vw 7vw;
+    }
+    .top-btn {
+        font-size: 3.4vw;
+        padding: 1.3vw 4vw;
+        border-radius: 1vw 7vw 7vw 1vw;
+    }
+
+    .game-container {
+        gap: 2vw;
+    }
+
+    #profile-header {
+        order: -1;
+        display: flex;
+        margin-bottom: 8px;
+        padding: 1.5vh 2vw;
+        border-radius: 55px;
+    }
+
+    .btn-stats, .btn-theme {
+        width: 6vh;
+        height: 6vh;
+        border-radius: 50%;
+    }
+
+    .dark-mode .stat-card {
+        background-color:var(--gray-1100); /* Фирменный цвет панелей Chess.com */
+        color: #ffffff;
+        border: none;
+        box-shadow: 0 4px 0 var(--gray-1200); /* Темная тень под кнопками */
+    }
+}
+
+@media (aspect-ratio: 4/4) {
+
+    .chess-board {
+        width: 70vw;
+        height: 70vw;
+    }
+    .side-panel {
+        gap: 1vw !important;
+        width: 10vw !important;
+        min-width: 22vw;
+    }
+    .stat-label {
+        font-size: 3vw !important;
+        font-weight: 900;
+        text-transform: uppercase;
+    }
+
+    .stat-value {
+        font-size: 3.5vw !important;
+        font-weight: 900;
+    }
+    .bottom-bar {
+        display: flex;
+        justify-content: center;
+        gap: 1.1vw
+    }
+
+    .btn-hint {
+        font-size: 2vw !important;
+        padding: 1vw 4vw !important;
+        border-radius: 7vw 1vw 1vw 7vw !important;
+    }
+
+    .top-btn {
+        font-size: 3.4vw;
+        padding: 1vw 4vw;
+        border-radius: 1vw 7vw 7vw 1vw;
+    }
+    .btn-stats, .btn-theme {
+        width: 5.5vh;
+        height: 5.5vh;
+        border-radius: 50%;
+    }
+    .game-container {
+        gap: 1vw;
+    }
+}
+
+@media (min-aspect-ratio: 4/4) and (max-aspect-ratio: 5/4) {
+
+}
+
+
+
+@media (orientation: landscape){ 
+
+.modal-box {
+    max-width: 400px;
+    width: 90%;
+}
+
+.dark-mode .stat-value {
+    color: var(--gray-100) !important;
+}
+
+.dark-mode .stat-card {
+    background-color: var(--gray-900); /* Фирменный цвет панелей Chess.com */
+    color: #ffffff;
+    border: none;
+    box-shadow: 0 4px 0 #1a1917; /* Темная тень под кнопками */
+}
+.dark-mode .top-btn {
+    background-color: var(--board-dark) !important;
+    color: var(--gray-900) !important;
+    box-shadow: 0 4px 0 #637d49;
+}
+.top-btn {
+    background-color: var(--gray-1100) !important;
+    color: var(--gray-1000) !important;
+    box-shadow: 0 4px 0 var(--gray-1200);
+}
+
+.dark-mode .btn-stats {
+    background-color: var(--board-dark) !important;
+    color: var(--gray-900) !important;
+    box-shadow: 0 4px 0 #637d49;
+}
+.btn-stats {
+    background-color: var(--gray-1100) !important;
+    color: var(--gray-1000) !important;
+    box-shadow: 0 4px 0 var(--gray-1200);
+}
+    .game-container {
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        gap: 2vw;
+    }
+#user-avatar {
+    width: 6vh;
+    height: 6vh;
+    border-radius: 1.1vw;
+}
+    .chess-board {
+        width: 70vh;
+        height: 70vh;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        border-radius: 5px;
+    }
+
+    .side-panel {
+        align-items: stretch;
+        gap: 1.5vw;
+    }
+.theme-icon {
+    width: 3vw;
+    height: 3vw;
+}
+    #user-name {
+        font-size: 1.5vw;
+        max-width: 9vw;
+    }
+    .btn-theme {
+        width: 5vh;
+        height: 5vh;
+        border-radius: 1vw;
+    }
+
+    .btn-stats {
+        border-radius: 1.5vw 0.5vw 0.5vw 1.5vw;
+        font-size: 3.4vw;
+        width: 100%;
+        height: 10vh;
+    }
+    .top-btn {
+        font-size: 2.5vw;
+        padding: 0vw 3vw;
+        border-radius: 0.5vw 1.5vw 1.5vw 0.5vw;
+    }
+    .right-column {
+        display: flex;
+        flex-direction: column;
+        gap: 2vw;
+        width: 26vw;
+    }
+    .btn-stats svg {
+        width: 3.5vw;
+        height: 3.5vw;
+    }
+
+    .top-bar {
+        flex-direction: column;
+        gap: 1vw;
+    }
+
+
+    .stat-card {
+        background: white;
+        padding: 2vh 3vw;
+        border-radius: 1.5vw;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0vw;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .stat-label {
+        font-size: 1.5vh;
+        font-weight: 900;
+        text-transform: uppercase;
+        color: var(--gray-700);
+    }
+
+    .stat-value {
+        font-size: 3.2vw;
+        font-weight: 900;
+    }
+
+    .bottom-bar {
+        display: flex;
+        justify-content: center;
+    }
+
+    .btn-hint {
+        font-size: 2.3vw;
+        padding: 3vh 3vw;
+        border-radius: 1.5vw;
+        width: 100%;
+        gap: 1vw;
+        background-color: var(--gray-1100);
+    box-shadow: 0 4px 0 var(--gray-1200);
+    color: var(--gray-1000);
+    }
+
+    .video-icon svg {
+        width: 3vw;
+        height: 3vw;
+        display: block;
+        fill: currentColor; /* Иконка примет цвет текста кнопки */
+    }
+
+    #profile-header {
+        order: -1;
+        display: flex;
+        margin-bottom: 0;
+        padding: 2vh 2vw;
+        border-radius: 1.4vw;
+    }
+    
+}
+
+
+@media (min-aspect-ratio: 125/100) { 
+    .chess-board {
+        width: 85vh;
+        height: 85vh;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        border-radius: 5px;
+    }
+    #profile-header {
+        order: -1;
+        display: flex;
+        margin-bottom: 8px;
+        padding: 2vh 2vw;
+        border-radius: 1.4vw;
+    }
+        #user-name {
+        font-size: 1.5vw;
+        max-width: 12vw;
+    }
+}
+
+/* --- Широкий формат (Full HD 16:9) --- */
+@media (min-aspect-ratio: 140/100) { 
+    /* Здесь можно разгуляться: большие шрифты, доска 85vh. */
+    .chess-board {
+        width: 85vh;
+        height: 85vh;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        border-radius: 5px;
+    }
+    #user-name {
+        font-size: 1.5vw;
+        max-width: 12vw;
+    }
+}
+@media (min-aspect-ratio: 160/100) { 
+    /* Здесь можно разгуляться: большие шрифты, доска 85vh. */
+        #user-name {
+        font-size: 1.5vw;
+        max-width: 14vw;
+    }
+}
+
+/* --- ТЕМНАЯ ТЕМА (CHESS.COM STYLE) --- */
+.dark-mode {
+    --gray-100: #262625;
+    /*--gray-100: #161512; /* Глубокий темный фон страницы */
+    --gray-200: #312e2b; /* Цвет границ */
+    --gray-400: #bababa;
+    --gray-500: #959492;
+    --gray-700: #374151; /* Белый текст */
+    --gray-800: #ffffff;
+    --gray-900: #ebebeb;
+
+    /* Доска в темной теме остается той же зеленой, 
+       либо можно чуть приглушить яркость (по желанию) */
+    --board-light: #eeeed2;
+    --board-dark: #769656;
+
+    background-image: none;
+    background-color: #161512;
+}
+
+
+.dark-mode .modal-box h2 {
+    color: var(--gray-700)
+}
+
+/* Карточки и панели в стиле Chess.com */
+.dark-mode #profile-header,
+.dark-mode .modal-box,
+.dark-mode .btn-hint,
+.dark-mode #promotion-dialog {
+    background-color: var(--gray-900); /* Фирменный цвет панелей Chess.com */
+    color: #161512;
+    border: none;
+    box-shadow: 0 4px 0 #262625; /* Темная тень под кнопками */
+}
+.dark-mode .btn-theme {
+background: #769656;
+    color: white;
+    box-shadow: 0 0 0 #637d49;
+}
+/* Кнопки при нажатии */
+.dark-mode .btn-stats:active,
+.dark-mode .btn-hint:active {
+    box-shadow: 0 0px 0 #1a1917;
+    transform: translateY(4px);
+}
+.dark-mode .btn-stats {
+    background: #769656;
+    color: white;
+    /*box-shadow: 0 0 0 #637d49;*/
+}
+/* Координаты на доске */
+.dark-mode .square.light .coord { color: #769656; } /* Цвет темной клетки */
+.dark-mode .square.dark .coord { color: #eeeed2; }  /* Цвет светлой клетки */
+
+/* Специальный стиль для кнопки подсказки в темной теме (зеленоватая) */
+.dark-mode .btn-hint {
+    background-color: #769656;
+    color: #fff;
+    box-shadow: 0 4px 0 #637d49;
+}
+.dark-mode .btn-hint:active {
+    box-shadow: 0 0px 0 #457520;
+}
+.dark-mode .btn-hint svg {
+    fill: #fff;
+}
+.dark-mode .top-btn {
+    background-color: var(--gray-900);
+    color: #769656;
+    box-shadow: 0 4px 0 #637d49
+}
+/*
+.dark-mode .top-btn, .btn-stats {
+    background-color: var(--board-dark) !important;
+    color: var(--gray-900) !important;
+    box-shadow: 0 4px 0 #637d49 ;
+}*/
+
+
+
+
+.square.light .coord { color: var(--board-dark); }
+.square.dark .coord { color: var(--board-light); }
+
+
+.dark-mode .stat-value {
+    color: var(--gray-900);
+}
+
+
+
+
+
+
+
+
+.leaderboard-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 4px;
+    background: #fff;
+}
+.dark-mode .leaderboard-row {
+    background: var(--gray-900);
+}
+
+/* Подсветка самого игрока в списке */
+.leaderboard-row.is-me {
+    background: rgba(129, 182, 76, 0.2);
+    border: 1px solid #81b64c;
+}
+
+.rank-num {
+    font-weight: 900;
+    width: 24px;
+    color: var(--gray-500);
+}
+
+.top-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 4px;
+    object-fit: cover;
+}
+
+.top-name {
+    flex-grow: 1;
+    font-weight: 700;
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.top-score {
+    font-weight: 900;
+    color: #81b64c;
+}
+
+/* Скроллбар для списка */
+#leaderboard-container::-webkit-scrollbar { width: 4px; }
+#leaderboard-container::-webkit-scrollbar-thumb { background: var(--gray-400); border-radius: 10px; }
+
+
+
+
+@media (orientation: landscape) {
+
+    /* Показываем кнопку статистики в bottom-bar */
+    .bottom-bar .landscape-only {
+        display: flex !important;
+    }
+
+    /* Прячем кнопку статистики в профиле */
+    #profile-header .btn-stats:not(.landscape-only) {
+        display: none;
+    }
+
+    /* Статистика и Топ — в один ряд под профилем */
+    .bottom-bar {
+        display: flex;
+        flex-direction: row;
+        gap: 6px;
+        order: -1;
+    }
+
+    /* Прячем оригинальную кнопку помощь из bottom-bar */
+    .bottom-bar .btn-hint {
+        display: none;
+    }
+
+    /* Показываем отдельную кнопку помощь внизу */
+    .hint-landscape {
+        display: flex !important;
+    }
+}
+
+
+/* --- СТИЛИ ГЛАВНОГО МЕНЮ --- */
+#main-menu {
+    position: fixed;
+    inset: 0;
+    background-color: var(--gray-100);
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.3s;
+}
+
+.menu-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4vh;
+}
+
+.menu-header { 
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+ }
+.menu-logo { width: 120px; height: 120px; animation: bounce 2s infinite ease-in-out; }
+.menu-title { font-size: 20px; 
+    /*font-weight: 900;*/ 
+    color: var(--gray-1200); 
+    margin-top: 10px;
+     line-height: 1.1; 
+     display: none;
+    }
+
+.menu-play-buttons { display: flex; gap: 2vh; }
+
+.btn-play-big {
+    width: 130px;
+    height: 130px;
+    border-radius: 25px;
+    border: none;
+    background-color: #769656;
+    color: white;
+    box-shadow: 0 5px 0 #546d3b;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+.btn-play-big svg { width: 48px; height: 48px; }
+.btn-play-big span { font-weight: 900; font-size: 14px; letter-spacing: 0.5px;}
+
+.btn-play-big.btn-survival {
+    background-color: #ef4444; /* Красный для выживания */
+    box-shadow: 0 8px 0 #b91c1c;
+}
+
+.btn-play-big:active { transform: translateY(8px); box-shadow: 0 0px 0 transparent; }
+
+.menu-tools { display: flex; gap: 1.5vh; }
+
+.menu-tool-btn {
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+    border: none;
+    background-color: var(--gray-1100);
+    color: white;
+    box-shadow: 0 5px 0 var(--gray-1200);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+.dark-mode .menu-tool-btn {
+    background-color: #ebebeb;
+    color: #484544;
+    box-shadow: 0 5px 0 #a5a5a5;
+}
+.menu-tool-btn svg { width: 30px; height: 30px; }
+.menu-tool-btn:active { transform: translateY(5px); box-shadow: 0 0px 0 transparent; }
+
+/* В темной теме корректируем цвета меню */
+.dark-mode #main-menu { background-color: var(--gray-100); }
+.dark-mode .menu-title { color: white; }
+
+/* --- ВЫПАДАЮЩЕЕ МЕНЮ НАСТРОЕК --- */
+#settings-dropdown {
+    position: absolute;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    z-index: 10000;
+    width: 203px;
+    transform-origin: top center;
+    animation: dropDownAnim 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+@keyframes dropDownAnim {
+    0% { transform: scaleY(0.5); opacity: 0; }
+    100% { transform: scaleY(1); opacity: 1; }
+}
+
+.dropdown-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: transparent;
+    border: none;
+    padding: 12px 16px;
+    width: 100%;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--gray-700);
+    text-align: left;
+    cursor: pointer;
+}
+.dropdown-btn:active { background: var(--gray-200); }
+
+.dark-mode #settings-dropdown { background: #484544; }
+.dark-mode .dropdown-btn { color: white; }
+.dark-mode .dropdown-btn:active { background: var(--gray-700); }
+
+/* Иконки в кнопке Домой */
+.btn-home {
+    background-color: var(--gray-1000); /* Такой же цвет как у помощи */
+    color: var(--gray-700);
+    padding: 0 4vw; /* Узкая квадратная кнопка */
+}
+.btn-home svg { width: 6vw; height: 6vw; display: block;}
+
+/* Адаптация для пейзажного режима */
+@media (orientation: landscape) {
+    .btn-home svg { width: 3vw; height: 3vw; }
+}
+
+
+.dropdown-icon-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+}
+.drop-svg {
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
+}
+
+
+
+
+
+
+
+
+#survival-lives {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    font-size: 28px;
+    /* Анимация пульсации для красоты */
+    animation: heartPulse 1.5s infinite;
+}
+@keyframes heartPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+.heart.lost {
+    filter: grayscale(100%);
+    opacity: 0.3;
+    animation: none;
+}
+
+
+
+
+
+.menu-board-preview {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    width: 125px;
+    height: 125px;
+    /*margin-bottom: 1rem;*/
+    border-radius: 12px;
+    overflow: hidden;
+    /* Тень, чтобы выглядело как элемент игры */
+    box-shadow: 0 5px 0px rgb(185 185 185);
+}
+.dark-mode .menu-board-preview {
+    box-shadow: 0 5px 0px rgb(71 71 71);
+}
+
+.m-sq {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.m-sq.light { background-color: var(--board-light); } /* Твои цвета доски */
+.m-sq.dark { background-color: var(--board-dark); }
+
+.m-piece {
+    width: 85%;
+    height: 85%;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+
+
+@media (orientation: landscape) {
+
+.btn-play-big {
+    width: 180px;
+    height: 180px;
+}
+.btn-play-big svg {
+    width: 91px;
+    height: 91px;
+}
+.btn-play-big span {
+    font-weight: 900;
+    font-size: 16px;
+    letter-spacing: 0.5px;
+}
+.menu-tool-btn {
+    width: 80px;
+    height: 80px;
+}
+.menu-tool-btn svg {
+    width: 45px;
+    height: 45px;
+}
+.menu-board-preview {
+    width: 180px;
+    height: 180px;
+}
+}
+
+
+

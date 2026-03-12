@@ -1,0 +1,2029 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- Мета-тег для мобильных устройств -->
+    <meta name="mobile-web-app-capable" content="yes">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- ПОДКЛЮЧАЕМ ТОЛЬКО SDK ВКОНТАКТЕ -->
+    <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
+    
+    <title id="page-title">Шахматные задачи</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .btn-hint.disabled {
+            opacity: 0.6;
+            pointer-events: none;
+            background-color: #888;
+        }
+    </style>
+</head>
+<body>
+
+
+
+<div id="loading-screen">
+    <img src="img/logo.png" alt="Logo" class="loader-logo">
+    <div class="progress-container">
+        <div id="loading-bar"></div>
+    </div>
+    <span id="loading-text">Загрузка: 0%</span>
+</div>
+
+<!-- ГЛАВНОЕ МЕНЮ -->
+<div id="main-menu" class="hidden">
+    <div class="menu-content">
+        <!-- Логотип и заголовок -->
+        <div class="menu-header">
+            <div class="menu-board-preview">
+    <div class="m-sq light"><div class="m-piece" style="background-image: url('img/p/wR.svg')"></div></div>
+    <div class="m-sq dark"><div class="m-piece" style="background-image: url('img/p/bQ.svg')"></div></div>
+    <div class="m-sq dark"><div class="m-piece" style="background-image: url('img/p/bN.svg')"></div></div>
+    <div class="m-sq light"><div class="m-piece" style="background-image: url('img/p/wB.svg')"></div></div>
+</div>
+            <h1 class="menu-title">Шахматные<br>задачи</h1>
+        </div>
+
+        <!-- Кнопки режимов игры -->
+        <div class="menu-play-buttons">
+            <button class="btn-play-big" onclick="startGameMode('standard')">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M6 4v16l14-8z"           
+                    stroke="currentColor" 
+                    stroke-width="2" 
+                    stroke-linejoin="round" 
+                    stroke-linecap="round"
+                    />
+                </svg>
+                <span data-i18n="playStandard">ОБЫЧНЫЙ</span>
+            </button>
+            <button class="btn-play-big btn-survival" onclick="startGameMode('survival')">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"/></svg>
+                <span data-i18n="playSurvival">ШТУРМ</span>
+            </button>
+        </div>
+
+        <!-- Нижние кнопки инструментов (как на твоем референсе) -->
+        <div class="menu-tools">
+            <button class="menu-tool-btn" onclick="toggleSound()" id="menu-sound-btn">
+                <svg class="icon-sound-on" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+                <svg class="icon-sound-off hidden" viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
+            </button>
+            <button class="menu-tool-btn" onclick="toggleTheme()" id="menu-theme-btn">
+                <svg class="icon-sun" viewBox="0 0 24 24" fill="currentColor"><path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58a.996.996 0 00-1.41 0 .996.996 0 000 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37a.996.996 0 00-1.41 0 .996.996 0 000 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41l-1.06-1.06zm1.06-10.96a.996.996 0 000-1.41.996.996 0 00-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06zM7.05 18.36a.996.996 0 000-1.41.996.996 0 00-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06z"/></svg>
+                <svg class="icon-moon hidden" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </button>
+            <button class="menu-tool-btn" onclick="showStatsModal()">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 11V3H8v6H2v12h20V11h-6zm-6-6h4v14h-4V5zm-6 6h4v8H4v-8zm16 8h-4v-6h4v6z"/></svg>
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="game-container hidden-game">
+    
+    <!-- КОЛОНКА 1 (ЛЕВАЯ НА ПК): Только доска -->
+    <div id="board-wrapper">
+        <div id="board" class="chess-board"></div>
+    </div>
+
+    <!-- КОЛОНКА 2 (ПРАВАЯ НА ПК): Профиль + Панель -->
+    <div class="right-column">
+        
+        <!-- Блок профиля -->
+        <div id="profile-header">
+            <div class="user-info" onclick="showStatsModal()" style="cursor: pointer;" title="Показать статистику">
+<img id="user-avatar" src="img/p/wQ.svg" alt="Аватар">                <!-- Оборачиваем имя и рейтинг в контейнер -->
+                <div class="user-text-wrapper">
+                    <span id="user-name">Игрок</span>
+                    <div id="user-best-elo-container">
+                        <span id="label-best-elo" data-i18n="bestElo">макс. Эло</span>
+                        <span id="user-max-rating">0</span>
+                    </div>
+                </div>
+            </div>
+    <!-- Группа кнопок действий -->
+    <div class="header-actions" style="display: flex; gap: 8px;">
+
+<button class="btn-stats" onclick="goHome()">
+    <!-- Иконка Домика -->
+<svg viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 2.5L2 11.5h3v9h5v-6h4v6h5v-9h3L12 2.5z" 
+          stroke="currentColor" 
+          stroke-width="2" 
+          stroke-linejoin="round" 
+          stroke-linecap="round"/>
+</svg>
+</button>
+        
+<button id="settings-toggle" class="btn-theme" onclick="toggleSettingsDropdown(event)">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg>
+</button>
+
+    </div>
+        </div>
+            <div class="top-bar">
+                <div class="stat-card">
+                    <span class="stat-label" id="label-rating">Рейтинг</span>
+                    <span id="puzzle-elo" class="stat-value">---</span>
+                </div>
+                <div class="stat-card" style="position: relative;">
+                    <span id="score-display" class="stat-value">0</span>
+                    <div id="points-anim-container" style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none;"></div>
+                    <span class="stat-label" id="label-score">Очки</span>
+                </div>
+            </div>
+<div class="bottom-bar">
+
+    <button id="hint-btn" onclick="requestHint()" class="btn-hint">
+        <div class="video-icon">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 4H3C1.895 4 1 4.895 1 6V18C1 19.105 1.895 20 3 20H21C22.105 20 23 19.105 23 18V6C23 4.895 22.105 4 21 4ZM21 18H3V6H21V18ZM9.5 15L16 11.5L9.5 8V15Z"/></svg>
+        </div>
+        <span id="hint-btn-text">Помощь</span>
+    </button>
+<button class="btn-stats landscape-only" onclick="goHome()" style="display:none;">
+    <!-- Иконка Домика -->
+<svg viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 2.5L2 11.5h3v9h5v-6h4v6h5v-9h3L12 2.5z" 
+          stroke="currentColor" 
+          stroke-width="2" 
+          stroke-linejoin="round" 
+          stroke-linecap="round"/>
+</svg>
+</button>
+    <button class="top-btn" onclick="openLeaderboard()">
+        <span id="top-btn-text">Топ</span>
+    </button>
+</div>
+
+<!-- Кнопка помощь для альбомного режима (внизу отдельно) -->
+<button onclick="requestHint()" class="btn-hint hint-landscape" style="display:none; width:100%; margin-top:-4px;">
+    <div class="video-icon">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 4H3C1.895 4 1 4.895 1 6V18C1 19.105 1.895 20 3 20H21C22.105 20 23 19.105 23 18V6C23 4.895 22.105 4 21 4ZM21 18H3V6H21V18ZM9.5 15L16 11.5L9.5 8V15Z"/></svg>
+    </div>
+    <span data-i18n="hintBtn">Помощь</span>
+</button>
+
+            <div id="leaderboard-modal" class="modal-overlay hidden" onclick="hideTopModal()">
+    <div class="modal-box" onclick="event.stopPropagation()">
+        <h2 id="top-title">Рейтинг игроков</h2>
+        <div id="leaderboard-container" style="max-height: 60vh; overflow-y: auto; margin: 10px 0;">
+            <!-- Сюда будут вставляться строки игроков -->
+            <div id="top-loading" style="text-align: center; padding: 20px;">Загрузка...</div>
+        </div>
+        <button class="btn-close-modal" onclick="hideTopModal()" data-i18n="tClose">Закрыть</button>
+    </div>
+</div>
+        </div>
+
+    </div> <!-- Конец right-column -->
+
+</div>
+
+<div id="stats-modal" class="modal-overlay hidden">
+    <div class="modal-box" onclick="event.stopPropagation()">
+        <h2 id="modal-title">Статистика</h2>
+        <div class="stat-row"><span id="t-score">Общий счет:</span> <b id="mdl-score">0</b></div>
+        
+        <div class="stat-row"><span id="t-solved">Всего решено:</span> <b id="mdl-solved">0</b></div>
+        <!-- НОВАЯ СТРОКА: -->
+        <div class="stat-row"><span id="t-flawless">Решено без ошибок:</span> <b id="mdl-flawless" style="color:#16a34a;">0</b></div>
+        
+        <div class="stat-row"><span id="t-mistakes">Сделано ошибок:</span> <b id="mdl-mistakes">0</b></div>
+        <div class="stat-row"><span id="t-max">Макс. рейтинг:</span> <b id="mdl-max-elo">0</b></div>
+        <div class="stat-row"><span id="t-max-streak">Макс. серия:</span> <b id="mdl-max-streak">0</b></div>
+        <button class="btn-close-modal" onclick="hideStatsModal()" id="t-close">Закрыть</button>
+    </div>
+</div>
+
+<div id="promotion-dialog" class="hidden">
+    <div class="promotion-box">
+        <div onclick="selectPromotion('q')" class="prom-option" id="prom-q"></div>
+        <div onclick="selectPromotion('r')" class="prom-option" id="prom-r"></div>
+        <div onclick="selectPromotion('b')" class="prom-option" id="prom-b"></div>
+        <div onclick="selectPromotion('n')" class="prom-option" id="prom-n"></div>
+    </div>
+</div>
+
+<div id="drag-follower"></div>
+<div id="settings-dropdown" class="hidden">
+    <!-- Кнопка звука -->
+    <button class="dropdown-btn" onclick="toggleSound()">
+        <div class="dropdown-icon-container">
+            <!-- Иконка Звук Вкл -->
+            <svg class="icon-sound-on drop-svg" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+            <!-- Иконка Звук Выкл -->
+            <svg class="icon-sound-off drop-svg hidden" viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
+        </div>
+        <span id="drop-sound-text" data-i18n="soundOn">Звук: Вкл</span>
+    </button>
+    
+    <!-- Кнопка темы -->
+    <button class="dropdown-btn" onclick="toggleTheme()">
+        <div class="dropdown-icon-container">
+            <!-- Твое оригинальное Солнце -->
+            <svg class="icon-sun drop-svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58a.996.996 0 00-1.41 0 .996.996 0 000 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37a.996.996 0 00-1.41 0 .996.996 0 000 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41l-1.06-1.06zm1.06-10.96a.996.996 0 000-1.41.996.996 0 00-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06zM7.05 18.36a.996.996 0 000-1.41.996.996 0 00-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06z"/></svg>
+            <!-- Твоя оригинальная Луна -->
+            <svg class="icon-moon drop-svg hidden" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </div>
+        <span id="drop-theme-text" data-i18n="themeLight">Тема: Светлая</span>
+    </button>
+</div>
+<div id="game-over-modal" class="modal-overlay hidden">
+    <div class="modal-box" style="align-items: center;">
+        <h2 style="color: #ef4444; font-size: 28px;" data-i18n="gameOver">Игра окончена</h2>
+        <p style="color: var(--gray-500); font-weight: bold; margin: 0;" data-i18n="tasksSolved">Решено задач: <span id="survival-score" style="color: var(--gray-800); font-size: 24px;">0</span></p>
+        <div style="display: flex; gap: 10px; width: 100%; margin-top: 15px;">
+            <button class="btn-close-modal" onclick="goHome()" style="flex: 1; background: var(--gray-200);" data-i18n="toMenu">В меню</button>
+            <button class="btn-close-modal" onclick="startGameMode('survival')" style="flex: 1; background: #10b981; color: white;" data-i18n="again">Заново</button>
+        </div>
+    </div>
+</div>
+
+<div id="tutorial-modal" class="modal-overlay hidden">
+    <div class="modal-box">
+        <h2 id="tut-title" data-i18n="howToPlay">Как играть?</h2>
+        <div id="tut-content" style="font-size: 15px; color: var(--gray-700); line-height: 1.5;">
+            <!-- Сюда будем динамически вставлять текст в зависимости от режима -->
+            <p id="tut-text"></p>
+        </div>
+        <button class="btn-close-modal" onclick="closeTutorial()" data-i18n="understood">Понятно!</button>
+    </div>
+</div>
+<script>
+// ==========================================
+// ОБЪЕКТ PLATFORM (ТОЛЬКО VK И LOCAL)
+// ==========================================
+const Platform = {
+    id: 'local', // По умолчанию работаем локально
+
+    async init() {
+            // 1. Проверяем наличие моста
+            if (typeof vkBridge !== 'undefined') {
+                
+            // 1. Сначала ПОДПИСЫВАЕМСЯ
+vkBridge.subscribe((e) => {
+    if (e.detail.type === 'VKWebAppUpdateConfig') {
+        const data = e.detail.data;
+        // Если пользователь НЕ менял тему в игре вручную, слушаемся приложение ВК
+        if (!localStorage.getItem('user-theme')) {
+            if (data.appearance === 'dark' || data.appearance === 'space_gray') {
+                document.documentElement.classList.add('dark-mode');
+            } else {
+                document.documentElement.classList.remove('dark-mode');
+            }
+            updateThemeIcons();
+        }
+    }
+});
+
+            try {
+                // 2. Только потом ИНИЦИАЛИЗИРУЕМ
+                await vkBridge.send('VKWebAppInit');
+                this.id = 'vk';
+                    // 3. Сразу запрашиваем данные пользователя
+                    const userData = await vkBridge.send('VKWebAppGetUserInfo');
+                    this.user = userData; // Сохраняем объект пользователя внутри Platform
+
+                    console.log("Платформа: ВКонтакте. Игрок:", this.user.first_name);
+                    return; 
+                } catch (e) {
+                    console.warn("Ошибка при инициализации VK SDK:", e);
+                    // Если произошла ошибка, проваливаемся в local
+                }
+            }
+
+                    // 2. ДЛЯ ЛОКАЛЬНОЙ ВЕРСИИ (проверка системной темы)
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.body.classList.add('dark-mode');
+        }
+
+            this.id = 'local';
+            console.log("Платформа: Локальная (без SDK)");
+        },
+
+    getLang() {
+        if (this.id === 'vk') {
+            const urlParams = new URLSearchParams(window.location.search);
+            const vkLang = urlParams.get('language'); // 0 - ру, 3 - англ
+            if (vkLang === '0' || vkLang === 'ru') return 'ru';
+            if (vkLang === '3' || vkLang === 'en') return 'en';
+        }
+        return navigator.language.slice(0, 2) === 'ru' ? 'ru' : 'en';
+    },
+
+ async getStats() {
+        let stats = { score: 0, solved: 0, mistakes: 0, maxElo: 0 };
+        if (this.id === 'vk') {
+            try {
+                // Запрашиваем новый ключ и старый для переноса очков
+                const data = await vkBridge.send('VKWebAppStorageGet', { keys: ['chessStats', 'totalScore'] });
+                const statsStr = data.keys.find(k => k.key === 'chessStats')?.value;
+                const oldScoreStr = data.keys.find(k => k.key === 'totalScore')?.value;
+                
+                if (statsStr) {
+                    stats = JSON.parse(statsStr); // Если уже есть новая стата
+                } else if (oldScoreStr) {
+                    stats.score = parseInt(oldScoreStr, 10); // Переносим старые очки игрока!
+                }
+            } catch(e) {}
+        }
+        return stats;
+    },
+
+    saveStats(statsObj) {
+        if (this.id === 'vk') {
+            vkBridge.send('VKWebAppStorageSet', { key: 'chessStats', value: JSON.stringify(statsObj) }).catch(()=>{});
+            vkBridge.send('VKWebAppSetScore', { score: parseInt(statsObj.score) }).catch(()=>{});
+        }
+    },
+
+showLeaderboard() {
+    if (this.id === 'vk') {
+        console.log("Пытаюсь открыть лидерборд. Очки:", totalScore);
+        
+        vkBridge.send('VKWebAppShowLeaderBoardBox', { 
+            user_score: parseInt(totalScore) || 0 
+        })
+        .then((data) => {
+            console.log("Лидерборд открыт успешно:", data);
+        })
+        .catch((error) => {
+            if (error?.error_data?.error_code === 5) {
+                alert(i18n[lang].lbFriendsText + totalScore);
+            } else {
+                alert(i18n[lang].lbError + "\n" + i18n[lang].score + ": " + totalScore);
+            }
+        });
+    } else {
+        alert(i18n[lang].score + ": " + totalScore);
+    }
+},
+    
+    setScore(score) {
+        if (this.id === 'vk') {
+            vkBridge.send('VKWebAppStorageSet', { key: 'totalScore', value: String(score) }).catch(()=>{});
+            // Обязательно дублируем в глобальный рейтинг ВК:
+            vkBridge.send('VKWebAppSetScore', { score: parseInt(score) }).catch(()=>{});
+        }
+    },
+
+showInterstitial(onClose) {
+        if (this.id === 'vk') {
+            this.gameplayStop(); // ОСТАНАВЛИВАЕМ звук перед рекламой
+            
+            vkBridge.send('VKWebAppShowNativeAds', { ad_format: 'interstitial' })
+                .then(() => {
+                    this.gameplayStart(); // ВКЛЮЧАЕМ звук после
+                    onClose();
+                })
+                .catch(() => {
+                    this.gameplayStart(); // ВКЛЮЧАЕМ звук, если реклама не загрузилась
+                    onClose();
+                });
+        } else {
+            onClose();
+        }
+    },
+
+    showRewarded(onRewarded, onClose, onError) {
+        if (this.id === 'vk') {
+            vkBridge.send('VKWebAppShowNativeAds', { ad_format: 'reward' })
+                .then(data => {
+                    if (data.result) onRewarded();
+                    onClose();
+                })
+                .catch(() => onError());
+        } else {
+            onRewarded(); // Локально даем награду сразу
+            onClose();
+        }
+    },
+
+    showBanner() {
+        if (this.id === 'vk') {
+            vkBridge.send('VKWebAppShowBannerAd', {
+                banner_location: 'bottom'
+            })
+            .then((data) => {
+                if (data.result) {
+                    console.log("Баннер успешно показан");
+                }
+            })
+            .catch((error) => {
+                console.log("Ошибка показа баннера (или баннер недоступен):", error);
+            });
+        }
+    },
+
+preloadAds() {
+        if (this.id === 'vk') {
+            // Предзагрузка межэкранной рекламы
+            vkBridge.send('VKWebAppCheckNativeAds', { ad_format: 'interstitial' }).catch(()=>{});
+            // Предзагрузка рекламы за вознаграждение (для кнопки "Подсказка")
+            vkBridge.send('VKWebAppCheckNativeAds', { ad_format: 'reward' }).catch(()=>{});
+        }
+    },
+
+    // Пустышки (ВК не требует явного старта/стопа геймплея как Яндекс)
+gameplayStart() {
+        console.log("Геймплей возобновлен");
+        // Если переменная существует и звук выключен игроком — оставляем выключенным
+        if (typeof isSoundEnabled !== 'undefined' && !isSoundEnabled) {
+            setAllAudioMute(true);
+        } else {
+            setAllAudioMute(false);
+        }
+    },
+
+    gameplayStop() {
+        console.log("Геймплей приостановлен (реклама)");
+        setAllAudioMute(true); // Выключаем звук на время рекламы всегда
+    },
+    loadingReady() {},
+
+    // --- НОВАЯ ФУНКЦИЯ ДЛЯ ВИБРАЦИИ ---
+vibrate(type) {
+    if (this.id === 'vk') {
+        // try/catch здесь не ловит ошибки промисов, нужны именно .catch()
+        if (type === 'error') {
+            vkBridge.send('VKWebAppTapticNotificationOccurred', { type: 'error' }).catch(()=>{});
+        } else if (type === 'success') {
+            vkBridge.send('VKWebAppTapticNotificationOccurred', { type: 'success' }).catch(()=>{});
+        } else if (type === 'capture') {
+            vkBridge.send('VKWebAppTapticImpactOccurred', { style: 'heavy' }).catch(()=>{});
+        } else {
+            vkBridge.send('VKWebAppTapticImpactOccurred', { style: 'light' }).catch(()=>{});
+        }
+    }
+},
+
+async getSolvedIds() {
+    let ids = [];
+    
+    // 1. Пытаемся взять данные из облака ВК
+    if (this.id === 'vk') {
+        try {
+            const data = await vkBridge.send('VKWebAppStorageGet', { keys: ['chess_solved_ids'] });
+            const cloudData = data.keys.find(k => k.key === 'chess_solved_ids')?.value;
+            if (cloudData && cloudData !== "") {
+                ids = JSON.parse(cloudData);
+                console.log("Прогресс загружен из облака ВК");
+                // Обновляем локальную копию на всякий случай
+                localStorage.setItem('chess_solved_ids', cloudData);
+                return ids;
+            }
+        } catch (e) {
+            console.warn("Ошибка загрузки из облака ВК:", e);
+        }
+    }
+
+    // 2. Если в облаке пусто или мы не в ВК, берем из localStorage
+    try {
+        const local = localStorage.getItem('chess_solved_ids');
+        if (local) {
+            ids = JSON.parse(local);
+            console.log("Прогресс загружен локально");
+        }
+    } catch (e) { 
+        console.error("Ошибка чтения localStorage");
+    }
+    
+    return ids;
+},
+
+saveSolvedIds(idsArray) {
+    const strData = JSON.stringify(idsArray);
+
+    // 1. Сохраняем в облако ВК
+    if (this.id === 'vk') {
+        vkBridge.send('VKWebAppStorageSet', { 
+            key: 'chess_solved_ids', 
+            value: strData 
+        }).catch(e => console.error("Ошибка сохранения в облако:", e));
+    }
+
+    // 2. Дублируем в локальное хранилище для мгновенного доступа
+    try {
+        localStorage.setItem('chess_solved_ids', strData);
+    } catch (e) { 
+        console.error("Ошибка сохранения в localStorage"); 
+    }
+}
+
+};
+
+let lang = 'ru'; 
+
+function translatePage() {
+    const t = i18n[lang];
+    // Переводит все элементы с атрибутом data-i18n
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (t[key]) el.textContent = t[key];
+    });
+}
+
+const i18n = {
+    ru: {
+        title: "Шахматные задачи: найди лучший ход",
+        loading: "Загрузка:",
+        preparing: "Подготовка шахмат...",
+        errorLoad: "Ошибка загрузки данных",
+        rating: "Эло",
+        score: "Очки",
+        hintBtn: "Помощь",
+        adLoading: "Загрузка...",
+        bestElo: "макс. Эло",
+        topBtn: "Топ",
+        playerName: "Игрок",
+        // Статистика
+        statsTitle: "Статистика",
+        tScore: "Общий счет:",
+        tSolved: "Всего решено:",
+        tFlawless: "Решено без ошибок:",
+        tMistakes: "Сделано ошибок:",
+        tMax: "Макс. рейтинг:",
+        tClose: "Закрыть",
+        // Лидерборд
+        lbTitle: "Рейтинг игроков",
+        lbLoading: "Загрузка мирового топа...",
+        lbEmpty: "Здесь пока пусто",
+        lbError: "Ошибка связи с сервером",
+        lbYou: " (Вы)",
+        lbFriendsTitle: "Рекорд",
+        lbFriendsText: "Пока никто из ваших друзей не играл!\nВаш рекорд: ",
+        tMaxStreak: "Макс. серия:",
+
+        playStandard: "ОБЫЧНЫЙ",
+        playSurvival: "ШТУРМ",
+        lbTitleSurvival: "Топ Штурма",
+        soundOn: "Звук: Вкл",
+        soundOff: "Звук: Выкл",
+        themeLight: "Тема: Светлая",
+        themeDark: "Тема: Тёмная",
+        tutSurvivalTitle: "Режим Выживание",
+        tutSurvivalText: "<b>Твоя цель:</b> решить как можно больше задач подряд.<br><br><b>Важно:</b> каждая ошибка завершает игру. После каждой решенной задачи сложность будет расти!",
+        tutStandardTitle: "Как играть",
+        tutStandardText: "Найди лучший ход на доске! За правильные решения ты получаешь очки и повышаешь свой рейтинг.<br><br>• Нажми на <b>профиль</b>, чтобы увидеть свою статистику.<br>• Жми <b>«Топ»</b>, чтобы узнать свое место в рейтинге.",
+        understood: "Понятно!",
+        gameOver: "Игра окончена",
+        solvedTasks: "Решено задач:",
+        toMenu: "В меню",
+        again: "Заново",
+        record: "Рекорд",
+        streak: "Серия",
+        menuTitle: "Шахматные<br>задачи"
+    },
+    en: {
+        title: "Chess Puzzles: Find the Best Move",
+        loading: "Loading:",
+        preparing: "Preparing chess...",
+        errorLoad: "Error loading data",
+        rating: "Elo",
+        score: "Score",
+        hintBtn: "Hint",
+        adLoading: "Loading...",
+        bestElo: "max. Elo",
+        topBtn: "Top",
+        playerName: "Player",
+        // Statistics
+        statsTitle: "Statistics",
+        tScore: "Total Score:",
+        tSolved: "Total Solved:",
+        tFlawless: "Solved Flawlessly:",
+        tMistakes: "Mistakes Made:",
+        tMax: "Max Rating:",
+        tClose: "Close",
+        // Leaderboard
+        lbTitle: "Leaderboard",
+        lbLoading: "Loading global top...",
+        lbEmpty: "Empty for now",
+        lbError: "Server connection error",
+        lbYou: " (You)",
+        lbFriendsTitle: "Record",
+        lbFriendsText: "None of your friends have played yet!\nYour record: ",
+        tMaxStreak: "Max Streak:",
+
+        playStandard: "STANDARD",
+        playSurvival: "SURVIVAL",
+        lbTitleSurvival: "Survival Top",
+        soundOn: "Sound: On",
+        soundOff: "Sound: Off",
+        themeLight: "Theme: Light",
+        themeDark: "Theme: Dark",
+        tutSurvivalTitle: "Survival Mode",
+        tutSurvivalText: "<b>Goal:</b> Solve as many puzzles as possible in a row.<br><br><b>Important:</b> Each mistake ends the game. Difficulty increases after each solved puzzle!",
+        tutStandardTitle: "How to play",
+        tutStandardText: "Find the best move on the board! Correct solutions give you points and increase your rating.<br><br>• Tap the <b>profile</b> to see your stats.<br>• Tap <b>«Top»</b> to see the leaderboard.",
+        understood: "Got it!",
+        gameOver: "Game Over",
+        solvedTasks: "Tasks solved:",
+        toMenu: "To Menu",
+        again: "Again",
+        record: "Record",
+        streak: "Streak",
+        menuTitle: "Chess<br>Puzzles"
+    }
+};
+
+
+function updateThemeIcons() {
+    const isDark = document.documentElement.classList.contains('dark-mode');
+    
+    // Переключаем ВСЕ иконки солнца и луны на странице
+    document.querySelectorAll('.icon-sun').forEach(el => {
+        if (isDark) el.classList.add('hidden');
+        else el.classList.remove('hidden');
+    });
+    
+    document.querySelectorAll('.icon-moon').forEach(el => {
+        if (isDark) el.classList.remove('hidden');
+        else el.classList.add('hidden');
+    });
+}
+
+function toggleTheme() {
+    const isDark = document.documentElement.classList.toggle('dark-mode');
+    
+    // Сохраняем, чтобы ручной выбор всегда был главнее настроек приложения
+    localStorage.setItem('user-theme', isDark ? 'dark' : 'light');
+    
+    updateThemeIcons();
+    
+    // Небольшая вибрация при клике
+    if (Platform.vibrate) Platform.vibrate('move');
+}
+
+// Вызови это в конце Platform.init() или в начале initGame()
+function checkSavedTheme() {
+    const saved = localStorage.getItem('user-theme');
+    const urlParams = new URLSearchParams(window.location.search);
+    const vkAppearance = urlParams.get('vk_appearance'); // Смотрим, что прислал ВК
+
+    // 1. Если Игрок выбрал тему вручную — слушаемся его
+    if (saved === 'dark') {
+        document.documentElement.classList.add('dark-mode');
+    } else if (saved === 'light') {
+        document.documentElement.classList.remove('dark-mode');
+    } 
+    // 2. Если Игрок ничего не выбирал (saved === null) — ставим ТЕМНУЮ по умолчанию
+    else {
+        document.documentElement.classList.add('dark-mode');
+    }
+
+    // 3. Обновляем иконки, чтобы они соответствовали состоянию
+    updateThemeIcons();
+    updateDropdownThemeText();
+}
+
+
+function applyTranslations() {
+    const t = i18n[lang];
+    document.querySelector('.menu-title').innerHTML = t.menuTitle;
+    // Главный экран
+    document.getElementById('page-title').textContent = t.title;
+    document.getElementById('label-rating').textContent = t.rating;
+    document.getElementById('label-score').textContent = t.score;
+    document.getElementById('hint-btn-text').textContent = t.hintBtn; 
+    document.getElementById('top-btn-text').textContent = t.topBtn;
+    document.getElementById('loading-text').textContent = t.preparing;
+    document.getElementById('label-best-elo').textContent = t.bestElo;
+
+    // Модальное окно статистики
+    document.getElementById('modal-title').textContent = t.statsTitle;
+    document.getElementById('t-score').textContent = t.tScore;
+    document.getElementById('t-solved').textContent = t.tSolved;
+    document.getElementById('t-flawless').textContent = t.tFlawless;
+    document.getElementById('t-mistakes').textContent = t.tMistakes;
+    document.getElementById('t-max').textContent = t.tMax;
+    document.getElementById('t-close').textContent = t.tClose;
+    document.getElementById('t-max-streak').textContent = t.tMaxStreak;
+
+    // Модальное окно Лидерборда
+    document.getElementById('top-title').textContent = t.lbTitle;
+}
+
+function saveCurrentStats() {
+    Platform.saveStats({
+        score: totalScore,
+        solved: statsTotalSolved,
+        flawless: statsFlawless,
+        mistakes: statsTotalMistakes,
+        maxElo: statsMaxElo,
+        eloStandard: eloStandard,
+        maxStreak: statsMaxStreak
+    });
+}
+
+function safePlaySound(audioObj) {
+    if (typeof isSoundEnabled !== 'undefined' && !isSoundEnabled) return; 
+    
+    if (!audioObj) return;
+    const promise = audioObj.play();
+    if (promise !== undefined) {
+        promise.catch(error => { /* Игнорируем */ });
+    }
+}
+
+// --- ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ДЛЯ МЕНЮ И ЗВУКА ---
+let isSoundEnabled = true;
+let gameMode = 'standard'; // 'standard' или 'survival'
+let lives = 3; // Для режима выживания
+
+// Открытие / Закрытие выпадающего меню настроек
+function toggleSettingsDropdown(event) {
+    const dropdown = document.getElementById('settings-dropdown');
+    const btn = document.getElementById('settings-toggle');
+    
+    if (dropdown.classList.contains('hidden')) {
+        // Позиционируем меню прямо под кнопкой
+        const rect = btn.getBoundingClientRect();
+        dropdown.style.top = (rect.bottom + 10) + 'px';
+        dropdown.style.right = (window.innerWidth - rect.right) + 'px'; // Выравниваем по правому краю кнопки
+        dropdown.classList.remove('hidden');
+    } else {
+        dropdown.classList.add('hidden');
+    }
+    
+    // Предотвращаем всплытие клика, чтобы меню не закрылось сразу же
+    event.stopPropagation();
+}
+
+// Закрываем меню при клике в любое другое место
+document.addEventListener('click', (e) => {
+    const dropdown = document.getElementById('settings-dropdown');
+    const btn = document.getElementById('settings-toggle');
+    if (!dropdown.classList.contains('hidden') && !dropdown.contains(e.target) && !btn.contains(e.target)) {
+        dropdown.classList.add('hidden');
+    }
+});
+
+// Управление звуком
+function toggleSound() {
+    isSoundEnabled = !isSoundEnabled;
+    document.getElementById('drop-sound-text').textContent = isSoundEnabled ? i18n[lang].soundOn : i18n[lang].soundOff;
+    setAllAudioMute(!isSoundEnabled);
+
+    // Меняем текст в выпадающем меню
+    //const dropText = document.getElementById('drop-sound-text');
+    //if (dropText) dropText.textContent = isSoundEnabled ? 'Звук: Вкл' : 'Звук: Выкл';
+
+    // Переключаем ВСЕ иконки звука на странице
+    document.querySelectorAll('.icon-sound-on').forEach(el => {
+        if (isSoundEnabled) el.classList.remove('hidden');
+        else el.classList.add('hidden');
+    });
+    
+    document.querySelectorAll('.icon-sound-off').forEach(el => {
+        if (isSoundEnabled) el.classList.add('hidden');
+        else el.classList.remove('hidden');
+    });
+
+    localStorage.setItem('chess-sound', isSoundEnabled);
+}
+
+// Изменяем твою существующую функцию toggleTheme, чтобы она обновляла текст в меню
+const originalToggleTheme = toggleTheme;
+toggleTheme = function() {
+    originalToggleTheme(); // Вызываем старую логику
+    updateDropdownThemeText();
+}
+
+function updateDropdownThemeText() {
+    const isDark = document.documentElement.classList.contains('dark-mode');
+    document.getElementById('drop-theme-text').textContent = isDark ? i18n[lang].themeDark : i18n[lang].themeLight;
+
+    // Меняем только текст, так как иконки (SVG) теперь переключаются в updateThemeIcons
+    /*if (dropText) {
+        dropText.textContent = isDark ? 'Тема: Тёмная' : 'Тема: Светлая';
+    }*/
+}
+
+// Переход в главное меню
+function goHome() {
+    // 1. Прячем игровой контейнер
+    document.querySelector('.game-container').style.display = 'none';
+    
+    // 2. Прячем окно поражения (если оно было открыто)
+    document.getElementById('game-over-modal').classList.add('hidden');
+
+    document.querySelector('#game-over-modal h2').textContent = i18n[lang].gameOver;
+    document.querySelector('#game-over-modal p').innerHTML = `${i18n[lang].solvedTasks} <span id="survival-score">0</span>`;
+    
+    // 3. Прячем модалки (на всякий случай)
+    document.getElementById('stats-modal').classList.add('hidden');
+    document.getElementById('leaderboard-modal').classList.add('hidden');
+    
+    // 4. Показываем меню
+    document.getElementById('main-menu').classList.remove('hidden');
+}
+let survivalSolvedCount = 0; // Счётчик решенных задач в текущей попытке выживания
+
+function startGameMode(mode) {
+    gameMode = mode;
+    
+    document.getElementById('main-menu').classList.add('hidden');
+    document.getElementById('game-over-modal').classList.add('hidden');
+    document.querySelector('.game-container').style.display = '';
+
+    // Скрываем индикатор жизней, раз мы их убрали
+    //document.getElementById('survival-lives').classList.add('hidden');
+    
+    const labelBest = document.getElementById('label-best-elo');
+    const valBest = document.getElementById('user-max-rating');
+    const labelScore = document.getElementById('label-score');
+    const valScore = document.getElementById('score-display');
+
+    if (mode === 'survival') {
+        currentElo = eloSurvival; // ВСЕГДА начинаем с простых задач
+        survivalStreak = 0;
+        
+        labelBest.textContent = i18n[lang].record;
+        valBest.textContent = statsMaxStreak;
+        labelScore.textContent = i18n[lang].streak;
+        valScore.textContent = survivalStreak;
+    } else {
+        currentElo = eloStandard;
+        // Обычный режим
+        labelBest.textContent = i18n[lang].bestElo;
+        valBest.textContent = statsMaxElo;
+        labelScore.textContent = i18n[lang].score;
+        valScore.textContent = totalScore;
+    }
+    document.querySelector('.game-container').classList.remove('hidden-game');
+
+        // Проверка онбординга
+        const tutorialKey = 'tutorial_shown_' + mode;
+    const needTutorial = !localStorage.getItem(tutorialKey);
+
+    if (needTutorial) {
+        showTutorial(mode);
+        localStorage.setItem(tutorialKey, 'true');
+        // ВАЖНО: блокируем доску, пока игрок не нажмет "Понятно!"
+        isLocked = true; 
+    } else {
+        // Если инструкцию не показываем, разблокируем доску для хода компа
+        isLocked = false; 
+    }
+
+        // --- ТЕСТОВЫЙ РЕЖИМ: Окно будет открываться ВСЕГДА ---
+    //showTutorial(mode); 
+
+    startPuzzle(needTutorial);
+}
+
+function showTutorial(mode) {
+    const t = i18n[lang];
+    const modal = document.getElementById('tutorial-modal');
+    // Используем правильные ключи из словаря в зависимости от режима
+    document.getElementById('tut-title').textContent = (mode === 'survival') ? t.tutSurvivalTitle : t.tutStandardTitle;
+    document.getElementById('tut-text').innerHTML = (mode === 'survival') ? t.tutSurvivalText : t.tutStandardText;
+    modal.classList.remove('hidden');
+}
+
+function closeTutorial() {
+    document.getElementById('tutorial-modal').classList.add('hidden');
+    isLocked = false; // Разблокируем игру
+    
+    // Делаем первый ход компа после того, как игрок закрыл инструкцию
+    if (puzzles[currentPuzzleIndex] && puzzles[currentPuzzleIndex].moves) {
+        playMove(puzzles[currentPuzzleIndex].moves[currentStep], true);
+    }
+}
+
+function updateLivesUI() {
+    const hearts = document.querySelectorAll('#survival-lives .heart');
+    hearts.forEach((heart, index) => {
+        if (index < lives) {
+            heart.classList.remove('lost');
+        } else {
+            heart.classList.add('lost');
+        }
+    });
+}
+
+async function initGame() {
+    await Platform.init();
+
+     checkSavedTheme();
+
+    Platform.preloadAds();
+    setInterval(() => Platform.preloadAds(), 60000);
+
+    Platform.showBanner();
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const vkAppearance = urlParams.get('vk_appearance');
+    if (vkAppearance === 'dark' || vkAppearance === 'space_gray') {
+        document.body.classList.add('dark-mode');
+    }
+
+    lang = Platform.getLang();
+    if (lang !== 'ru' && lang !== 'en') lang = 'en'; 
+    applyTranslations();
+    translatePage();
+
+    // Загружаем статистику из ВК
+    const savedStats = await Platform.getStats();
+    totalScore = savedStats.score || 0;
+    document.getElementById('score-display').textContent = totalScore;
+    statsTotalSolved = savedStats.solved || 0;
+    statsFlawless = savedStats.flawless || 0;
+    statsTotalMistakes = savedStats.mistakes || 0;
+    statsMaxElo = savedStats.maxElo || 0;
+    statsMaxStreak = savedStats.maxStreak || 0;
+
+    eloStandard = savedStats.eloStandard || 400; 
+    eloSurvival = 400; // Штурм всегда с 400
+
+
+    document.getElementById('user-max-rating').textContent = statsMaxElo;
+    
+    // Подставляем аватарку и имя, если играем в ВК
+    if (Platform.id === 'vk' && Platform.user) {
+        document.getElementById('user-name').textContent = Platform.user.first_name;
+        if (Platform.user.photo_100) {
+            document.getElementById('user-avatar').src = Platform.user.photo_100;
+        }
+    } else {
+        if (Platform.id === 'vk' && Platform.user) {
+            document.getElementById('user-name').textContent = Platform.user.first_name;
+        } else {
+            document.getElementById('user-name').textContent = i18n[lang].playerName;
+        }
+    }
+
+    const savedIds = await Platform.getSolvedIds();
+    solvedIds = new Set(savedIds); 
+
+    // Внутри initGame() добавь:
+    const savedSound = localStorage.getItem('chess-sound');
+    if (savedSound === 'false') {
+        isSoundEnabled = true; // Ставим true, чтобы toggleSound() инвертировал в false
+        toggleSound();
+    } else {
+        // Если ничего нет или true, просто применяем начальные значения
+        setAllAudioMute(false);
+    }
+
+    // Вызываем обновление текста темы в дропдауне при старте
+    updateDropdownThemeText();
+
+    loadData(); 
+}
+
+function submitScore(newTotalScore) {
+    Platform.setScore(newTotalScore);
+}
+
+const audioMove = new Audio('sounds/Move.ogg');
+const audioCapture = new Audio('sounds/Capture.ogg');
+const audioError = new Audio('sounds/Error.ogg');
+
+function setAllAudioMute(isMuted) {
+    audioMove.muted = isMuted;
+    audioCapture.muted = isMuted;
+    audioError.muted = isMuted;
+}
+
+const PIECE_IMAGES = {
+    'P': 'img/p/wP.svg', 'R': 'img/p/wR.svg', 'N': 'img/p/wN.svg', 'B': 'img/p/wB.svg', 'Q': 'img/p/wQ.svg', 'K': 'img/p/wK.svg',
+    'p': 'img/p/bP.svg', 'r': 'img/p/bR.svg', 'n': 'img/p/bN.svg', 'b': 'img/p/bB.svg', 'q': 'img/p/bQ.svg', 'k': 'img/p/bK.svg'
+};
+
+
+let puzzles =[], currentPuzzleIndex = 0, currentStep = 0;
+let boardState =[], isLocked = true, selectedSq = null, playerColor = 'w';
+let lastMoveSquares =[], hintSquare = null;
+
+let eloStandard = 400; // Для обычного режима
+let eloSurvival = 400; // Для штурма
+
+let sessionScore = 0; 
+let previousPuzzleElo = null;
+let hasMistake = false;
+let hasHint = false;
+let isAdLoading = false; 
+
+let gamesPlayedSinceAd = 0;
+let lastAdTime = Date.now(); // Отсчет времени с момента запуска
+const AD_COOLDOWN_MS = 4 * 60 * 1000; // 3 минуты
+const GAMES_BEFORE_AD = 5; // Показывать не раньше чем через 3 решенные задачи
+
+// --- НОВЫЕ ПЕРЕМЕННЫЕ СТАТИСТИКИ ---
+let totalScore = 0;   
+let statsTotalSolved = 0;
+let statsFlawless = 0;
+let statsTotalMistakes = 0;
+let statsMaxElo = 0;
+
+let survivalStreak = 0; // Текущая серия в выживании
+let statsMaxStreak = 0; // Максимальная серия (Рекорд)
+
+let solvedIds = new Set();
+
+const supabaseUrl = 'https://cgwbdbjgfxlzfxshzkza.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNnd2JkYmpnZnhsemZ4c2h6a3phIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2ODgxODAsImV4cCI6MjA4ODI2NDE4MH0.pmLla8tTFmGkn7ICYWgjGtkw1SHvPHRAcwQ-tPOUhcM';
+const sb = window.supabase.createClient(supabaseUrl, supabaseKey)
+
+const boardEl = document.getElementById('board');
+const follower = document.getElementById('drag-follower');
+
+async function loadData() {
+    const loadingBar = document.getElementById('loading-bar');
+    const loadingText = document.getElementById('loading-text');
+
+    try {
+        let progress = 0;
+        const simInterval = setInterval(() => {
+            progress += 5; // Чуть медленнее прогресс, так как файлов два
+            if(progress > 90) progress = 90;
+            loadingBar.style.width = `${progress}%`;
+            loadingText.textContent = `${i18n[lang].loading} ${progress}%`;
+        }, 50);
+
+const [resEnd, resMid] = await Promise.all([
+    fetch('endgames.json'),
+    fetch('middlegames.json')
+]);
+
+// Проверка: успешно ли сервер отдал файлы?
+if (!resEnd.ok || !resMid.ok) {
+    throw new Error(`Ошибка сервера: Endgames=${resEnd.status}, Middlegames=${resMid.status}`);
+}
+
+// Читаем текст из файлов перед тем как парсить JSON
+const textEnd = await resEnd.text();
+const textMid = await resMid.text();
+
+if (!textEnd || !textMid) {
+    throw new Error("Один из JSON файлов пуст!");
+}
+
+// И только теперь превращаем текст в объекты
+const endPuzzles = JSON.parse(textEnd);
+const midPuzzles = JSON.parse(textMid);
+
+puzzles = endPuzzles.concat(midPuzzles);
+        
+        // Предзагрузка картинок (оставляем как было)
+        Object.values(PIECE_IMAGES).forEach(src => {
+            const img = new Image();
+            img.src = src;
+        });
+
+        clearInterval(simInterval);
+        
+        // Сортируем общий массив по рейтингу
+        puzzles.sort((a, b) => Number(a.elo) - Number(b.elo));
+        
+        loadingBar.style.width = "100%";
+        loadingText.textContent = `${i18n[lang].loading} 100%`;
+
+        Platform.loadingReady();
+
+        // УБРАЛИ РЕКЛАМУ ПРИ СТАРТЕ, ПРОСТО ЗАПУСКАЕМ ИГРУ:
+        startGameAfterAd();
+
+    } catch (e) {
+        console.error("Ошибка загрузки данных:", e);
+        loadingText.textContent = i18n[lang].errorLoad;
+    }
+}
+
+function startGameAfterAd() {
+    Platform.gameplayStart();
+
+    const loadingScreen = document.getElementById('loading-screen');
+    loadingScreen.style.opacity = '0';
+    
+    setTimeout(() => {
+        loadingScreen.style.display = 'none';
+        
+        // ВАЖНОЕ ИЗМЕНЕНИЕ: 
+        // Вместо startPuzzle() мы показываем Главное меню
+        document.getElementById('main-menu').classList.remove('hidden');
+        
+        // А сам игровой контейнер пока прячем
+        document.querySelector('.game-container').style.display = 'none';
+        
+    }, 500);
+}
+async function pushToGlobalLeaderboard() {
+    if (!Platform.user) return; 
+
+    if (gameMode === 'survival') {
+        const { error } = await sb
+            .from('leaderboard_survival')
+            .upsert({ 
+                vk_id: String(Platform.user.id), 
+                name: Platform.user.first_name, 
+                avatar: Platform.user.photo_100,
+                streak: statsMaxStreak,
+                updated_at: new Date()
+            }, { onConflict: 'vk_id' }); // Убедись, что 'vk_id' совпадает с названием колонки
+        if (error) console.error("Ошибка сохранения в топ Выживания:", error);
+    } else {
+        // Отправляем в таблицу Стандартного режима
+        const { error } = await sb
+            .from('leaderboard')
+            .upsert({ 
+                vk_id: String(Platform.user.id), 
+                name: Platform.user.first_name, 
+                avatar: Platform.user.photo_100,
+                score: totalScore,
+                updated_at: new Date()
+            }, { onConflict: 'vk_id' });
+        if (error) console.error("Ошибка сохранения в мировой топ:", error);
+    }
+}
+
+function requestHint() {
+    if (isLocked || hasHint || isAdLoading) return;
+    
+    const hintBtn = document.getElementById('hint-btn');
+    const hintText = document.getElementById('hint-btn-text'); 
+    
+    isAdLoading = true;
+    hintBtn.classList.add('disabled');
+    hintText.textContent = i18n[lang].adLoading; 
+
+    Platform.gameplayStop();
+
+    Platform.showRewarded(
+        () => { applyHint(); }, 
+        () => { 
+            isAdLoading = false;
+            hintBtn.classList.remove('disabled');
+            hintText.textContent = i18n[lang].hintBtn;
+            Platform.gameplayStart();
+        },
+        () => { 
+            isAdLoading = false;
+            hintBtn.classList.remove('disabled');
+            hintText.textContent = i18n[lang].hintBtn;
+            applyHint(); 
+            Platform.gameplayStart();
+        }
+    );
+}
+
+function startPuzzle(skipAutoMove) {
+    hasMistake = false;
+    hasHint = false;
+
+    if (!puzzles || puzzles.length === 0) return;
+
+    // 1. ФИЛЬТРУЕМ: оставляем только те, что еще не решены
+    let availablePuzzles = puzzles.filter(p => !solvedIds.has(p.id));
+
+    // Если вдруг решили ВООБЩЕ всё (маловероятно), очищаем список и начинаем заново
+    if (availablePuzzles.length === 0) {
+        solvedIds.clear();
+        Platform.saveSolvedIds([]);
+        availablePuzzles = puzzles;
+    }
+
+    // 2. Ищем ближайшую по рейтингу среди ДОСТУПНЫХ
+    let minDiff = Infinity;
+    for (let p of availablePuzzles) {
+        const diff = Math.abs(Number(p.elo) - currentElo);
+        if (diff < minDiff) minDiff = diff;
+    }
+    
+    const closestPuzzles = availablePuzzles.filter(p => Math.abs(Number(p.elo) - currentElo) === minDiff);
+    const selectedPuzzle = closestPuzzles[Math.floor(Math.random() * closestPuzzles.length)];
+    console.log(`Задача: https://lichess.org/training/${selectedPuzzle.id} [Elo: ${selectedPuzzle.elo}]`);
+    currentPuzzleIndex = puzzles.indexOf(selectedPuzzle);
+    document.getElementById('puzzle-elo').textContent = selectedPuzzle.elo;
+
+    boardState = parseFEN(selectedPuzzle.fen);
+    currentStep = 0;
+    lastMoveSquares =[];
+    hintSquare = null;
+
+    const sideToMoveInFen = selectedPuzzle.fen.split(' ')[1];
+    playerColor = (sideToMoveInFen === 'w') ? 'b' : 'w';
+
+    isLocked = true;
+
+    renderBoard();
+
+    let lastWidth = 0;
+    let stableTicks = 0;
+
+    let checkStability = setInterval(() => {
+        const boardEl = document.getElementById('board');
+        const currentWidth = boardEl.getBoundingClientRect().width;
+
+        if (currentWidth > 0 && currentWidth === lastWidth) {
+            stableTicks++;
+        } else {
+            stableTicks = 0;
+        }
+        
+        lastWidth = currentWidth;
+
+        if (stableTicks > 3) {
+            clearInterval(checkStability);
+            
+            renderBoard(); 
+            
+    setTimeout(() => {
+        if (!skipAutoMove && puzzles[currentPuzzleIndex] && puzzles[currentPuzzleIndex].moves) {
+            playMove(puzzles[currentPuzzleIndex].moves[currentStep], true);
+        }
+    }, 100);
+        }
+    }, 100);
+}
+
+function isSquareUnderAttack(targetR, targetC, attackerIsWhite) {
+    for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+            const piece = boardState[r][c];
+            if (!piece) continue;
+
+            const isPieceWhite = piece === piece.toUpperCase();
+            if (isPieceWhite !== attackerIsWhite) continue;
+
+            const p = piece.toLowerCase();
+            const dr = Math.abs(targetR - r);
+            const dc = Math.abs(targetC - c);
+
+            if (p === 'p') {
+                const dir = isPieceWhite ? -1 : 1;
+                if (targetR - r === dir && dc === 1) return true;
+            } else {
+                if (isPossibleMove(r, c, targetR, targetC, piece, true)) return true;
+            }
+        }
+    }
+    return false;
+}
+
+function renderBoard() {
+    boardEl.innerHTML = '';
+    const range = (playerColor === 'b') ?[7, 6, 5, 4, 3, 2, 1, 0] :[0, 1, 2, 3, 4, 5, 6, 7];
+    
+    let checkedSquares =[];
+    for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+            const piece = boardState[r][c];
+            if (piece === 'K' && isSquareUnderAttack(r, c, false)) {
+                checkedSquares.push(idxToPos(r, c));
+            }
+            if (piece === 'k' && isSquareUnderAttack(r, c, true)) {
+                checkedSquares.push(idxToPos(r, c));
+            }
+        }
+    }
+
+    for (let r of range) {
+        for (let c of range) {
+            const sq = document.createElement('div');
+            const pos = idxToPos(r, c);
+            sq.className = `square ${(r + c) % 2 === 0 ? 'light' : 'dark'}`;
+            sq.dataset.pos = pos;
+            sq.dataset.r = r; 
+            sq.dataset.c = c;
+            
+            if (lastMoveSquares.includes(pos)) sq.classList.add('enemy-move');
+            if (selectedSq && selectedSq.pos === pos) sq.classList.add('selected');
+            if (hintSquare === pos) sq.classList.add('hint-blink');
+            if (checkedSquares.includes(pos)) sq.classList.add('in-check');
+
+
+            const isLeftEdge = (playerColor === 'w' && c === 0) || (playerColor === 'b' && c === 7);
+            if (isLeftEdge) {
+                const numSpan = document.createElement('span');
+                numSpan.className = 'coord coord-number';
+                numSpan.textContent = 8 - r; // r=0 это 8-я горизонталь
+                sq.appendChild(numSpan);
+            }
+
+            // Буквы (отображаем только на нижней горизонтали относительно зрителя)
+            // При белых это r=7 (1-я горизонталь), при черных это r=0 (8-я горизонталь)
+            const isBottomEdge = (playerColor === 'w' && r === 7) || (playerColor === 'b' && r === 0);
+            if (isBottomEdge) {
+                const letSpan = document.createElement('span');
+                letSpan.className = 'coord coord-letter';
+                letSpan.textContent = String.fromCharCode(97 + c); // 97 это 'a'
+                sq.appendChild(letSpan);
+            }
+
+            const piece = boardState[r][c];
+            if (piece) {
+                const pEl = document.createElement('div');
+                pEl.className = 'piece';
+                pEl.style.backgroundImage = `url('${PIECE_IMAGES[piece]}')`;
+                sq.appendChild(pEl);
+            }
+            
+            sq.onmousedown = sq.ontouchstart = (e) => handleStart(e, r, c);
+            boardEl.appendChild(sq);
+        }
+    }
+    
+    if (selectedSq) {
+        const piece = boardState[selectedSq.r][selectedSq.c];
+        if (piece) showHints(selectedSq.r, selectedSq.c, piece);
+    }
+}
+
+function handleStart(e, r, c) {
+    if (isLocked) return;
+
+    if (hintSquare) {
+        hintSquare = null;
+        document.querySelectorAll('.hint-blink').forEach(el => el.classList.remove('hint-blink'));
+    }
+
+    const clickedPiece = boardState[r][c];
+    const isMyPiece = clickedPiece && (
+        (playerColor === 'w' && clickedPiece === clickedPiece.toUpperCase()) || 
+        (playerColor === 'b' && clickedPiece !== clickedPiece.toUpperCase())
+    );
+
+    if (selectedSq && !isMyPiece) {
+        const fromPiece = boardState[selectedSq.r][selectedSq.c];
+        if (isPossibleMove(selectedSq.r, selectedSq.c, r, c, fromPiece)) {
+            if (e.cancelable) e.preventDefault();
+            checkLogicMove(r, c);
+            selectedSq = null; 
+            return;
+        }
+    }
+
+    if (!isMyPiece) {
+        if (selectedSq) { selectedSq = null; renderBoard(); }
+        return;
+    }
+
+    if (e.cancelable) e.preventDefault();
+
+    const currentSqEl = document.querySelector(`[data-pos="${idxToPos(r, c)}"]`);
+    const rect = currentSqEl.getBoundingClientRect();
+    const squareSize = rect.width; 
+
+    const piece = clickedPiece;
+    const startR = r; 
+    const startC = c;
+    selectedSq = { r, c, pos: idxToPos(r, c) };
+    
+        const isPortrait = window.innerHeight > window.innerWidth;
+        const scale = isPortrait ? 1.6 : 1.0;
+
+        follower.style.width = (squareSize * scale) + 'px';
+        follower.style.height = (squareSize * scale) + 'px';
+    follower.style.backgroundImage = `url('${PIECE_IMAGES[piece]}')`;
+    follower.style.display = 'block';
+
+    let clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    let clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    updateFollower(clientX, clientY);
+
+    document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+    document.querySelectorAll('.hint-dot, .hint-ring').forEach(el => el.remove());
+    showHints(r, c, piece);
+
+    const pInBoard = currentSqEl.querySelector('.piece');
+    if (pInBoard) pInBoard.style.opacity = '0.4';
+
+    let isDragging = false;
+
+    const onMove = (me) => {
+        if (me.cancelable) me.preventDefault();
+        isDragging = true;
+        clientX = me.touches ? me.touches[0].clientX : me.clientX;
+        clientY = me.touches ? me.touches[0].clientY : me.clientY;
+        updateFollower(clientX, clientY);
+    };
+
+    const onEnd = (ue) => {
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onEnd);
+        document.removeEventListener('touchmove', onMove, { passive: false });
+        document.removeEventListener('touchend', onEnd);
+        document.removeEventListener('touchcancel', onEnd);
+        
+        follower.style.display = 'none';
+        if (pInBoard) pInBoard.style.opacity = '1';
+        
+        let ux = clientX;
+        let uy = clientY;
+        
+        if (ue && ue.changedTouches && ue.changedTouches.length > 0) {
+            ux = ue.changedTouches[0].clientX;
+            uy = ue.changedTouches[0].clientY;
+        }
+
+        const target = document.elementFromPoint(ux, uy)?.closest('.square');
+        let moveMade = false;
+
+        if (target) {
+            const tr = parseInt(target.dataset.r);
+            const tc = parseInt(target.dataset.c);
+            
+            if (tr === startR && tc === startC) {
+                renderBoard();
+                return; 
+            }
+
+            if (isPossibleMove(startR, startC, tr, tc, piece)) {
+                checkLogicMove(tr, tc);
+                selectedSq = null; 
+                moveMade = true;
+            }
+        }
+        
+        if (!moveMade) {
+             if (isDragging) selectedSq = null;
+             renderBoard();
+        }
+    };
+
+    document.addEventListener('mousemove', onMove, { passive: false });
+    document.addEventListener('mouseup', onEnd);
+    document.addEventListener('touchmove', onMove, { passive: false });
+    document.addEventListener('touchend', onEnd);
+    document.addEventListener('touchcancel', onEnd);
+}
+
+let pendingPromotion = null;
+
+function checkLogicMove(tr, tc) {
+    const toPos = idxToPos(tr, tc);
+    const fromPiece = boardState[selectedSq.r][selectedSq.c];
+    const correctMove = puzzles[currentPuzzleIndex].moves[currentStep];
+
+    if (fromPiece.toLowerCase() === 'p' && (tr === 0 || tr === 7)) {
+        pendingPromotion = { tr, tc, toPos, fromPos: selectedSq.pos };
+
+        const targetSqEl = document.querySelector(`[data-pos="${toPos}"]`);
+        const rect = targetSqEl.getBoundingClientRect();
+        const dialog = document.getElementById('promotion-dialog');
+
+        dialog.style.width = rect.width + 'px';
+        dialog.style.left = rect.left + 'px';
+
+        const isVisualTop = (playerColor === 'w' && tr === 0) || (playerColor === 'b' && tr === 7);
+
+        if (isVisualTop) {
+            dialog.style.top = rect.top + 'px';
+            document.querySelector('.promotion-box').style.flexDirection = 'column';
+        } else {
+            dialog.style.top = (rect.top - rect.height * 3) + 'px';
+            document.querySelector('.promotion-box').style.flexDirection = 'column-reverse';
+        }
+
+        document.querySelectorAll('.prom-option').forEach(opt => {
+            opt.style.width = rect.width + 'px';
+            opt.style.height = rect.width + 'px';
+        });
+
+        const isWhite = (fromPiece === 'P');
+        const pieces = isWhite ?['Q', 'R', 'B', 'N'] : ['q', 'r', 'b', 'n'];
+        document.getElementById('prom-q').style.backgroundImage = `url('${PIECE_IMAGES[pieces[0]]}')`;
+        document.getElementById('prom-r').style.backgroundImage = `url('${PIECE_IMAGES[pieces[1]]}')`;
+        document.getElementById('prom-b').style.backgroundImage = `url('${PIECE_IMAGES[pieces[2]]}')`;
+        document.getElementById('prom-n').style.backgroundImage = `url('${PIECE_IMAGES[pieces[3]]}')`;
+
+        dialog.classList.remove('hidden');
+        return; 
+    }
+
+    const movePlayed = selectedSq.pos + toPos;
+    if (movePlayed === correctMove) {
+        playMove(correctMove, false);
+        selectedSq = null; 
+    } else {
+        handleMoveError(selectedSq.pos, toPos);
+    }
+}
+
+function handleMoveError(fromPos, toPos) {
+    hasMistake = true;
+    safePlaySound(audioError); 
+
+    statsTotalMistakes++; 
+    saveCurrentStats();   
+    Platform.vibrate('error');
+
+    // --- ЛОГИКА ВЫЖИВАНИЯ (ОШИБКА = СРАЗУ КОНЕЦ) ---
+    if (gameMode === 'survival') {
+        setTimeout(() => {
+            document.getElementById('survival-score').textContent = survivalStreak;
+            document.getElementById('game-over-modal').classList.remove('hidden');
+        }, 500);
+        return; // Прерываем функцию, чтобы дальше ничего не отрисовывалось
+    }
+
+    // --- ЛОГИКА ОБЫЧНОГО РЕЖИМА ---
+    const fromSq = document.querySelector(`[data-pos="${fromPos}"]`);
+    const toSq = document.querySelector(`[data-pos="${toPos}"]`);
+    if (fromSq) fromSq.classList.add('error-move');
+    if (toSq) toSq.classList.add('error-move');
+    const boardWrapper = document.getElementById('board-wrapper');
+    boardWrapper.classList.add('shake');
+
+    setTimeout(() => {
+        boardWrapper.classList.remove('shake');
+        if (fromSq) fromSq.classList.remove('error-move');
+        if (toSq) toSq.classList.remove('error-move');
+        selectedSq = null;
+        renderBoard();
+    }, 400);
+}
+function selectPromotion(type) {
+    document.getElementById('promotion-dialog').classList.add('hidden');
+    
+    if (!pendingPromotion) return;
+
+    const moveWithPromotion = pendingPromotion.fromPos + pendingPromotion.toPos + type;
+    const correctMove = puzzles[currentPuzzleIndex].moves[currentStep];
+
+    if (moveWithPromotion === correctMove) {
+        playMove(correctMove, false);
+    } else {
+        handleMoveError(pendingPromotion.fromPos, pendingPromotion.toPos);
+    }
+
+    pendingPromotion = null;
+    selectedSq = null;
+}
+
+function playMove(moveStr, isOpponent) {
+    const from = moveStr.substring(0, 2), to = moveStr.substring(2, 4);
+    const f = posToIdx(from), t = posToIdx(to);
+    lastMoveSquares = [from, to];
+
+    if (isOpponent) {
+        const fromSq = document.querySelector(`[data-pos="${from}"]`);
+        const toSq = document.querySelector(`[data-pos="${to}"]`);
+        const pieceEl = fromSq?.querySelector('.piece');
+        if (pieceEl) {
+            const fR = fromSq.getBoundingClientRect(), tR = toSq.getBoundingClientRect();
+            fromSq.style.zIndex = "1000";
+            pieceEl.style.transition = "transform 0.25s ease-in-out";
+            pieceEl.style.transform = `translate(${tR.left - fR.left}px, ${tR.top - fR.top}px)`;
+            setTimeout(() => finalizeMove(moveStr, isOpponent, f, t), 250);
+            return;
+        }
+    }
+    finalizeMove(moveStr, isOpponent, f, t);
+}
+
+function showPointsAnimation(points) {
+    const container = document.getElementById('points-anim-container');
+    if (!container) return;
+    const animEl = document.createElement('div');
+    animEl.className = 'points-added';
+    animEl.textContent = `+${points}`;
+    container.appendChild(animEl);
+    setTimeout(() => animEl.remove(), 1000);
+}
+
+function finalizeMove(moveStr, isOpponent, f, t) {
+    // 1. Звуки и Вибрация
+    if (boardState[t.r][t.c] !== "") {
+        safePlaySound(audioCapture);
+        if (!isOpponent) Platform.vibrate('capture'); // Вибрация при взятии
+    } else {
+        safePlaySound(audioMove);
+        if (!isOpponent) Platform.vibrate('move');    // Обычная вибрация
+    }
+
+    // 2. Логика превращения пешки
+    let piece = boardState[f.r][f.c];
+    if (moveStr.length === 5) {
+        const prom = moveStr[4];
+        piece = (piece === piece.toUpperCase()) ? prom.toUpperCase() : prom.toLowerCase();
+    }
+    
+    // 3. Рокировка
+    if (piece.toLowerCase() === 'k' && Math.abs(f.c - t.c) === 2) {
+        const rookCol = t.c > f.c ? [7, 5] : [0, 3];
+        boardState[f.r][rookCol[1]] = boardState[f.r][rookCol[0]];
+        boardState[f.r][rookCol[0]] = "";
+    }
+    
+    boardState[t.r][t.c] = piece; 
+    boardState[f.r][f.c] = "";
+    currentStep++;
+    renderBoard(); 
+    
+    if (isOpponent) { 
+        isLocked = false; 
+        Platform.gameplayStart(); 
+    } else if (currentStep < puzzles[currentPuzzleIndex].moves.length) {
+        // Промежуточный ход игрока
+        isLocked = true;
+        setTimeout(() => playMove(puzzles[currentPuzzleIndex].moves[currentStep], true), 600);
+    } else {
+        // --- ЗАДАЧА ПОЛНОСТЬЮ РЕШЕНА ---
+
+        const currentId = puzzles[currentPuzzleIndex].id; // Берем ID текущей задачи
+        solvedIds.add(currentId);                         // Добавляем в локальный набор
+        Platform.saveSolvedIds(Array.from(solvedIds));    // Сохраняем весь список в облако ВК
+        
+        const thisElo = Number(puzzles[currentPuzzleIndex].elo);
+        const randomDelta = Math.floor(Math.random() * 16) + 80; 
+
+statsTotalSolved++; 
+
+if (gameMode === 'survival') {
+    survivalStreak++;
+    document.getElementById('score-display').textContent = survivalStreak;
+    
+    if (survivalStreak > statsMaxStreak) {
+        statsMaxStreak = survivalStreak;
+        document.getElementById('user-max-rating').textContent = statsMaxStreak;
+    }
+    // Поднимаем сложность: чем дольше серия, тем выше Эло
+    currentElo += 50; 
+} else {
+    // --- ЛОГИКА ОБЫЧНОГО РЕЖИМА --- else {
+            // --- ЛОГИКА ОБЫЧНОГО РЕЖИМА ---
+            if (!hasHint && !hasMistake) {
+                if (Platform.vibrate) Platform.vibrate('success');
+                statsFlawless++; 
+                if (thisElo > statsMaxElo) {
+                    statsMaxElo = thisElo;
+                    document.getElementById('user-max-rating').textContent = statsMaxElo;
+                }
+                eloStandard += randomDelta;
+                currentElo = eloStandard;
+                
+                let pointsToAdd = (previousPuzzleElo === null) ? 15 : Math.max(5, Math.abs(thisElo - previousPuzzleElo));
+                totalScore += pointsToAdd; 
+                document.getElementById('score-display').textContent = totalScore;
+                showPointsAnimation(pointsToAdd); 
+            } else if (hasMistake && !hasHint) {
+                currentElo = Math.max(100, currentElo - randomDelta); 
+            }
+        }
+
+        saveCurrentStats();
+        previousPuzzleElo = thisElo;
+
+        // Отправляем в Supabase только для обычного режима (пока что)
+        if (gameMode === 'standard') {
+            pushToGlobalLeaderboard(); 
+        }
+        pushToGlobalLeaderboard(); 
+
+// ПЕРЕХОД К СЛЕДУЮЩЕЙ ЗАДАЧЕ С ПРОВЕРКОЙ РЕКЛАМЫ
+        gamesPlayedSinceAd++;
+        const now = Date.now();
+        
+        setTimeout(() => {
+            Platform.gameplayStop(); // Останавливаем звуки
+
+            // Проверяем: прошло ли 3 минуты И решено ли 3 задачи?
+            if (gamesPlayedSinceAd >= GAMES_BEFORE_AD && (now - lastAdTime) >= AD_COOLDOWN_MS) {
+                // Показываем рекламу перед следующей задачей
+                Platform.showInterstitial(() => {
+                    lastAdTime = Date.now();
+                    gamesPlayedSinceAd = 0;
+                    startPuzzle();
+                });
+            } else {
+                // Иначе просто запускаем следующую задачу мгновенно
+                startPuzzle();
+            }
+        }, 800);
+    }
+}
+
+
+
+// Функция для закрытия модального окна ТОПа
+function hideTopModal() {
+    const modal = document.getElementById('leaderboard-modal');
+    if (modal) {
+        modal.classList.add('hidden');
+    }
+}
+
+// Твоя существующая функция открытия (убедись, что она выглядит так)
+async function openLeaderboard() {
+    const modal = document.getElementById('leaderboard-modal');
+    const container = document.getElementById('leaderboard-container');
+    const title = document.getElementById('top-title');
+    
+    modal.classList.remove('hidden');
+    container.innerHTML = `<div style="text-align:center; padding:20px;">${i18n[lang].lbLoading}</div>`;
+
+    // Определяем, какую таблицу и колонку запрашивать
+    const isSurvival = (gameMode === 'survival');
+    const tableName = isSurvival ? 'leaderboard_survival' : 'leaderboard';
+    const orderBy = isSurvival ? 'streak' : 'score';
+    
+    // Меняем заголовок в зависимости от режима
+    title.textContent = isSurvival ? i18n[lang].lbTitleSurvival : i18n[lang].lbTitle;
+
+    try {
+        const { data, error } = await sb
+            .from(tableName)
+            .select('*')
+            .order(orderBy, { ascending: false })
+            .limit(50);
+
+        if (error) throw error;
+
+        // Преобразуем данные (для выживания используем поле streak, для обычного - score)
+        const items = data.map(item => ({
+            user_id: item.vk_id,
+            first_name: item.name,
+            score: isSurvival ? item.streak : item.score, 
+            photo_100: item.avatar
+        }));
+
+        renderTopList(items);
+
+    } catch (e) {
+        console.error("Ошибка загрузки топа:", e);
+        container.innerHTML = `<div style="text-align:center; color:red; padding:20px;">${i18n[lang].lbError}</div>`;
+    }
+}
+
+function applyHint() {
+    hasHint = true;
+    const correctMove = puzzles[currentPuzzleIndex].moves[currentStep];
+    hintSquare = correctMove.substring(0, 2);
+    renderBoard();
+}
+
+function showHints(r, c, piece) {
+    const currentSq = document.querySelector(`[data-pos="${idxToPos(r, c)}"]`);
+    if (currentSq) currentSq.classList.add('selected');
+
+    for (let tr = 0; tr < 8; tr++) {
+        for (let tc = 0; tc < 8; tc++) {
+            if (isPossibleMove(r, c, tr, tc, piece)) {
+                const targetPos = idxToPos(tr, tc);
+                const targetSq = document.querySelector(`[data-pos="${targetPos}"]`);
+                
+                if (targetSq) {
+                    if (targetSq.querySelector('.hint-dot, .hint-ring')) continue;
+                    const h = document.createElement('div');
+                    h.className = boardState[tr][tc] ? 'hint-ring' : 'hint-dot';
+                    targetSq.appendChild(h);
+                }
+            }
+        }
+    }
+}
+
+function isPossibleMove(fr, fc, tr, tc, piece, isCheckTest = false) {
+    if (fr === tr && fc === tc) return false;
+    const p = piece.toLowerCase();
+    const isW = piece === piece.toUpperCase();
+    const dr = Math.abs(tr - fr);
+    const dc = Math.abs(tc - fc);
+
+    if (!isCheckTest) {
+        if (boardState[tr][tc] !== "" && (boardState[tr][tc] === boardState[tr][tc].toUpperCase()) === isW) return false;
+    }
+
+    const clearPath = () => {
+        const sR = Math.sign(tr - fr);
+        const sC = Math.sign(tc - fc);
+        let r = fr + sR;
+        let c = fc + sC;
+        while (r !== tr || c !== tc) {
+            if (boardState[r][c] !== "") return false;
+            r += sR; c += sC;
+        }
+        return true;
+    };
+
+    switch(p) {
+        case 'p': 
+            const dir = isW ? -1 : 1;
+            if (!isCheckTest) {
+                if (dc === 0 && tr - fr === dir && boardState[tr][tc] === "") return true;
+                if (dc === 0 && tr - fr === 2 * dir && ((isW && fr === 6) || (!isW && fr === 1))) {
+                    return boardState[tr][tc] === "" && boardState[fr + dir][fc] === "";
+                }
+            }
+            if (dc === 1 && tr - fr === dir && (boardState[tr][tc] !== "" || isCheckTest)) return true;
+            return false;
+        case 'r': return (dr === 0 || dc === 0) && clearPath();
+        case 'n': return (dr === 2 && dc === 1) || (dr === 1 && dc === 2);
+        case 'b': return dr === dc && clearPath();
+        case 'q': return (dr === dc || dr === 0 || dc === 0) && clearPath();
+        case 'k': 
+            if (dr <= 1 && dc <= 1) {
+                if (isCheckTest) return true;
+                if (isSquareUnderAttack(tr, tc, !isW)) return false;
+                return true;
+            }
+            return false;
+    }
+    return false;
+}
+
+function parseFEN(f) {
+    return f.split(' ')[0].split('/').map(r => {
+        const row =[];
+        for (let char of r) { if (isNaN(char)) row.push(char); else for (let i = 0; i < parseInt(char); i++) row.push(""); }
+        return row;
+    });
+}
+
+function posToIdx(p) { return { r: 8 - parseInt(p[1]), c: p.charCodeAt(0) - 97 }; }
+function idxToPos(r, c) { return String.fromCharCode(97 + c) + (8 - r); }
+function updateFollower(x, y) { follower.style.left = x + 'px'; follower.style.top = y + 'px'; }
+
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('dragstart', e => e.preventDefault());
+document.addEventListener('touchmove', function(e) {
+    const isInsideScroll = e.target.closest('#leaderboard-container');
+    if (isInsideScroll) {
+        // Если мы внутри списка лидеров, разрешаем стандартный скролл,
+        // но блокируем мультитач (зум)
+        if (e.touches.length > 1) {
+            if (e.cancelable) e.preventDefault();
+        }
+        return; 
+    }
+    // Во всех остальных частях игры (на доске, в меню) 
+    // полностью запрещаем скролл страницы
+    if (e.cancelable) {
+        e.preventDefault();
+    }
+}, { passive: false });
+
+
+function showStatsModal() {
+    document.getElementById('mdl-score').textContent = totalScore;
+    document.getElementById('mdl-solved').textContent = statsTotalSolved;
+    document.getElementById('mdl-flawless').textContent = statsFlawless; // <--- ДОБАВЛЕНО
+    document.getElementById('mdl-mistakes').textContent = statsTotalMistakes;
+    document.getElementById('mdl-max-elo').textContent = statsMaxElo;
+    document.getElementById('mdl-max-streak').textContent = statsMaxStreak;
+    document.getElementById('stats-modal').classList.remove('hidden');
+}
+
+function hideStatsModal() {
+    document.getElementById('stats-modal').classList.add('hidden');
+}
+/*
+// Переводы для нового пункта
+const translationsExtensions = {
+    ru: { mTitle: "Статистика", mScore: "Общий счет:", mSolv: "Всего решено:", mFlaw: "Решено без ошибок:", mMist: "Сделано ошибок:", mMax: "Макс. рейтинг задачи:", mClose: "Закрыть" },
+    en: { mTitle: "Statistics", mScore: "Total Score:", mSolv: "Total Solved:", mFlaw: "Flawlessly Solved:", mMist: "Mistakes Made:", mMax: "Max Puzzle Rating:", mClose: "Close" }
+};
+*/
+function updateModalTexts() {
+    const txt = translationsExtensions[lang];
+    document.getElementById('modal-title').textContent = txt.mTitle;
+    document.getElementById('t-score').textContent = txt.mScore;
+    document.getElementById('t-solved').textContent = txt.mSolv;
+    document.getElementById('t-flawless').textContent = txt.mFlaw; // <--- ДОБАВЛЕНО
+    document.getElementById('t-mistakes').textContent = txt.mMist;
+    document.getElementById('t-max').textContent = txt.mMax;
+    document.getElementById('t-close').textContent = txt.mClose;
+}
+// Вызовите updateModalTexts() внутри вашей applyTranslations()
+
+
+
+
+function renderTopList(items) {
+    const container = document.getElementById('leaderboard-container');
+    container.innerHTML = '';
+    
+    if (!items || items.length === 0) {
+    container.innerHTML = `<div style="text-align:center; padding:20px;">${i18n[lang].lbEmpty}</div>`;
+            return;
+    }
+
+    // В ВК ID пользователя — это Platform.user.id
+    const myId = (Platform.user && Platform.user.id) ? String(Platform.user.id) : null;
+    let myOriginalRow = null;
+
+    // 1. Отрисовываем всех игроков
+    items.forEach((item, index) => {
+        // ID из Supabase может быть строкой или числом, приводим к String
+        const isMe = (myId && String(item.user_id) === myId);
+        
+        const row = document.createElement('div');
+        row.className = `leaderboard-row ${isMe ? 'is-me' : ''}`;
+        
+        row.innerHTML = `
+            <div class="rank-num">${index + 1}</div>
+            <img class="top-avatar" src="${item.photo_100 || 'img/logo.png'}" alt="">
+            <div class="top-name">${item.first_name}</div>
+            <div class="top-score">${item.score}</div>
+        `;
+        container.appendChild(row);
+
+        if (isMe) myOriginalRow = row;
+    });
+
+    // 2. Если мы нашли себя в списке, создаем "липкую" копию
+    if (myOriginalRow) {
+        const stickyRow = myOriginalRow.cloneNode(true);
+        stickyRow.className = 'leaderboard-row is-me sticky-me';
+        
+        // Применяем стили отображения (как в Яндекс версии)
+        Object.assign(stickyRow.style, {
+            position: 'sticky',
+            bottom: '0',
+            top: 'auto',
+            zIndex: '10',
+            display: 'none', // Скрыта по умолчанию
+            boxShadow: '0 -2px 8px rgba(0,0,0,0.2)',
+            backgroundColor: 'var(--bg-color, #fff)'
+        });
+        
+        container.appendChild(stickyRow);
+
+        // 3. Логика появления через IntersectionObserver
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    // Если оригинал виден — прячем липкую
+                    stickyRow.style.display = 'none';
+                } else {
+                    const rect = myOriginalRow.getBoundingClientRect();
+                    const containerRect = container.getBoundingClientRect();
+
+                    // Если мы ниже зоны видимости — показываем липкую снизу
+                    if (rect.top > containerRect.bottom) {
+                        stickyRow.style.display = 'flex';
+                    } else {
+                        // Если мы выше (пролистали) — скрываем
+                        stickyRow.style.display = 'none';
+                    }
+                }
+            });
+        }, { root: container, threshold: 0.5 });
+
+        observer.observe(myOriginalRow);
+    }
+}
+
+
+window.onload = initGame;
+
+
+// Фикс скролла лидерборда на мобильных (из Яндекс-версии)
+(function() {
+    let startY = 0;
+    let startScrollTop = 0;
+
+    document.addEventListener('touchstart', function(e) {
+        const container = document.getElementById('leaderboard-container');
+        // Проверяем, что нажатие произошло внутри списка лидеров
+        if (container && container.contains(e.target)) {
+            startY = e.touches[0].clientY;
+            startScrollTop = container.scrollTop;
+        }
+    }, { passive: true });
+
+    document.addEventListener('touchmove', function(e) {
+        const container = document.getElementById('leaderboard-container');
+        if (!container || !container.contains(e.target)) return;
+
+        const deltaY = startY - e.touches[0].clientY;
+        const newScrollTop = startScrollTop + deltaY;
+
+        // Определяем границы прокрутки
+        const maxScroll = container.scrollHeight - container.clientHeight;
+        const atTop = newScrollTop <= 0;
+        const atBottom = newScrollTop >= maxScroll;
+
+        // Если мы скроллим ВНУТРИ списка (не дошли до краев)
+        if (!atTop && !atBottom) {
+            container.scrollTop = newScrollTop;
+            // Блокируем стандартный скролл всей страницы браузером
+            if (e.cancelable) e.preventDefault();
+        } 
+        // Если дошли до верха и тянем вниз
+        else if (atTop && deltaY < 0) {
+            container.scrollTop = 0;
+            if (e.cancelable) e.preventDefault();
+        } 
+        // Если дошли до низа и тянем вверх
+        else if (atBottom && deltaY > 0) {
+            container.scrollTop = maxScroll;
+            if (e.cancelable) e.preventDefault();
+        }
+    }, { passive: false }); // Важно: false позволяет вызывать preventDefault
+})();
+
+</script>
+</body>
+</html>
+
+
+
+
+
+
