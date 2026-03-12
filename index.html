@@ -1541,24 +1541,46 @@ function handleMoveError(fromPos, toPos) {
     const piece = boardState[posToIdx(fromPos).r][posToIdx(fromPos).c];
     const boardWrapper = document.getElementById('board-wrapper');
 
-    // Временно перемещаем фигуру на целевую клетку
+    // Перемещаем фигуру на целевую клетку
     boardState[posToIdx(toPos).r][posToIdx(toPos).c] = piece;
     boardState[posToIdx(fromPos).r][posToIdx(fromPos).c] = "";
     renderBoard();
     showPieceBadge(toPos, 'wrong');
     boardWrapper.classList.add('shake');
 
-    if (gameMode === 'survival') {
-        setTimeout(() => {
-            boardWrapper.classList.remove('shake');
-            // Возвращаем фигуру обратно
+    // Анимация возврата фигуры обратно
+    setTimeout(() => {
+        boardWrapper.classList.remove('shake');
+
+        // Анимируем полёт обратно
+        const toSqEl = document.querySelector(`[data-pos="${toPos}"]`);
+        const fromSqEl = document.querySelector(`[data-pos="${fromPos}"]`);
+        const pieceEl = toSqEl?.querySelector('.piece');
+
+        if (pieceEl && fromSqEl) {
+            const tR = toSqEl.getBoundingClientRect();
+            const fR = fromSqEl.getBoundingClientRect();
+            pieceEl.style.transition = 'transform 0.25s ease-in-out';
+            pieceEl.style.transform = `translate(${fR.left - tR.left}px, ${fR.top - tR.top}px)`;
+
+            setTimeout(() => {
+                // Убираем бейдж и возвращаем состояние доски
+                document.querySelectorAll('.piece-badge').forEach(el => el.remove());
+                boardState[posToIdx(fromPos).r][posToIdx(fromPos).c] = piece;
+                boardState[posToIdx(toPos).r][posToIdx(toPos).c] = "";
+                selectedSq = null;
+                renderBoard();
+            }, 260);
+        } else {
+            document.querySelectorAll('.piece-badge').forEach(el => el.remove());
             boardState[posToIdx(fromPos).r][posToIdx(fromPos).c] = piece;
             boardState[posToIdx(toPos).r][posToIdx(toPos).c] = "";
             selectedSq = null;
             renderBoard();
-        }, 400);
+        }
+    }, 400);
 
-        // Меняем кнопки — серия закончена
+    if (gameMode === 'survival') {
         survivalStreak = 0;
         document.getElementById('score-display').textContent = survivalStreak;
         
@@ -1572,18 +1594,7 @@ function handleMoveError(fromPos, toPos) {
         });
 
         survivalFailed = true;
-        return;
     }
-
-    // Обычный режим
-    setTimeout(() => {
-        boardWrapper.classList.remove('shake');
-        // Возвращаем фигуру обратно
-        boardState[posToIdx(fromPos).r][posToIdx(fromPos).c] = piece;
-        boardState[posToIdx(toPos).r][posToIdx(toPos).c] = "";
-        selectedSq = null;
-        renderBoard();
-    }, 400);
 }
 function selectPromotion(type) {
     document.getElementById('promotion-dialog').classList.add('hidden');
