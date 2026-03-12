@@ -1540,7 +1540,6 @@ function handleMoveError(fromPos, toPos) {
 
     const piece = boardState[posToIdx(fromPos).r][posToIdx(fromPos).c];
     const capturedPiece = boardState[posToIdx(toPos).r][posToIdx(toPos).c];
-    console.log('capturedPiece:', capturedPiece, 'toPos:', toPos);
     const boardWrapper = document.getElementById('board-wrapper');
 
     // Перемещаем фигуру на целевую клетку
@@ -1558,43 +1557,43 @@ function handleMoveError(fromPos, toPos) {
         const fromSqEl = document.querySelector(`[data-pos="${fromPos}"]`);
         const pieceEl = toSqEl?.querySelector('.piece');
 
-if (pieceEl && fromSqEl) {
-    const tR = toSqEl.getBoundingClientRect();
-    const fR = fromSqEl.getBoundingClientRect();
-    
-    document.querySelectorAll('.piece-badge').forEach(el => el.remove());
+        if (pieceEl && fromSqEl) {
+            const tR = toSqEl.getBoundingClientRect();
+            const fR = fromSqEl.getBoundingClientRect();
+            
+            document.querySelectorAll('.piece-badge').forEach(el => el.remove());
 
-    // Восстанавливаем доску СРАЗУ (вражеская фигура появляется)
-    boardState[posToIdx(fromPos).r][posToIdx(fromPos).c] = piece;
-    boardState[posToIdx(toPos).r][posToIdx(toPos).c] = capturedPiece;
-    selectedSq = null;
-    renderBoard();
+            // Восстанавливаем доску СРАЗУ (вражеская фигура появляется)
+            boardState[posToIdx(fromPos).r][posToIdx(fromPos).c] = piece;
+            boardState[posToIdx(toPos).r][posToIdx(toPos).c] = capturedPiece;
+            selectedSq = null;
+            renderBoard();
 
-    // Анимируем нашу фигуру через follower
-    follower.style.backgroundImage = `url('${PIECE_IMAGES[piece]}')`;
-    follower.style.width = tR.width + 'px';
-    follower.style.height = tR.height + 'px';
-    follower.style.left = (tR.left + tR.width/2) + 'px';
-    follower.style.top = (tR.top + tR.height/2) + 'px';
-    follower.style.transition = 'none';
-    follower.style.display = 'block';
+            // Анимируем нашу фигуру через follower
+            follower.style.backgroundImage = `url('${PIECE_IMAGES[piece]}')`;
+            follower.style.width = tR.width + 'px';
+            follower.style.height = tR.height + 'px';
+            follower.style.left = (tR.left + tR.width/2) + 'px';
+            follower.style.top = (tR.top + tR.height/2) + 'px';
+            follower.style.transition = 'none';
+            follower.style.display = 'block';
 
-    // Прячем нашу фигуру на стартовой клетке пока летит
-    const ourPieceEl = document.querySelector(`[data-pos="${fromPos}"]`)?.querySelector('.piece');
-    if (ourPieceEl) ourPieceEl.style.opacity = '0';
+            // Прячем нашу фигуру на стартовой клетке пока летит
+            const ourPieceEl = document.querySelector(`[data-pos="${fromPos}"]`)?.querySelector('.piece');
+            if (ourPieceEl) ourPieceEl.style.opacity = '0';
 
-    requestAnimationFrame(() => {
-        follower.style.transition = 'left 0.25s ease-in-out, top 0.25s ease-in-out';
-        follower.style.left = (fR.left + fR.width/2) + 'px';
-        follower.style.top = (fR.top + fR.height/2) + 'px';
-    });
+            requestAnimationFrame(() => {
+                follower.style.transition = 'left 0.25s ease-in-out, top 0.25s ease-in-out';
+                follower.style.left = (fR.left + fR.width/2) + 'px';
+                follower.style.top = (fR.top + fR.height/2) + 'px';
+            });
 
-    setTimeout(() => {
-        follower.style.display = 'none';
-        follower.style.transition = 'none';
-        if (ourPieceEl) ourPieceEl.style.opacity = '1';
-    }, 260);
-} else {
+            setTimeout(() => {
+                follower.style.display = 'none';
+                follower.style.transition = 'none';
+                if (ourPieceEl) ourPieceEl.style.opacity = '1';
+            }, 260);
+        } else {
             document.querySelectorAll('.piece-badge').forEach(el => el.remove());
             boardState[posToIdx(fromPos).r][posToIdx(fromPos).c] = piece;
             boardState[posToIdx(toPos).r][posToIdx(toPos).c] = capturedPiece; // восстанавливаем фигуру соперника
