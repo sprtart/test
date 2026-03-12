@@ -1559,6 +1559,7 @@ function handleMoveError(fromPos, toPos) {
     if (toSq) toSq.classList.add('error-move');
     const boardWrapper = document.getElementById('board-wrapper');
     boardWrapper.classList.add('shake');
+    showPieceBadge(fromPos, 'wrong'); 
 
     setTimeout(() => {
         boardWrapper.classList.remove('shake');
@@ -1566,7 +1567,7 @@ function handleMoveError(fromPos, toPos) {
         if (toSq) toSq.classList.remove('error-move');
         selectedSq = null;
         renderBoard();
-        showPieceBadge(fromPos, 'wrong'); // ПОСЛЕ renderBoard
+        //showPieceBadge(fromPos, 'wrong'); // ПОСЛЕ renderBoard
     }, 400);
 }
 function selectPromotion(type) {
@@ -1646,7 +1647,7 @@ boardState[t.r][t.c] = piece;
 boardState[f.r][f.c] = "";
 currentStep++;
 renderBoard(); 
-if (!isOpponent) showPieceBadge(idxToPos(t.r, t.c), 'correct'); // ПОСЛЕ renderBoard
+//if (!isOpponent) showPieceBadge(idxToPos(t.r, t.c), 'correct'); // ПОСЛЕ renderBoard
     
     if (isOpponent) { 
         isLocked = false; 
@@ -1657,7 +1658,7 @@ if (!isOpponent) showPieceBadge(idxToPos(t.r, t.c), 'correct'); // ПОСЛЕ re
         setTimeout(() => playMove(puzzles[currentPuzzleIndex].moves[currentStep], true), 600);
     } else {
         // --- ЗАДАЧА ПОЛНОСТЬЮ РЕШЕНА ---
-
+        howPieceBadge(idxToPos(t.r, t.c), 'correct');
         const currentId = puzzles[currentPuzzleIndex].id; // Берем ID текущей задачи
         solvedIds.add(currentId);                         // Добавляем в локальный набор
         Platform.saveSolvedIds(Array.from(solvedIds));    // Сохраняем весь список в облако ВК
