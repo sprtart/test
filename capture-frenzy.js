@@ -176,16 +176,42 @@ function startGame() {
     }
 }
 
-    function spawnEnemy(animate = false) {
-        const pool = getEnemyPool();
-        const type = pool[Math.floor(Math.random() * pool.length)];
+function spawnEnemy(animate = false) {
+        // 1. Берем базовый пул в зависимости от сложности (очков)
+        const basePool = getEnemyPool();
+
+        // 2. Считаем, какие враги УЖЕ есть на доске
+        const counts = { 'p': 0, 'n': 0, 'b': 0, 'r': 0, 'q': 0 };
+        enemyPieces.forEach(e => counts[e.type] = (counts[e.type] || 0) + 1);
+
+        // 3. Устанавливаем ЛИМИТЫ (чтобы фигуры не дублировались сверх меры)
+        const limits = {
+            'p': 3, // Максимум 3 пешки
+            'n': 2, // Максимум 2 коня
+            'b': 2, // Максимум 2 слона
+            'r': 2, // Максимум 2 ладьи
+            'q': 1  // Максимум 1 ферзь (иначе будет слишком жестко)
+        };
+
+        // 4. Оставляем в корзине (пуле) только те фигуры, которые не превысили лимит
+        let availablePool = basePool.filter(type => counts[type] < limits[type]);
+
+        // Подстраховка: если вдруг всё заблокировалось, откатываемся к базовому пулу
+        if (availablePool.length === 0) availablePool = basePool;
+
+        // 5. Выбираем случайную фигуру уже из отфильтрованного списка
+        const type = availablePool[Math.floor(Math.random() * availablePool.length)];
+        
+        // --- ДАЛЬШЕ ИДЕТ СТАНДАРТНАЯ ЛОГИКА ПОЗИЦИОНИРОВАНИЯ ---
         const playerPositions = playerPieces.map(p => ({r: p.r, c: p.c}));
         
         let attempts = 0, pos;
         do {
             pos = getRandomEmptySquare();
             attempts++;
-            if (!pos) return;
+            if (!pos) return; // Нет свободных клеток
+            
+            // Враги не должны спавниться вплотную к игроку
             const tooClose = playerPositions.some(p => Math.abs(p.r - pos.r) < 2 && Math.abs(p.c - pos.c) < 2);
             if (!tooClose || attempts > 20) break;
         } while (attempts < 30);
@@ -193,6 +219,8 @@ function startGame() {
         if (!pos) return;
 
         let spawnPos = pos, finalType = type;
+        
+        // Пешки не должны спавниться на последней горизонтали (иначе сразу станут ферзями)
         if (type === 'p') {
             let attempts2 = 0;
             do {
@@ -200,13 +228,17 @@ function startGame() {
                 attempts2++;
                 if (!spawnPos) return;
             } while (spawnPos.r === 7 && attempts2 < 20);
+            
+            // Если так и не нашли нормальное место для пешки, превращаем её в коня
             if (spawnPos.r === 7) finalType = 'n';
             pos = spawnPos;
         }
 
+        // Ставим врага на доску
         board[pos.r][pos.c] = finalType;
         enemyPieces.push({ r: pos.r, c: pos.c, type: finalType, id: 'e' + (enemyIdCounter++), justSpawned: true });
 
+        // Анимация появления
         if (animate) {
             setTimeout(() => {
                 const sq = document.querySelector(`[data-r="${pos.r}"][data-c="${pos.c}"]`);
@@ -459,7 +491,7 @@ function handleSquareClick(e, r, c) {
         document.addEventListener('touchend', onEnd);
         document.addEventListener('touchcancel', onEnd);
     }
-    
+
     function updateFollower(foll, x, y) {
         if (foll) { foll.style.left = x + 'px'; foll.style.top = y + 'px'; }
     }
@@ -528,7 +560,8 @@ function handleSquareClick(e, r, c) {
         updateUI();
     }
 
-    function checkMilestones() {
+function checkMilestones() {
+        // Выдача Слона на 50 очках
         if (score >= 50 && !playerBishopAdded) {
             playerBishopAdded = true;
             const pos = getRandomEmptySquare();
@@ -542,9 +575,16 @@ function handleSquareClick(e, r, c) {
                 showFloatingText('+ Слон!', '#769656');
             }
         }
+
+        // Спавн новых врагов по мере роста очков
         if (score >= nextEnemyAt) {
-            nextEnemyAt += 20;
-            spawnEnemy(true);
+            nextEnemyAt += 20; // Следующий спавн еще через 20 очков
+            
+            // ЛИМИТ: Максимум 7 врагов на доске одновременно!
+            // Иначе доска переполнится и игра зависнет
+            if (enemyPieces.length < 7) {
+                spawnEnemy(true);
+            }
             renderBoard();
         }
     }
@@ -563,6 +603,7 @@ function handleSquareClick(e, r, c) {
     }
 
     // ===== ХОД ВРАГОВ =====
+// ===== ХОД ВРАГОВ =====
     function executeEnemyMove() {
         const safetyTimeout = setTimeout(() => {
             isAnimating = false;
@@ -577,45 +618,65 @@ function handleSquareClick(e, r, c) {
             return;
         }
 
-        const shuffled = [...enemyPieces].sort(() => Math.random() - 0.5);
-        let enemy = null, moves =[];
+        let enemy = null;
+        let targetMove = null;
 
-        for (const candidate of shuffled) {
-            if (candidate.justSpawned) { candidate.justSpawned = false; continue; }
+        // ШАГ 1: ПРОВЕРКА НА УБИЙСТВО (Инстинкт хищника)
+        // Проверяем всех врагов - может ли кто-то прямо сейчас съесть игрока?
+        for (const candidate of enemyPieces) {
+            if (candidate.justSpawned) continue; // Только что появившиеся не бьют
             const cMoves = getEnemyMoves(candidate.r, candidate.c, candidate.type);
-            if (cMoves.length > 0) { enemy = candidate; moves = cMoves; break; }
+            for (const move of cMoves) {
+                if (isPlayer(board[move.r][move.c])) { // Ого, тут игрок!
+                    enemy = candidate;
+                    targetMove = move;
+                    break;
+                }
+            }
+            if (enemy) break;
         }
 
+        // ШАГ 2: ОБЫЧНОЕ ПЕРЕМЕЩЕНИЕ (Если убить нельзя)
         if (!enemy) {
+            const shuffled =[...enemyPieces].sort(() => Math.random() - 0.5);
+            let moves =[];
+
+            // Ищем любого врага, у которого вообще есть ходы
             for (const candidate of shuffled) {
+                if (candidate.justSpawned) continue;
                 const cMoves = getEnemyMoves(candidate.r, candidate.c, candidate.type);
-                if (cMoves.length > 0) { enemy = candidate; moves = cMoves; break; }
+                if (cMoves.length > 0) { 
+                    enemy = candidate; 
+                    moves = cMoves; 
+                    break; 
+                }
+            }
+
+            if (!enemy) {
+                clearTimeout(safetyTimeout);
+                isAnimating = false;
+                isPlayerTurn = true;
+                return;
+            }
+
+            // ИИ: 65% шанс пойти в сторону игрока, 35% шанс случайного хода
+            if (Math.random() < 0.65 && playerPieces.length > 0) {
+                let bestDist = Infinity, targetPlayer = playerPieces[0];
+                for (const pp of playerPieces) {
+                    const dist = Math.abs(pp.r - enemy.r) + Math.abs(pp.c - enemy.c);
+                    if (dist < bestDist) { bestDist = dist; targetPlayer = pp; }
+                }
+                let minDist = Infinity;
+                for (const move of moves) {
+                    const dist = Math.abs(move.r - targetPlayer.r) + Math.abs(move.c - targetPlayer.c);
+                    if (dist < minDist) { minDist = dist; targetMove = move; }
+                }
+            } else {
+                targetMove = moves[Math.floor(Math.random() * moves.length)];
             }
         }
 
-        if (!enemy) {
-            clearTimeout(safetyTimeout);
-            isAnimating = false;
-            isPlayerTurn = true;
-            return;
-        }
-
-        let targetMove;
-        if (Math.random() < 0.65 && playerPieces.length > 0) {
-            let bestDist = Infinity, targetPlayer = playerPieces[0];
-            for (const pp of playerPieces) {
-                const dist = Math.abs(pp.r - enemy.r) + Math.abs(pp.c - enemy.c);
-                if (dist < bestDist) { bestDist = dist; targetPlayer = pp; }
-            }
-            let minDist = Infinity;
-            for (const move of moves) {
-                const dist = Math.abs(move.r - targetPlayer.r) + Math.abs(move.c - targetPlayer.c);
-                if (dist < minDist) { minDist = dist; targetMove = move; }
-            }
-        } else {
-            targetMove = moves[Math.floor(Math.random() * moves.length)];
-        }
-
+        // --- ВЫПОЛНЕНИЕ ХОДА ВРАГОМ ---
         const fromSq = document.querySelector(`[data-r="${enemy.r}"][data-c="${enemy.c}"]`);
         const toSq = document.querySelector(`[data-r="${targetMove.r}"][data-c="${targetMove.c}"]`);
         const pieceEl = fromSq?.querySelector('.piece');
@@ -653,20 +714,42 @@ function handleSquareClick(e, r, c) {
             enemy.r = targetMove.r;
             enemy.c = targetMove.c;
 
+            // Превращение вражеской пешки
             if (enemy.type === 'p' && targetMove.r === 7) {
                 enemy.type = 'q';
                 board[targetMove.r][targetMove.c] = 'q';
                 showFloatingText('Пешка → Ферзь!', '#ef4444');
             }
 
+            // Убийство игрока
             if (capturedPiece && isPlayer(capturedPiece)) {
                 loseLife(capturedPiece, targetMove.r, targetMove.c);
             } else {
                 renderBoard();
                 isAnimating = false;
                 isPlayerTurn = true;
+                
+                // === ПРОВЕРКА НА ТУПИК ИГРОКА ===
+                checkPlayerStuck();
             }
         }, 220);
+    }
+
+    // Вспомогательная функция: если игрока зажали и нет ходов, пропускаем его ход
+    function checkPlayerStuck() {
+        let hasAnyMove = false;
+        for (const pp of playerPieces) {
+            if (getPlayerMoves(pp.r, pp.c).length > 0) {
+                hasAnyMove = true;
+                break;
+            }
+        }
+        
+        if (!hasAnyMove && playerPieces.length > 0) {
+            showFloatingText('Нет ходов! Пропуск...', '#d97706');
+            isPlayerTurn = false;
+            setTimeout(() => executeEnemyMove(), 800);
+        }
     }
 
     // ===== ПОТЕРЯ ЖИЗНИ =====
