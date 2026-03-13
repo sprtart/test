@@ -794,13 +794,11 @@ function goHome() {
 }
 
 
-    return {
-    showStart: () => {
-        document.getElementById('cf-start-screen').style.display = 'flex';
-    },
-    startGame,
-    goBack,
-    showStart,
-    openFrenzyLeaderboard
-};
+return {
+        showStart: () => {
+            document.getElementById('cf-start-screen').style.display = 'flex';
+        },
+        startGame,
+        goBack
+    };
 })();
