@@ -1,0 +1,1341 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Захватная лихорадка</title>
+    <style>
+        :root {
+            --board-light: #f0d9b5;
+            --board-dark: #b58863;
+            --bg: #1a1917;
+            --panel-bg: #262625;
+            --accent: #769656;
+            --accent-dark: #546d3b;
+            --danger: #ef4444;
+            --danger-dark: #b91c1c;
+            --text: #ebebeb;
+            --text-dim: #888;
+            --gold: #f59e0b;
+        }
+
+        * {
+            touch-action: none;
+            -webkit-user-select: none;
+            user-select: none;
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            overscroll-behavior: none;
+            overflow: hidden;
+            height: 100vh;
+            background-color: var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        /* ===== ЭКРАН СТАРТА ===== */
+        #start-screen {
+            position: fixed;
+            inset: 0;
+            background: var(--bg);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3vh;
+            padding: 20px;
+        }
+
+        .start-title {
+            font-size: clamp(28px, 8vw, 52px);
+            font-weight: 900;
+            color: var(--text);
+            text-align: center;
+            line-height: 1.1;
+            text-transform: uppercase;
+            letter-spacing: -1px;
+        }
+
+        .start-title span {
+            color: var(--accent);
+        }
+
+        .start-desc {
+            font-size: clamp(13px, 3.5vw, 16px);
+            color: var(--text-dim);
+            text-align: center;
+            line-height: 1.6;
+            max-width: 340px;
+        }
+
+        .piece-values {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            background: var(--panel-bg);
+            padding: 12px 20px;
+            border-radius: 16px;
+        }
+
+        .piece-val {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .piece-val-img {
+            width: 36px;
+            height: 36px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        .piece-val-num {
+            font-size: 13px;
+            font-weight: 900;
+            color: var(--gold);
+        }
+
+        .lives-info {
+            display: flex;
+            gap: 8px;
+            font-size: 28px;
+        }
+
+        .btn-start {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 16px 48px;
+            border-radius: 16px;
+            font-size: 20px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            box-shadow: 0 6px 0 var(--accent-dark);
+            transition: transform 0.1s, box-shadow 0.1s;
+        }
+        .btn-start:active { transform: translateY(6px); box-shadow: 0 0 0 transparent; }
+
+        .btn-back {
+            background: transparent;
+            color: var(--text-dim);
+            border: none;
+            font-size: 14px;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        /* ===== ИГРОВОЙ ЭКРАН ===== */
+        #game-screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            height: 100vh;
+            justify-content: center;
+            gap: 2vw;
+        }
+
+        /* Верхняя панель */
+        #top-panel {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: min(97vw, 85vh);
+            padding: 0 4px;
+        }
+
+        .lives-display {
+            display: flex;
+            gap: 6px;
+            font-size: clamp(20px, 5vw, 28px);
+        }
+
+        .life {
+            transition: all 0.3s;
+        }
+
+        .life.lost {
+            filter: grayscale(1);
+            opacity: 0.3;
+            transform: scale(0.8);
+        }
+
+        .score-display {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .score-label {
+            font-size: 10px;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            letter-spacing: 1px;
+        }
+
+        .score-value {
+            font-size: clamp(24px, 6vw, 36px);
+            font-weight: 900;
+            color: var(--gold);
+            line-height: 1;
+        }
+
+        .next-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            font-size: 11px;
+            color: var(--text-dim);
+            font-weight: 700;
+            gap: 2px;
+        }
+
+        .next-info span {
+            color: var(--accent);
+            font-size: 13px;
+        }
+
+        /* ===== ДОСКА ===== */
+        #board-wrapper {
+            position: relative;
+        }
+
+        .chess-board {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            grid-template-rows: repeat(8, 1fr);
+            width: min(97vw, 75vh);
+            height: min(97vw, 75vh);
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 4px 30px rgba(0,0,0,0.5);
+            border-radius: 4px;
+        }
+
+        .square {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .square.light { background-color: var(--board-light); }
+        .square.dark { background-color: var(--board-dark); }
+
+        .square.selected::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: rgba(204, 204, 80, 0.85);
+            z-index: 0;
+        }
+
+        .square.last-move::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: rgba(204, 204, 80, 0.5);
+            z-index: 0;
+        }
+
+        .square.enemy-threat::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: rgba(239, 68, 68, 0.25);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .piece {
+            width: 92%;
+            height: 92%;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            z-index: 10;
+            cursor: grab;
+            position: absolute;
+            top: 4%;
+            left: 4%;
+            transition: none;
+        }
+
+        .piece.player-piece {
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+        }
+
+        .hint-dot {
+            position: absolute;
+            width: 28%;
+            height: 28%;
+            background-color: rgba(0,0,0,0.18);
+            border-radius: 50%;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .hint-ring {
+            position: absolute;
+            width: 88%;
+            height: 88%;
+            border: 5px solid rgba(0,0,0,0.18);
+            border-radius: 50%;
+            z-index: 5;
+            pointer-events: none;
+            box-sizing: border-box;
+        }
+
+        /* ===== НИЖНЯЯ ПАНЕЛЬ ===== */
+        #bottom-panel {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: min(97vw, 85vh);
+            gap: 10px;
+        }
+
+        .turn-indicator {
+            background: var(--panel-bg);
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            flex: 1;
+            text-align: center;
+        }
+
+        .turn-indicator.your-turn {
+            color: var(--accent);
+            background: rgba(118, 150, 86, 0.15);
+            border: 1px solid rgba(118, 150, 86, 0.3);
+        }
+
+        .enemy-count {
+            background: var(--panel-bg);
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--danger);
+            text-align: center;
+        }
+
+        /* ===== АНИМАЦИИ ===== */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-3px); }
+            40%, 80% { transform: translateX(3px); }
+        }
+
+        @keyframes lifeFlash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.2; }
+        }
+
+        .shake { animation: shake 0.4s ease both; }
+
+        @keyframes scoreFloat {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-40px) scale(1.3); }
+        }
+
+        .score-float {
+            position: fixed;
+            font-weight: 900;
+            font-size: 22px;
+            color: var(--gold);
+            pointer-events: none;
+            z-index: 1000;
+            animation: scoreFloat 0.8s ease-out forwards;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        /* ===== GAME OVER ===== */
+        #gameover-screen {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .gameover-box {
+            background: var(--panel-bg);
+            border-radius: 24px;
+            padding: 32px;
+            width: 85%;
+            max-width: 320px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.7); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .gameover-title {
+            font-size: 28px;
+            font-weight: 900;
+            color: var(--danger);
+            text-transform: uppercase;
+        }
+
+        .gameover-score {
+            font-size: 64px;
+            font-weight: 900;
+            color: var(--gold);
+            line-height: 1;
+        }
+
+        .gameover-label {
+            font-size: 13px;
+            color: var(--text-dim);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: -10px;
+        }
+
+        .gameover-best {
+            font-size: 14px;
+            color: var(--text-dim);
+        }
+
+        .gameover-best b {
+            color: var(--accent);
+        }
+
+        .gameover-btns {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .btn-again {
+            flex: 1;
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 900;
+            cursor: pointer;
+            box-shadow: 0 4px 0 var(--accent-dark);
+        }
+
+        .btn-menu {
+            flex: 1;
+            background: #3d3d3b;
+            color: var(--text);
+            border: none;
+            padding: 14px;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 900;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #222;
+        }
+
+        /* ===== DRAG FOLLOWER ===== */
+        #drag-follower {
+            position: fixed;
+            pointer-events: none;
+            z-index: 1000;
+            display: none;
+            transform: translate(-50%, -50%);
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            opacity: 0.9;
+        }
+
+        /* ===== SPAWN FLASH ===== */
+@keyframes spawnFlash {
+    0% { transform: scale(0); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.piece.spawning {
+    animation: spawnFlash 0.3s ease-out forwards;
+}
+
+        /* ===== MOBILE LANDSCAPE ===== */
+        @media (orientation: landscape) {
+            #game-screen {
+                flex-direction: row;
+                gap: 2vw;
+                padding: 1vh 2vw;
+            }
+
+            .chess-board {
+                width: 85vh;
+                height: 85vh;
+            }
+
+            #side-panel {
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+                width: 22vw;
+                min-width: 160px;
+            }
+
+            #top-panel, #bottom-panel {
+                display: none;
+            }
+
+            .side-score {
+                background: var(--panel-bg);
+                border-radius: 16px;
+                padding: 16px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 4px;
+            }
+
+            .side-lives {
+                background: var(--panel-bg);
+                border-radius: 16px;
+                padding: 16px;
+                display: flex;
+                justify-content: center;
+                gap: 8px;
+                font-size: 24px;
+            }
+        }
+
+        @media (orientation: portrait) {
+            #side-panel { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ЭКРАН СТАРТА -->
+<div id="start-screen">
+    <div class="start-title">Захватная<br><span>лихорадка</span></div>
+    <div class="start-desc">
+        Съедай вражеские фигуры и набирай очки!<br>
+        После каждого твоего хода враги отвечают.<br>
+        Не теряй все жизни!
+    </div>
+
+    <div class="piece-values">
+        <div class="piece-val">
+            <div class="piece-val-img" style="background-image: url('img/p/bP.svg')"></div>
+            <div class="piece-val-num">+1</div>
+        </div>
+        <div class="piece-val">
+            <div class="piece-val-img" style="background-image: url('img/p/bN.svg')"></div>
+            <div class="piece-val-num">+3</div>
+        </div>
+        <div class="piece-val">
+            <div class="piece-val-img" style="background-image: url('img/p/bB.svg')"></div>
+            <div class="piece-val-num">+3</div>
+        </div>
+        <div class="piece-val">
+            <div class="piece-val-img" style="background-image: url('img/p/bR.svg')"></div>
+            <div class="piece-val-num">+5</div>
+        </div>
+        <div class="piece-val">
+            <div class="piece-val-img" style="background-image: url('img/p/bQ.svg')"></div>
+            <div class="piece-val-num">+9</div>
+        </div>
+    </div>
+
+    <div class="lives-info">❤️❤️❤️</div>
+
+    <button class="btn-start" onclick="startGame()">Играть!</button>
+    <button class="btn-back" onclick="goBack()">← Назад</button>
+</div>
+
+<!-- ИГРОВОЙ ЭКРАН -->
+<div id="game-screen">
+
+    <!-- Верхняя панель (портрет) -->
+    <div id="top-panel">
+        <div class="lives-display" id="lives-display">
+            <span class="life">❤️</span>
+            <span class="life">❤️</span>
+            <span class="life">❤️</span>
+        </div>
+        <div class="score-display">
+            <div class="score-label">Очки</div>
+            <div class="score-value" id="score-val">0</div>
+        </div>
+        <div class="next-info" id="next-info">
+            <div>след. враг</div>
+            <span id="next-enemy-val">20</span>
+        </div>
+    </div>
+
+    <!-- Боковая панель (ландшафт) -->
+    <div id="side-panel">
+        <div class="side-lives" id="side-lives">
+            <span class="life">❤️</span>
+            <span class="life">❤️</span>
+            <span class="life">❤️</span>
+        </div>
+        <div class="side-score">
+            <div class="score-label">Очки</div>
+            <div class="score-value" id="side-score-val">0</div>
+        </div>
+        <div class="side-score">
+            <div class="score-label">След. враг</div>
+            <div class="score-value" style="color: var(--danger)" id="side-next-val">20</div>
+        </div>
+        <div class="side-score">
+            <div class="score-label">Враги</div>
+            <div class="score-value" style="color: var(--danger)" id="side-enemy-count">2</div>
+        </div>
+    </div>
+
+    <!-- Доска -->
+    <div id="board-wrapper">
+        <div id="board" class="chess-board"></div>
+    </div>
+
+    <!-- Нижняя панель (портрет) -->
+    <div id="bottom-panel">
+        <div class="turn-indicator your-turn" id="turn-indicator">Твой ход</div>
+        <div class="enemy-count">👾 <span id="enemy-count">2</span></div>
+    </div>
+
+</div>
+
+<!-- GAME OVER -->
+<div id="gameover-screen">
+    <div class="gameover-box">
+        <div class="gameover-title">Игра окончена</div>
+        <div class="gameover-score" id="final-score">0</div>
+        <div class="gameover-label">очков</div>
+        <div class="gameover-best">Рекорд: <b id="best-score">0</b></div>
+        <div class="gameover-btns">
+            <button class="btn-menu" onclick="showStart()">Меню</button>
+            <button class="btn-again" onclick="startGame()">Заново!</button>
+        </div>
+    </div>
+</div>
+
+<div id="drag-follower"></div>
+
+<script>
+// ===== КОНСТАНТЫ =====
+const PIECE_IMAGES = {
+    'P': 'img/p/wP.svg', 'R': 'img/p/wR.svg', 'N': 'img/p/wN.svg',
+    'B': 'img/p/wB.svg', 'Q': 'img/p/wQ.svg', 'K': 'img/p/wK.svg',
+    'p': 'img/p/bP.svg', 'r': 'img/p/bR.svg', 'n': 'img/p/bN.svg',
+    'b': 'img/p/bB.svg', 'q': 'img/p/bQ.svg', 'k': 'img/p/bK.svg'
+};
+
+const PIECE_VALUES = { 'p': 1, 'n': 3, 'b': 3, 'r': 5, 'q': 9 };
+
+// Пул вражеских фигур по уровням сложности
+const ENEMY_POOL_EASY =   ['n','b','n','b','p']; // пешка 1 из 5
+const ENEMY_POOL_MEDIUM = ['n','b','r','n','b'];  // пешек нет
+const ENEMY_POOL_HARD =   ['b','r','r','q','n'];  // пешек нет
+
+// ===== СОСТОЯНИЕ ИГРЫ =====
+let board = []; // 8x8 массив, '' = пусто, 'R'/'B' = игрок, 'p'/'n'/etc = враг
+let playerPieces = []; // [{r, c, type}] — фигуры игрока
+let enemyPieces = [];  // [{r, c, type, id}]
+let selectedPiece = null; // {r, c} выбранная фигура игрока
+let lives = 3;
+let score = 0;
+let bestScore = 0;
+let nextEnemyAt = 20; // очки до следующего врага
+let playerBishopAdded = false; // слон добавлен после 50 очков
+let isPlayerTurn = true;
+let isAnimating = false;
+let enemyIdCounter = 0;
+
+const boardEl = document.getElementById('board');
+const follower = document.getElementById('drag-follower');
+
+// ===== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ =====
+function posToIdx(pos) {
+    return { r: 8 - parseInt(pos[1]), c: pos.charCodeAt(0) - 97 };
+}
+
+function idxToPos(r, c) {
+    return String.fromCharCode(97 + c) + (8 - r);
+}
+
+function isEnemy(piece) {
+    return piece && piece === piece.toLowerCase() && piece !== '';
+}
+
+function isPlayer(piece) {
+    return piece && piece === piece.toUpperCase() && piece !== '';
+}
+
+function getRandomEmptySquare(excludes = []) {
+    const empty = [];
+    for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+            if (board[r][c] === '') {
+                const excluded = excludes.some(e => e.r === r && e.c === c);
+                if (!excluded) empty.push({r, c});
+            }
+        }
+    }
+    if (empty.length === 0) return null;
+    return empty[Math.floor(Math.random() * empty.length)];
+}
+
+function getEnemyPool() {
+    if (score < 30) return ENEMY_POOL_EASY;
+    if (score < 80) return ENEMY_POOL_MEDIUM;
+    return ENEMY_POOL_HARD;
+}
+
+// ===== ИНИЦИАЛИЗАЦИЯ =====
+function startGame() {
+    board = Array(8).fill(null).map(() => Array(8).fill(''));
+    playerPieces = [];
+    enemyPieces = [];
+    selectedPiece = null;
+    lives = 3;
+    score = 0;
+    nextEnemyAt = 20;
+    playerBishopAdded = false;
+    isPlayerTurn = true;
+    isAnimating = false;
+    enemyIdCounter = 0;
+
+    // Размещаем ладью игрока
+    const pos1 = getRandomEmptySquare();
+    board[pos1.r][pos1.c] = 'R';
+    playerPieces.push({ r: pos1.r, c: pos1.c, type: 'R', id: 'p0' });
+
+    // Размещаем 2 врагов
+    spawnEnemy();
+    spawnEnemy();
+
+    updateUI();
+    renderBoard();
+
+    document.getElementById('start-screen').style.display = 'none';
+    document.getElementById('game-screen').style.display = 'flex';
+    document.getElementById('gameover-screen').style.display = 'none';
+}
+
+function spawnEnemy(animate = false) {
+    const pool = getEnemyPool();
+    const type = pool[Math.floor(Math.random() * pool.length)];
+    
+    // Спавним подальше от игрока
+    const playerPositions = playerPieces.map(p => ({r: p.r, c: p.c}));
+    
+    let attempts = 0;
+    let pos;
+    do {
+        pos = getRandomEmptySquare();
+        attempts++;
+        if (!pos) return;
+        // Стараемся не спавнить слишком близко к игроку
+        const tooClose = playerPositions.some(p => 
+            Math.abs(p.r - pos.r) < 2 && Math.abs(p.c - pos.c) < 2
+        );
+        if (!tooClose || attempts > 20) break;
+    } while (attempts < 30);
+
+    if (!pos) return;
+
+    const id = 'e' + (enemyIdCounter++);
+    board[pos.r][pos.c] = type;
+    enemyPieces.push({ r: pos.r, c: pos.c, type, id });
+
+    if (animate) {
+        // Помечаем для анимации появления
+        setTimeout(() => {
+            const sq = document.querySelector(`[data-r="${pos.r}"][data-c="${pos.c}"]`);
+            const pieceEl = sq?.querySelector('.piece');
+            if (pieceEl) pieceEl.classList.add('spawning');
+        }, 50);
+    }
+}
+
+// ===== РЕНДЕР =====
+function renderBoard() {
+    boardEl.innerHTML = '';
+
+    for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+            const sq = document.createElement('div');
+            sq.className = `square ${(r + c) % 2 === 0 ? 'light' : 'dark'}`;
+            sq.dataset.r = r;
+            sq.dataset.c = c;
+
+            if (selectedPiece && selectedPiece.r === r && selectedPiece.c === c) {
+                sq.classList.add('selected');
+            }
+
+            const piece = board[r][c];
+            if (piece) {
+                const pEl = document.createElement('div');
+                pEl.className = 'piece' + (isPlayer(piece) ? ' player-piece' : '');
+                pEl.style.backgroundImage = `url('${PIECE_IMAGES[piece]}')`;
+                sq.appendChild(pEl);
+            }
+
+            sq.onmousedown = sq.ontouchstart = (e) => handleSquareClick(e, r, c);
+            boardEl.appendChild(sq);
+        }
+    }
+
+    // Показываем подсказки ходов
+    if (selectedPiece) {
+        showMoveHints(selectedPiece.r, selectedPiece.c);
+    }
+
+    updateEnemyThreats();
+}
+
+function updateEnemyThreats() {
+    // Подсвечиваем клетки под угрозой врагов
+    for (const enemy of enemyPieces) {
+        const moves = getEnemyMoves(enemy.r, enemy.c, enemy.type);
+        for (const move of moves) {
+            const sq = document.querySelector(`[data-r="${move.r}"][data-c="${move.c}"]`);
+            if (sq && isPlayer(board[move.r][move.c])) {
+                sq.classList.add('enemy-threat');
+            }
+        }
+    }
+}
+
+function showMoveHints(r, c) {
+    const moves = getPlayerMoves(r, c);
+    for (const move of moves) {
+        const sq = document.querySelector(`[data-r="${move.r}"][data-c="${move.c}"]`);
+        if (sq) {
+            const h = document.createElement('div');
+            h.className = board[move.r][move.c] ? 'hint-ring' : 'hint-dot';
+            sq.appendChild(h);
+        }
+    }
+}
+
+// ===== ЛОГИКА ХОДОВ =====
+function getPlayerMoves(r, c) {
+    const piece = board[r][c];
+    if (!piece) return [];
+    return getAllMoves(r, c, piece, true);
+}
+
+function getEnemyMoves(r, c, type) {
+    return getAllMoves(r, c, type, false);
+}
+
+function getAllMoves(r, c, piece, isPlayerPiece) {
+    const moves = [];
+    const p = piece.toLowerCase();
+
+    const canMoveTo = (tr, tc) => {
+        if (tr < 0 || tr > 7 || tc < 0 || tc > 7) return false;
+        const target = board[tr][tc];
+        if (isPlayerPiece) {
+            return target === '' || isEnemy(target);
+        } else {
+            return target === '' || isPlayer(target);
+        }
+    };
+
+    const addSliding = (dirs) => {
+        for (const [dr, dc] of dirs) {
+            let tr = r + dr, tc = c + dc;
+            while (tr >= 0 && tr < 8 && tc >= 0 && tc < 8) {
+                const target = board[tr][tc];
+                if (isPlayerPiece) {
+                    if (isPlayer(target)) break;
+                    moves.push({r: tr, c: tc});
+                    if (isEnemy(target)) break;
+                } else {
+                    if (isEnemy(target)) break;
+                    moves.push({r: tr, c: tc});
+                    if (isPlayer(target)) break;
+                }
+                tr += dr; tc += dc;
+            }
+        }
+    };
+
+    switch(p) {
+        case 'r':
+            addSliding([[0,1],[0,-1],[1,0],[-1,0]]);
+            break;
+        case 'b':
+            addSliding([[1,1],[1,-1],[-1,1],[-1,-1]]);
+            break;
+        case 'q':
+            addSliding([[0,1],[0,-1],[1,0],[-1,0],[1,1],[1,-1],[-1,1],[-1,-1]]);
+            break;
+        case 'n':
+            for (const [dr, dc] of [[2,1],[2,-1],[-2,1],[-2,-1],[1,2],[1,-2],[-1,2],[-1,-2]]) {
+                const tr = r + dr, tc = c + dc;
+                if (canMoveTo(tr, tc)) moves.push({r: tr, c: tc});
+            }
+            break;
+        case 'p':
+            // Враг-пешка ходит вниз (увеличение r)
+            if (!isPlayerPiece) {
+                if (r + 1 < 8 && board[r+1][c] === '') moves.push({r: r+1, c});
+                for (const dc of [-1, 1]) {
+                    if (r+1 < 8 && c+dc >= 0 && c+dc < 8 && isPlayer(board[r+1][c+dc])) {
+                        moves.push({r: r+1, c: c+dc});
+                    }
+                }
+            }
+            break;
+    }
+
+    return moves;
+}
+
+// ===== ОБРАБОТКА КЛИКОВ =====
+let lastTouchTime = 0;
+let lastTouchDeselect = 0;
+
+function handleSquareClick(e, r, c) {
+    if (e.type === 'mousedown' && Date.now() - lastTouchTime < 500) return;
+    if (e.type === 'touchstart') lastTouchTime = Date.now();
+    if (e.cancelable) e.preventDefault();
+    if (!isPlayerTurn || isAnimating) return;
+
+    const piece = board[r][c];
+
+    // Если уже выбрана фигура и кликнули на допустимую клетку
+    if (selectedPiece && !isPlayer(piece)) {
+        const moves = getPlayerMoves(selectedPiece.r, selectedPiece.c);
+        const isValid = moves.some(m => m.r === r && m.c === c);
+        if (isValid) {
+            executePlayerMove(selectedPiece.r, selectedPiece.c, r, c);
+            selectedPiece = null;
+            return;
+        }
+    }
+
+    if (!isPlayer(piece)) {
+        if (selectedPiece) { selectedPiece = null; renderBoard(); }
+        return;
+    }
+
+    // Повторный клик — снимаем выделение
+    if (selectedPiece && selectedPiece.r === r && selectedPiece.c === c) {
+        if (e.type === 'touchstart') lastTouchDeselect = Date.now();
+        selectedPiece = null;
+        renderBoard();
+        return;
+    }
+
+    if (e.type === 'mousedown' && Date.now() - lastTouchDeselect < 500) return;
+
+    selectedPiece = { r, c };
+    renderBoard();
+
+    // --- ПЕРЕТАСКИВАНИЕ ---
+    const currentSqEl = document.querySelector(`[data-r="${r}"][data-c="${c}"]`);
+    const rect = currentSqEl.getBoundingClientRect();
+    const squareSize = rect.width;
+    const isPortrait = window.innerHeight > window.innerWidth;
+    const scale = isPortrait ? 1.6 : 1.0;
+
+    follower.style.width = (squareSize * scale) + 'px';
+    follower.style.height = (squareSize * scale) + 'px';
+    follower.style.backgroundImage = `url('${PIECE_IMAGES[piece]}')`;
+    follower.style.display = 'block';
+
+    let clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    let clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    updateFollower(clientX, clientY);
+
+    const pInBoard = currentSqEl.querySelector('.piece');
+    if (pInBoard) pInBoard.style.opacity = '0.4';
+
+    let isDragging = false;
+    const startR = r, startC = c;
+
+    const onMove = (me) => {
+        if (me.cancelable) me.preventDefault();
+        isDragging = true;
+        clientX = me.touches ? me.touches[0].clientX : me.clientX;
+        clientY = me.touches ? me.touches[0].clientY : me.clientY;
+        updateFollower(clientX, clientY);
+    };
+
+    const onEnd = (ue) => {
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onEnd);
+        document.removeEventListener('touchmove', onMove, { passive: false });
+        document.removeEventListener('touchend', onEnd);
+        document.removeEventListener('touchcancel', onEnd);
+
+        follower.style.display = 'none';
+        if (pInBoard) pInBoard.style.opacity = '1';
+
+        let ux = clientX, uy = clientY;
+        if (ue && ue.changedTouches && ue.changedTouches.length > 0) {
+            ux = ue.changedTouches[0].clientX;
+            uy = ue.changedTouches[0].clientY;
+        }
+
+        const target = document.elementFromPoint(ux, uy)?.closest('.square');
+
+        if (target) {
+            const tr = parseInt(target.dataset.r);
+            const tc = parseInt(target.dataset.c);
+
+            if (tr === startR && tc === startC) {
+                renderBoard();
+                return;
+            }
+
+            const moves = getPlayerMoves(startR, startC);
+            const isValid = moves.some(m => m.r === tr && m.c === tc);
+            if (isValid) {
+                executePlayerMove(startR, startC, tr, tc, true); // true = drag
+                selectedPiece = null;
+                return;
+            }
+        }
+
+        if (isDragging) selectedPiece = null;
+        renderBoard();
+    };
+
+    document.addEventListener('mousemove', onMove, { passive: false });
+    document.addEventListener('mouseup', onEnd);
+    document.addEventListener('touchmove', onMove, { passive: false });
+    document.addEventListener('touchend', onEnd);
+    document.addEventListener('touchcancel', onEnd);
+}
+
+function updateFollower(x, y) {
+    follower.style.left = x + 'px';
+    follower.style.top = y + 'px';
+}
+// ===== ХОД ИГРОКА =====
+function executePlayerMove(fr, fc, tr, tc, isDrag = false) {
+    isAnimating = true;
+    isPlayerTurn = false;
+    updateTurnIndicator(false);
+
+    const piece = board[fr][fc];
+    const capturedPiece = board[tr][tc];
+
+    const fromSq = document.querySelector(`[data-r="${fr}"][data-c="${fc}"]`);
+    const toSq = document.querySelector(`[data-r="${tr}"][data-c="${tc}"]`);
+    const pieceEl = fromSq?.querySelector('.piece');
+    const tR = toSq ? toSq.getBoundingClientRect() : null;
+
+    // Анимация только если НЕ перетаскивание
+    if (!isDrag && pieceEl && toSq) {
+        const fR = fromSq.getBoundingClientRect();
+        pieceEl.style.transition = 'transform 0.2s ease-in-out';
+        pieceEl.style.transform = `translate(${tR.left - fR.left}px, ${tR.top - fR.top}px)`;
+    }
+
+    const delay = isDrag ? 0 : 220;
+
+    setTimeout(() => {
+        board[tr][tc] = piece;
+        board[fr][fc] = '';
+
+        const pp = playerPieces.find(p => p.r === fr && p.c === fc);
+        if (pp) { pp.r = tr; pp.c = tc; }
+
+if (capturedPiece && isEnemy(capturedPiece)) {
+    const points = PIECE_VALUES[capturedPiece] || 1;
+    addScore(points, tR);
+    enemyPieces = enemyPieces.filter(e => !(e.r === tr && e.c === tc));
+    
+    setTimeout(() => { 
+        spawnEnemy(true); 
+        renderBoard();
+        // Даём больше времени новой фигуре появиться перед ходом
+        setTimeout(() => { executeEnemyMove(); }, 600);
+    }, 300);
+    
+    renderBoard();
+    checkMilestones();
+    return; // Выходим — executeEnemyMove вызовется внутри
+}
+
+renderBoard();
+checkMilestones();
+setTimeout(() => { executeEnemyMove(); }, 400);
+
+    }, delay);
+}
+
+// ===== ОЧКИ =====
+function addScore(points, rect) {
+    score += points;
+    
+    // Анимация очков
+    if (rect) {
+        const el = document.createElement('div');
+        el.className = 'score-float';
+        el.textContent = '+' + points;
+        el.style.left = rect.left + rect.width/2 + 'px';
+        el.style.top = rect.top + 'px';
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 800);
+    }
+
+    updateUI();
+}
+
+function checkMilestones() {
+    // Добавляем слона после 50 очков
+    if (score >= 50 && !playerBishopAdded) {
+        playerBishopAdded = true;
+        const pos = getRandomEmptySquare();
+        if (pos) {
+            board[pos.r][pos.c] = 'B';
+            playerPieces.push({ r: pos.r, c: pos.c, type: 'B', id: 'p1' });
+            
+            setTimeout(() => {
+                const sq = document.querySelector(`[data-r="${pos.r}"][data-c="${pos.c}"]`);
+                const pieceEl = sq?.querySelector('.piece');
+                if (pieceEl) pieceEl.classList.add('spawning');
+            }, 50);
+
+            showFloatingText('+ Слон!', '#769656');
+        }
+    }
+
+    // Новый враг каждые 20 очков
+    if (score >= nextEnemyAt) {
+        nextEnemyAt += 20;
+        spawnEnemy(true);
+        renderBoard();
+    }
+}
+
+function showFloatingText(text, color) {
+    const el = document.createElement('div');
+    el.className = 'score-float';
+    el.textContent = text;
+    el.style.color = color;
+    el.style.fontSize = '18px';
+    el.style.left = '50%';
+    el.style.top = '40%';
+    el.style.transform = 'translateX(-50%)';
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 1000);
+}
+
+// ===== ХОД ВРАГОВ =====
+function executeEnemyMove() {
+    if (enemyPieces.length === 0) {
+        isAnimating = false;
+        isPlayerTurn = true;
+        updateTurnIndicator(true);
+        return;
+    }
+
+    const enemy = enemyPieces[Math.floor(Math.random() * enemyPieces.length)];
+    const moves = getEnemyMoves(enemy.r, enemy.c, enemy.type);
+
+    if (moves.length === 0) {
+        isAnimating = false;
+        isPlayerTurn = true;
+        updateTurnIndicator(true);
+        return;
+    }
+
+    let targetMove;
+    if (Math.random() < 0.65 && playerPieces.length > 0) {
+        let bestDist = Infinity;
+        let targetPlayer = playerPieces[0];
+        for (const pp of playerPieces) {
+            const dist = Math.abs(pp.r - enemy.r) + Math.abs(pp.c - enemy.c);
+            if (dist < bestDist) { bestDist = dist; targetPlayer = pp; }
+        }
+        let minDist = Infinity;
+        for (const move of moves) {
+            const dist = Math.abs(move.r - targetPlayer.r) + Math.abs(move.c - targetPlayer.c);
+            if (dist < minDist) { minDist = dist; targetMove = move; }
+        }
+    } else {
+        targetMove = moves[Math.floor(Math.random() * moves.length)];
+    }
+
+    // Берём rect ДО любых изменений
+    const fromSq = document.querySelector(`[data-r="${enemy.r}"][data-c="${enemy.c}"]`);
+    const toSq = document.querySelector(`[data-r="${targetMove.r}"][data-c="${targetMove.c}"]`);
+    const pieceEl = fromSq?.querySelector('.piece');
+    if (pieceEl) {
+    pieceEl.classList.remove('spawning');
+    pieceEl.style.animation = 'none';
+}
+
+    if (!pieceEl || !toSq) {
+        // Если DOM не готов — просто обновляем состояние без анимации
+        board[targetMove.r][targetMove.c] = enemy.type;
+        board[enemy.r][enemy.c] = '';
+        enemy.r = targetMove.r;
+        enemy.c = targetMove.c;
+        renderBoard();
+        isAnimating = false;
+        isPlayerTurn = true;
+        updateTurnIndicator(true);
+        return;
+    }
+
+    const fR = fromSq.getBoundingClientRect();
+    const tR = toSq.getBoundingClientRect();
+
+    // Запускаем анимацию
+    pieceEl.style.transition = 'transform 0.2s ease-in-out';
+    pieceEl.style.transform = `translate(${tR.left - fR.left}px, ${tR.top - fR.top}px)`;
+
+    setTimeout(() => {
+        const capturedPiece = board[targetMove.r][targetMove.c];
+
+        board[targetMove.r][targetMove.c] = enemy.type;
+        board[enemy.r][enemy.c] = '';
+        enemy.r = targetMove.r;
+        enemy.c = targetMove.c;
+
+        if (enemy.type === 'p' && targetMove.r === 7) {
+            enemy.type = 'q';
+            board[targetMove.r][targetMove.c] = 'q';
+            showFloatingText('Пешка → Ферзь!', '#ef4444');
+        }
+
+        if (capturedPiece && isPlayer(capturedPiece)) {
+            loseLife(capturedPiece, targetMove.r, targetMove.c);
+        } else {
+            renderBoard();
+            isAnimating = false;
+            isPlayerTurn = true;
+            updateTurnIndicator(true);
+        }
+    }, 220);
+}
+// ===== ПОТЕРЯ ЖИЗНИ =====
+function loseLife(capturedPiece, r, c) {
+    lives--;
+    updateUI();
+
+    // Тряска
+    document.getElementById('board-wrapper').classList.add('shake');
+    setTimeout(() => document.getElementById('board-wrapper').classList.remove('shake'), 400);
+
+    if (lives <= 0) {
+        setTimeout(() => gameOver(), 500);
+        return;
+    }
+
+    // Убираем съеденную фигуру из playerPieces
+    playerPieces = playerPieces.filter(p => !(p.r === r && p.c === r));
+    // Точнее:
+    const idx = playerPieces.findIndex(p => p.r === r && p.c === c);
+    if (idx !== -1) playerPieces.splice(idx, 1);
+
+    // Респаун фигуры игрока
+    setTimeout(() => {
+        const pos = getRandomEmptySquare();
+        if (pos) {
+            board[pos.r][pos.c] = capturedPiece;
+            playerPieces.push({ r: pos.r, c: pos.c, type: capturedPiece, id: 'p_resp_' + Date.now() });
+            
+            renderBoard();
+            
+            setTimeout(() => {
+                const sq = document.querySelector(`[data-r="${pos.r}"][data-c="${pos.c}"]`);
+                const pieceEl = sq?.querySelector('.piece');
+                if (pieceEl) pieceEl.classList.add('spawning');
+            }, 50);
+        }
+
+        isAnimating = false;
+        isPlayerTurn = true;
+        updateTurnIndicator(true);
+    }, 300);
+
+    renderBoard();
+}
+
+// ===== UI =====
+function updateUI() {
+    document.getElementById('score-val').textContent = score;
+    document.getElementById('side-score-val').textContent = score;
+    document.getElementById('next-enemy-val').textContent = nextEnemyAt - score > 0 ? nextEnemyAt - score : '...';
+    document.getElementById('side-next-val').textContent = nextEnemyAt - score > 0 ? nextEnemyAt - score : '...';
+    document.getElementById('enemy-count').textContent = enemyPieces.length;
+    document.getElementById('side-enemy-count').textContent = enemyPieces.length;
+
+    // Жизни
+    const livesEls = document.querySelectorAll('#lives-display .life, #side-lives .life');
+    livesEls.forEach((el, i) => {
+        const lifeIndex = i % 3; // по 3 в каждом блоке
+        el.classList.toggle('lost', lifeIndex >= lives);
+    });
+}
+
+function updateTurnIndicator(isPlayer) {
+    const el = document.getElementById('turn-indicator');
+    el.textContent = isPlayer ? 'Твой ход' : 'Ход врага...';
+    el.className = 'turn-indicator' + (isPlayer ? ' your-turn' : '');
+}
+
+// ===== GAME OVER =====
+function gameOver() {
+    if (score > bestScore) bestScore = score;
+    document.getElementById('final-score').textContent = score;
+    document.getElementById('best-score').textContent = bestScore;
+    document.getElementById('gameover-screen').style.display = 'flex';
+}
+
+function showStart() {
+    document.getElementById('gameover-screen').style.display = 'none';
+    document.getElementById('game-screen').style.display = 'none';
+    document.getElementById('start-screen').style.display = 'flex';
+}
+
+function goBack() {
+    // Возврат в основное меню — адаптируй под свою логику
+    window.location.href = 'index.html';
+}
+
+// ===== ПРЕДОТВРАЩЕНИЕ СКРОЛЛА =====
+document.addEventListener('touchmove', e => {
+    if (e.cancelable) e.preventDefault();
+}, { passive: false });
+
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('dragstart', e => e.preventDefault());
+</script>
+</body>
+</html>

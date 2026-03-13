@@ -1561,14 +1561,15 @@ background: #769656;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4vh;
+    gap: 2.5vh;
 }
 
 .menu-header { 
     text-align: center;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
+    gap: 2vh;
  }
 .menu-logo { width: 120px; height: 120px; animation: bounce 2s infinite ease-in-out; }
 .menu-title { font-size: 20px; 
