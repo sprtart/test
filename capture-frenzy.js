@@ -1,3 +1,6 @@
+console.log('capture-frenzy.js загружен');
+console.log('cf-board:', document.getElementById('cf-board'));
+
 const CaptureFrenzy = (() => {
 
     // Применяем тему как в основной игре
