@@ -1,5 +1,7 @@
 
-
+#cf-start-screen, #cf-game-screen, #cf-gameover-screen {
+    display: none;
+}
 
 
         /* ===== ЭКРАН СТАРТА ===== */

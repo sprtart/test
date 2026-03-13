@@ -37,7 +37,7 @@ let enemyPieces = [];  // [{r, c, type, id}]
 let selectedPiece = null; // {r, c} выбранная фигура игрока
 let lives = 3;
 let score = 0;
-let bestScore = 0;
+let bestScore = parseInt(localStorage.getItem('cf-best-score')) || 0;
 let nextEnemyAt = 20; // очки до следующего врага
 let playerBishopAdded = false; // слон добавлен после 50 очков
 let isPlayerTurn = true;
@@ -53,8 +53,8 @@ function safePlaySound(audio) {
     if (p !== undefined) p.catch(() => {});
 }
 
-const boardEl = document.getElementById('board');
-const follower = document.getElementById('drag-follower');
+const boardEl = document.getElementById('cf-board');
+const follower = document.getElementById('cf-drag-follower');
 
 // ===== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ =====
 function posToIdx(pos) {
@@ -103,7 +103,7 @@ if (typeof Platform !== 'undefined' && Platform.user) {
         document.getElementById('cf-user-avatar').src = Platform.user.photo_100;
     }
 }
-document.getElementById('btn-again-cf').classList.add('hidden');
+document.getElementById('cf-btn-again-cf').classList.add('hidden');
     board = Array(8).fill(null).map(() => Array(8).fill(''));
     playerPieces = [];
     enemyPieces = [];
@@ -130,9 +130,9 @@ enemyPieces.forEach(e => e.justSpawned = false);
     updateUI();
     renderBoard();
 
-    document.getElementById('start-screen').style.display = 'none';
-    document.getElementById('game-screen').style.display = 'flex';
-    document.getElementById('gameover-screen').style.display = 'none';
+    document.getElementById('cf-start-screen').style.display = 'none';
+    document.getElementById('cf-game-screen').style.display = 'flex';
+    document.getElementById('cf-gameover-screen').style.display = 'none';
 }
 
 function spawnEnemy(animate = false) {
@@ -715,8 +715,8 @@ function loseLife(capturedPiece, r, c) {
     updateUI();
 
     // Тряска
-    document.getElementById('board-wrapper').classList.add('shake');
-    setTimeout(() => document.getElementById('board-wrapper').classList.remove('shake'), 400);
+    document.getElementById('cf-board').classList.add('shake');
+    setTimeout(() => document.getElementById('cf-board').classList.remove('shake'), 400);
 
     if (lives <= 0) {
         setTimeout(() => gameOver(), 500);
@@ -755,11 +755,11 @@ function loseLife(capturedPiece, r, c) {
 
 // ===== UI =====
 function updateUI() {
-    document.getElementById('score-val').textContent = score;
+    document.getElementById('cf-score-val').textContent = score;
     document.getElementById('cf-best-score').textContent = bestScore;
 
     // Жизни
-    const livesEls = document.querySelectorAll('#lives-display .life');
+    const livesEls = document.querySelectorAll('#cf-lives-display .life');
     livesEls.forEach((el, i) => {
         el.classList.toggle('lost', i >= lives);
     });
@@ -773,10 +773,13 @@ function updateTurnIndicator(isPlayer) {
 
 // ===== GAME OVER =====
 function gameOver() {
-    if (score > bestScore) bestScore = score;
+    if (score > bestScore) {
+    bestScore = score;
+    localStorage.setItem('cf-best-score', bestScore);
+}
     document.getElementById('cf-best-score').textContent = bestScore;
-    document.getElementById('btn-again-cf').classList.remove('hidden');
-    document.getElementById('gameover-screen').style.display = 'flex';
+    document.getElementById('cf-btn-again-cf').classList.remove('hidden');
+    document.getElementById('cf-gameover-screen').style.display = 'flex';
 }
 
     function showStart() { 
