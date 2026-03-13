@@ -610,6 +610,7 @@ function checkMilestones() {
     // ===== ХОД ВРАГОВ =====
 // ===== ХОД ВРАГОВ =====
     function executeEnemyMove() {
+        enemyPieces.forEach(e => e.justSpawned = false);
         const safetyTimeout = setTimeout(() => {
             isAnimating = false;
             isPlayerTurn = true;
