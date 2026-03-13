@@ -57,7 +57,15 @@
         <!-- Кнопки режимов игры -->
         <div class="menu-play-buttons">
 
-            <button class="btn-play-big" onclick="startGameMode('standard')">
+
+
+            <button class="btn-play-big" onclick="startGameMode('survival')">
+                <!-- <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"/></svg> -->
+                <div class="btn-piece" style="background-image: url('img/p/wwN.svg')"></div>
+                <span data-i18n="playSurvival">ШТУРМ</span>
+            </button>
+
+            <button class="btn-play-big btn-survival" onclick="startGameMode('standard')">
                 <!-- <svg viewBox="0 0 24 24" fill="currentColor">
                     <path d="M6 4v16l14-8z"           
                     stroke="currentColor" 
@@ -69,13 +77,6 @@
                 <div class="btn-piece" style="background-image: url('img/p/wwQ.svg')"></div>
                 <span data-i18n="playStandard">ЗАДАЧИ</span>
             </button>
-
-            <button class="btn-play-big btn-survival" onclick="startGameMode('survival')">
-                <!-- <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"/></svg> -->
-                <div class="btn-piece" style="background-image: url('img/p/wwN.svg')"></div>
-                <span data-i18n="playSurvival">ШТУРМ</span>
-            </button>
-
 
         </div>
 
