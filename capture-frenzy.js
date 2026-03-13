@@ -692,7 +692,7 @@ function renderBoard() {
 
     // ===== ПУБЛИЧНЫЕ МЕТОДЫ (API) =====
     return {
-        showStart: () => {
+        /*showStart: () => {
             // ВАЖНО: Добавим отладку
             const hasSeen = localStorage.getItem('tutorial_shown_frenzy');
             console.log("Инструкция Охоты была показана?", hasSeen);
@@ -715,12 +715,12 @@ function renderBoard() {
                 // Ставим отметку
                 localStorage.setItem('tutorial_shown_frenzy', 'true');
             }
-        },
-        /*showStart: () => {
+        },*/
+        showStart: () => {
             const mainMenu = document.getElementById('main-menu');
             if (mainMenu) mainMenu.classList.add('hidden');
             safeShow('cf-start-screen');
-        },*/
+        },
         startGame: startGame,
         goBack: () => {
             safeHide('cf-start-screen');
