@@ -216,36 +216,36 @@ function startGame() {
     // ===== РЕНДЕР =====
 // В capture-frenzy.js
 function renderBoard() {
+    const boardEl = document.getElementById('board');
+    if (!boardEl) {
+        console.error("ОШИБКА: Элемент #board не найден в DOM!");
+        return;
+    }
+    
+    // Принудительная очистка и создание сетки
+    boardEl.innerHTML = '';
+    boardEl.style.display = 'grid'; // Убеждаемся, что это сетка
 
-    if (isAnimating) return; 
-    
-    // Вместо очистки всего контейнера, удаляем только фигуры
-    const squares = boardEl.querySelectorAll('.square');
-    
     for (let r = 0; r < 8; r++) {
         for (let c = 0; c < 8; c++) {
-            const sq = boardEl.querySelector(`[data-r="${r}"][data-c="${c}"]`);
-            if (!sq) continue;
-
-            // Находим старую фигуру
-            const oldPiece = sq.querySelector('.piece');
-            const newPieceType = board[r][c];
-
-            // Если фигура изменилась — перерисовываем только эту клетку
-            if (!newPieceType) {
-                if (oldPiece) oldPiece.remove();
-            } else {
-                if (!oldPiece || oldPiece.dataset.type !== newPieceType) {
-                    if (oldPiece) oldPiece.remove();
-                    const pEl = document.createElement('div');
-                    pEl.className = 'piece' + (isPlayer(newPieceType) ? ' player-piece' : '');
-                    pEl.style.backgroundImage = `url('${PIECE_IMAGES[newPieceType]}')`;
-                    pEl.dataset.type = newPieceType; // Запоминаем тип
-                    sq.appendChild(pEl);
-                }
+            const sq = document.createElement('div');
+            sq.className = `square ${(r + c) % 2 === 0 ? 'light' : 'dark'}`;
+            sq.dataset.r = r;
+            sq.dataset.c = c;
+            
+            // Если в массиве board есть фигура — рисуем её
+            if (board[r] && board[r][c]) {
+                const pEl = document.createElement('div');
+                pEl.className = 'piece' + (isPlayer(board[r][c]) ? ' player-piece' : '');
+                pEl.style.backgroundImage = `url('${PIECE_IMAGES[board[r][c]]}')`;
+                sq.appendChild(pEl);
             }
+
+            sq.onmousedown = sq.ontouchstart = (e) => handleSquareClick(e, r, c);
+            boardEl.appendChild(sq);
         }
     }
+    console.log("Доска отрисована");
 }
     function updateEnemyThreats() {
         for (const enemy of enemyPieces) {
