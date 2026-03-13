@@ -692,30 +692,43 @@ function renderBoard() {
         safeShow('cf-gameover-screen');
     }
 
-    // ===== ПУБЛИЧНЫЕ МЕТОДЫ (API) =====
+// ===== ПУБЛИЧНЫЕ МЕТОДЫ (API) =====
     return {
-showStart: () => {
-    // Подготавливаем сцену
-    const gameContainer = document.querySelector('.game-container');
-    gameContainer.style.display = 'flex'; 
-    gameContainer.classList.remove('hidden-game');
-    
-    // Отрисовываем доску-фон (ладья по центру)
-    board = Array(8).fill(null).map(() => Array(8).fill(''));
-    board[3][3] = 'R'; 
-    renderBoard();
+        showStart: () => {
+            // 1. Проверяем память браузера
+            const hasSeenTutorial = localStorage.getItem('tutorial_shown_frenzy');
 
-    // Прячем главное меню
-    const mainMenu = document.getElementById('main-menu');
-    if (mainMenu) mainMenu.classList.add('hidden');
+            if (hasSeenTutorial === 'true') {
+                // ЕСЛИ УЖЕ ВИДЕЛИ: запускаем твою правильную функцию startGame мгновенно
+                startGame();
+            } else {
+                // ЕСЛИ НЕ ВИДЕЛИ: показываем плашку "Охоты" первый и последний раз
+                const gameContainer = document.querySelector('.game-container');
+                if (gameContainer) {
+                    gameContainer.style.display = 'flex'; 
+                    gameContainer.classList.remove('hidden-game');
+                }
+                
+                // Рисуем фальшивый фон для плашки
+                board = Array(8).fill(null).map(() => Array(8).fill(''));
+                board[3][3] = 'R'; 
+                renderBoard();
 
-    // Показываем плашку "Охоты"
-    const startScreen = document.getElementById('cf-start-screen');
-    if (startScreen) {
-        startScreen.classList.remove('hidden');
-        startScreen.style.setProperty('display', 'flex', 'important');
-    }
-},
+                // Прячем меню
+                const mainMenu = document.getElementById('main-menu');
+                if (mainMenu) mainMenu.classList.add('hidden');
+
+                // Выводим само модальное окно на экран
+                const startScreen = document.getElementById('cf-start-screen');
+                if (startScreen) {
+                    startScreen.classList.remove('hidden');
+                    startScreen.style.setProperty('display', 'flex', 'important');
+                }
+
+                // ВАЖНО: ставим галочку в память, чтобы больше никогда не показывать
+                localStorage.setItem('tutorial_shown_frenzy', 'true');
+            }
+        },
         startGame: startGame,
         goBack: () => {
             safeHide('cf-start-screen');
@@ -725,6 +738,5 @@ showStart: () => {
         openFrenzyLeaderboard: () => {
             alert("Таблица рекордов для этого режима в разработке!");
         }
-        
     };
 })();
