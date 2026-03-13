@@ -126,6 +126,9 @@ function startGame() {
 
         // 2. ИСПРАВЛЕНИЕ: Убираем только инлайновый style="display: none"
         const gameContainer = document.querySelector('.game-container');
+        gameContainer.style.display = 'flex';
+            const boardEl = document.getElementById('board');
+    boardEl.innerHTML = ''; // Очистить доску перед отрисовкой
         if (gameContainer) {
             gameContainer.classList.remove('hidden-game');
             // Удаляем только инлайновое свойство, оставляя CSS-классы в покое
@@ -217,21 +220,12 @@ function startGame() {
 // В capture-frenzy.js
 function renderBoard() {
     const boardEl = document.getElementById('board');
-    if (!boardEl) {
-        console.error("ОШИБКА: Элемент #board не найден в DOM!");
-        return;
-    }
-    
-    // Очищаем
+    if (!boardEl) return;
+
+    // ВАЖНО: Очищаем DOM полностью
     boardEl.innerHTML = '';
     
-    // Принудительно задаем стиль сетки (если вдруг он слетает)
-    boardEl.style.display = 'grid';
-    boardEl.style.gridTemplateColumns = 'repeat(8, 1fr)';
-    boardEl.style.gridTemplateRows = 'repeat(8, 1fr)';
-
-    console.log("Отрисовка доски, состояние массива:", board);
-
+    // Перебираем массив board (который определен в CaptureFrenzy)
     for (let r = 0; r < 8; r++) {
         for (let c = 0; c < 8; c++) {
             const sq = document.createElement('div');
@@ -239,9 +233,8 @@ function renderBoard() {
             sq.dataset.r = r;
             sq.dataset.c = c;
             
-            // Проверка: есть ли фигура
+            // Если в ячейке есть фигура (не пустая строка)
             if (board[r] && board[r][c] !== '') {
-                console.log(`Рисую фигуру ${board[r][c]} на ${r},${c}`);
                 const pEl = document.createElement('div');
                 pEl.className = 'piece' + (isPlayer(board[r][c]) ? ' player-piece' : '');
                 pEl.style.backgroundImage = `url('${PIECE_IMAGES[board[r][c]]}')`;

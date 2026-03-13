@@ -47,7 +47,13 @@
     order: 1; /* Статистика под доской */
 }
 
-
+#board {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(8, 1fr);
+    width: 100%;
+    aspect-ratio: 1 / 1; /* Обязательно для шахматной доски */
+}
 .user-info {
     display: flex;
     align-items: center;
