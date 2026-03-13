@@ -1,19 +1,19 @@
 console.log('capture-frenzy.js загружен');
 
 const CaptureFrenzy = (() => {
-    console.log('Модуль Охоты начал выполняться');
-
-    // Применяем тему как в основной игре
-    function applySavedTheme() {
-        const saved = localStorage.getItem('user-theme');
-        if (saved === 'light') {
-            document.documentElement.classList.remove('dark-mode');
-        } else {
-            // По умолчанию тёмная
-            document.documentElement.classList.add('dark-mode');
-        }
+    // ===== БЕЗОПАСНОЕ УПРАВЛЕНИЕ ЭЛЕМЕНТАМИ =====
+    function safeShow(id) {
+        const el = document.getElementById(id);
+        if (el) { el.classList.remove('hidden'); el.style.setProperty('display', 'flex', 'important'); }
     }
-    applySavedTheme();
+    function safeHide(id) {
+        const el = document.getElementById(id);
+        if (el) { el.classList.add('hidden'); el.style.setProperty('display', 'none', 'important'); }
+    }
+    function setText(id, text) {
+        const el = document.getElementById(id);
+        if (el) el.textContent = text;
+    }
 
     // ===== КОНСТАНТЫ =====
     const PIECE_IMAGES = {
@@ -22,18 +22,15 @@ const CaptureFrenzy = (() => {
         'p': 'img/p/bP.svg', 'r': 'img/p/bR.svg', 'n': 'img/p/bN.svg',
         'b': 'img/p/bB.svg', 'q': 'img/p/bQ.svg', 'k': 'img/p/bK.svg'
     };
-
     const PIECE_VALUES = { 'p': 1, 'n': 3, 'b': 3, 'r': 5, 'q': 9 };
-
-    // Пул вражеских фигур по уровням сложности
-    const ENEMY_POOL_EASY =   ['n','b','n','b','p']; 
+    const ENEMY_POOL_EASY = ['n','b','n','b','p']; 
     const ENEMY_POOL_MEDIUM = ['n','b','r','n','b'];  
-    const ENEMY_POOL_HARD =   ['b','r','r','q','n'];  
+    const ENEMY_POOL_HARD = ['b','r','r','q','n'];  
 
     // ===== СОСТОЯНИЕ ИГРЫ =====
-    let board =[]; // 8x8 массив, '' = пусто, 'R'/'B' = игрок, 'p'/'n'/etc = враг
-    let playerPieces = []; // [{r, c, type}] — фигуры игрока
-    let enemyPieces = [];  //[{r, c, type, id}]
+    let board = []; 
+    let playerPieces =[]; 
+    let enemyPieces =[];  
     let selectedPiece = null; 
     let lives = 3;
     let score = 0;
@@ -50,33 +47,15 @@ const CaptureFrenzy = (() => {
     const audioError = new Audio('sounds/Error.ogg');
 
     function safePlaySound(audio) {
-        // Учитываем глобальную настройку звука, если она есть
         if (typeof isSoundEnabled !== 'undefined' && !isSoundEnabled) return;
         const p = audio.play();
         if (p !== undefined) p.catch(() => {});
     }
 
-    // Общие элементы из index.html
-    const boardEl = document.getElementById('board');
-    const follower = document.getElementById('drag-follower');
-
     // ===== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ =====
-    function posToIdx(pos) {
-        return { r: 8 - parseInt(pos[1]), c: pos.charCodeAt(0) - 97 };
-    }
-
-    function idxToPos(r, c) {
-        return String.fromCharCode(97 + c) + (8 - r);
-    }
-
-    function isEnemy(piece) {
-        return piece && piece === piece.toLowerCase() && piece !== '';
-    }
-
-    function isPlayer(piece) {
-        return piece && piece === piece.toUpperCase() && piece !== '';
-    }
-
+    function isEnemy(piece) { return piece && piece === piece.toLowerCase(); }
+    function isPlayer(piece) { return piece && piece === piece.toUpperCase(); }
+    
     function getRandomEmptySquare(excludes = []) {
         const empty =[];
         for (let r = 0; r < 8; r++) {
@@ -87,8 +66,7 @@ const CaptureFrenzy = (() => {
                 }
             }
         }
-        if (empty.length === 0) return null;
-        return empty[Math.floor(Math.random() * empty.length)];
+        return empty.length > 0 ? empty[Math.floor(Math.random() * empty.length)] : null;
     }
 
     function getEnemyPool() {
@@ -97,50 +75,41 @@ const CaptureFrenzy = (() => {
         return ENEMY_POOL_HARD;
     }
 
-    // ===== УПРАВЛЕНИЕ ИНТЕРФЕЙСОМ =====
+    // ===== ИНТЕРФЕЙС =====
     function setFrenzyUI(active) {
-        const lblRating = document.getElementById('label-rating');
-        const lblScore = document.getElementById('label-score');
-        const lblBest = document.getElementById('label-best-elo');
+        const gameContainer = document.querySelector('.game-container');
+        const mainMenu = document.getElementById('main-menu');
         const hintBtn = document.getElementById('hint-btn');
         const topBtn = document.querySelector('.top-btn');
 
         if (active) {
-            // Включаем режим аркады
-            document.querySelector('.game-container').classList.remove('hidden-game');
-            document.getElementById('main-menu').classList.add('hidden');
+            if (gameContainer) gameContainer.classList.remove('hidden-game');
+            if (mainMenu) mainMenu.classList.add('hidden');
             
-            if (lblRating) lblRating.textContent = 'Жизни';
-            if (lblBest) lblBest.textContent = 'Рекорд';
-            if (lblScore) lblScore.textContent = 'Очки';
+            setText('label-rating', 'Жизни');
+            setText('label-best-elo', 'Рекорд');
+            setText('label-score', 'Очки');
 
-            // Настраиваем кнопки
-            if (hintBtn) hintBtn.style.display = 'none'; // Помощь в аркаде не нужна
+            if (hintBtn) hintBtn.style.display = 'none';
             if (topBtn) topBtn.onclick = CaptureFrenzy.openFrenzyLeaderboard;
-
         } else {
-            // Выключаем аркаду, возвращаем как было
-            if (typeof i18n !== 'undefined' && typeof lang !== 'undefined') {
-                if (lblRating) lblRating.textContent = i18n[lang].rating || 'Рейтинг';
-                if (lblBest) lblBest.textContent = i18n[lang].bestElo || 'макс. Эло';
-                if (lblScore) lblScore.textContent = i18n[lang].score || 'Очки';
-            }
+            if (gameContainer) gameContainer.classList.add('hidden-game');
+            if (mainMenu) mainMenu.classList.remove('hidden');
+            
+            setText('label-rating', typeof i18n !== 'undefined' && i18n[lang]?.rating ? i18n[lang].rating : 'Рейтинг');
+            setText('label-best-elo', typeof i18n !== 'undefined' && i18n[lang]?.bestElo ? i18n[lang].bestElo : 'макс. Эло');
+            setText('label-score', typeof i18n !== 'undefined' && i18n[lang]?.score ? i18n[lang].score : 'Очки');
+            
             if (hintBtn) hintBtn.style.display = ''; 
-            if (topBtn && typeof openLeaderboard === 'function') {
-                topBtn.onclick = openLeaderboard; // Возвращаем стандартный топ
-            }
+            if (topBtn && typeof openLeaderboard === 'function') topBtn.onclick = openLeaderboard;
         }
     }
 
     function updateUI() {
-        const scoreDisp = document.getElementById('score-display');
-        const bestDisp = document.getElementById('user-max-rating');
-        const eloDisp = document.getElementById('puzzle-elo'); // Сюда выводим жизни
+        setText('score-display', score);
+        setText('user-max-rating', bestScore);
         
-        if (scoreDisp) scoreDisp.textContent = score;
-        if (bestDisp) bestDisp.textContent = bestScore;
-        
-        // Отрисовка жизней (сердечек)
+        const eloDisp = document.getElementById('puzzle-elo');
         if (eloDisp) {
             eloDisp.textContent = '❤️'.repeat(lives) + '🖤'.repeat(Math.max(0, 3 - lives));
         }
@@ -148,12 +117,11 @@ const CaptureFrenzy = (() => {
 
     // ===== ИНИЦИАЛИЗАЦИЯ ИГРЫ =====
     function startGame() {
-        // Заполняем профиль
+        // Подтягиваем имя пользователя, если платформа загружена
         if (typeof Platform !== 'undefined' && Platform.user) {
-            const userNameEl = document.getElementById('user-name');
-            const userAvatarEl = document.getElementById('user-avatar');
-            if (userNameEl) userNameEl.textContent = Platform.user.first_name;
-            if (userAvatarEl && Platform.user.photo_100) userAvatarEl.src = Platform.user.photo_100;
+            setText('user-name', Platform.user.first_name);
+            const userAvatar = document.getElementById('user-avatar');
+            if (userAvatar && Platform.user.photo_100) userAvatar.src = Platform.user.photo_100;
         }
 
         board = Array(8).fill(null).map(() => Array(8).fill(''));
@@ -168,20 +136,16 @@ const CaptureFrenzy = (() => {
         isAnimating = false;
         enemyIdCounter = 0;
 
-        // Размещаем ладью игрока
         const pos1 = getRandomEmptySquare();
         board[pos1.r][pos1.c] = 'R';
         playerPieces.push({ r: pos1.r, c: pos1.c, type: 'R', id: 'p0' });
 
-        // Размещаем 2 врагов
         spawnEnemy();
         spawnEnemy();
-        // Стартовые враги могут ходить сразу
         enemyPieces.forEach(e => e.justSpawned = false);
 
-        // Переключаем интерфейс
-        document.getElementById('cf-start-screen').style.setProperty('display', 'none', 'important');
-        document.getElementById('cf-gameover-screen').style.setProperty('display', 'none', 'important');
+        safeHide('cf-start-screen');
+        safeHide('cf-gameover-screen');
         setFrenzyUI(true);
 
         updateUI();
@@ -193,8 +157,7 @@ const CaptureFrenzy = (() => {
         const type = pool[Math.floor(Math.random() * pool.length)];
         const playerPositions = playerPieces.map(p => ({r: p.r, c: p.c}));
         
-        let attempts = 0;
-        let pos;
+        let attempts = 0, pos;
         do {
             pos = getRandomEmptySquare();
             attempts++;
@@ -205,9 +168,7 @@ const CaptureFrenzy = (() => {
 
         if (!pos) return;
 
-        const id = 'e' + (enemyIdCounter++);
-        let spawnPos = pos;
-        
+        let spawnPos = pos, finalType = type;
         if (type === 'p') {
             let attempts2 = 0;
             do {
@@ -215,13 +176,12 @@ const CaptureFrenzy = (() => {
                 attempts2++;
                 if (!spawnPos) return;
             } while (spawnPos.r === 7 && attempts2 < 20);
-            
-            if (spawnPos.r === 7) type = 'n';
+            if (spawnPos.r === 7) finalType = 'n';
             pos = spawnPos;
         }
 
-        board[pos.r][pos.c] = type;
-        enemyPieces.push({ r: pos.r, c: pos.c, type, id, justSpawned: true });
+        board[pos.r][pos.c] = finalType;
+        enemyPieces.push({ r: pos.r, c: pos.c, type: finalType, id: 'e' + (enemyIdCounter++), justSpawned: true });
 
         if (animate) {
             setTimeout(() => {
@@ -234,6 +194,8 @@ const CaptureFrenzy = (() => {
 
     // ===== РЕНДЕР =====
     function renderBoard() {
+        const boardEl = document.getElementById('board');
+        if (!boardEl) return;
         boardEl.innerHTML = '';
 
         for (let r = 0; r < 8; r++) {
@@ -243,9 +205,7 @@ const CaptureFrenzy = (() => {
                 sq.dataset.r = r;
                 sq.dataset.c = c;
 
-                if (selectedPiece && selectedPiece.r === r && selectedPiece.c === c) {
-                    sq.classList.add('selected');
-                }
+                if (selectedPiece && selectedPiece.r === r && selectedPiece.c === c) sq.classList.add('selected');
 
                 const piece = board[r][c];
                 if (piece) {
@@ -269,9 +229,7 @@ const CaptureFrenzy = (() => {
             const moves = getEnemyMoves(enemy.r, enemy.c, enemy.type);
             for (const move of moves) {
                 const sq = document.querySelector(`[data-r="${move.r}"][data-c="${move.c}"]`);
-                if (sq && isPlayer(board[move.r][move.c])) {
-                    sq.classList.add('enemy-threat');
-                }
+                if (sq && isPlayer(board[move.r][move.c])) sq.classList.add('enemy-threat');
             }
         }
     }
@@ -302,14 +260,12 @@ const CaptureFrenzy = (() => {
     function getAllMoves(r, c, piece, isPlayerPiece) {
         const moves =[];
         const p = piece.toLowerCase();
-
         const canMoveTo = (tr, tc) => {
             if (tr < 0 || tr > 7 || tc < 0 || tc > 7) return false;
             const target = board[tr][tc];
             if (isPlayerPiece) return target === '' || isEnemy(target);
             return target === '' || isPlayer(target);
         };
-
         const addSliding = (dirs) => {
             for (const [dr, dc] of dirs) {
                 let tr = r + dr, tc = c + dc;
@@ -342,7 +298,7 @@ const CaptureFrenzy = (() => {
             case 'p':
                 if (!isPlayerPiece) {
                     if (r + 1 < 8 && board[r+1][c] === '') moves.push({r: r+1, c});
-                    for (const dc of [-1, 1]) {
+                    for (const dc of[-1, 1]) {
                         if (r+1 < 8 && c+dc >= 0 && c+dc < 8 && isPlayer(board[r+1][c+dc])) {
                             moves.push({r: r+1, c: c+dc});
                         }
@@ -354,8 +310,7 @@ const CaptureFrenzy = (() => {
     }
 
     // ===== ОБРАБОТКА КЛИКОВ =====
-    let lastTouchTime = 0;
-    let lastTouchDeselect = 0;
+    let lastTouchTime = 0, lastTouchDeselect = 0;
 
     function handleSquareClick(e, r, c) {
         if (e.type === 'mousedown' && Date.now() - lastTouchTime < 500) return;
@@ -367,8 +322,7 @@ const CaptureFrenzy = (() => {
 
         if (selectedPiece && !isPlayer(piece)) {
             const moves = getPlayerMoves(selectedPiece.r, selectedPiece.c);
-            const isValid = moves.some(m => m.r === r && m.c === c);
-            if (isValid) {
+            if (moves.some(m => m.r === r && m.c === c)) {
                 executePlayerMove(selectedPiece.r, selectedPiece.c, r, c);
                 selectedPiece = null;
                 return;
@@ -393,34 +347,30 @@ const CaptureFrenzy = (() => {
         renderBoard();
 
         const currentSqEl = document.querySelector(`[data-r="${r}"][data-c="${c}"]`);
-        if(!currentSqEl) return;
-        
-        const rect = currentSqEl.getBoundingClientRect();
-        const squareSize = rect.width;
-        const isPortrait = window.innerHeight > window.innerWidth;
-        const scale = isPortrait ? 1.6 : 1.0;
+        const follower = document.getElementById('drag-follower');
+        if (!currentSqEl || !follower) return;
 
-        follower.style.width = (squareSize * scale) + 'px';
-        follower.style.height = (squareSize * scale) + 'px';
+        const rect = currentSqEl.getBoundingClientRect();
+        follower.style.width = (rect.width * (window.innerHeight > window.innerWidth ? 1.6 : 1.0)) + 'px';
+        follower.style.height = follower.style.width;
         follower.style.backgroundImage = `url('${PIECE_IMAGES[piece]}')`;
         follower.style.display = 'block';
 
         let clientX = e.touches ? e.touches[0].clientX : e.clientX;
         let clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        updateFollower(clientX, clientY);
+        updateFollower(follower, clientX, clientY);
 
         const pInBoard = currentSqEl.querySelector('.piece');
         if (pInBoard) pInBoard.style.opacity = '0.4';
 
-        let isDragging = false;
-        const startR = r, startC = c;
+        let isDragging = false, startR = r, startC = c;
 
         const onMove = (me) => {
             if (me.cancelable) me.preventDefault();
             isDragging = true;
             clientX = me.touches ? me.touches[0].clientX : me.clientX;
             clientY = me.touches ? me.touches[0].clientY : me.clientY;
-            updateFollower(clientX, clientY);
+            updateFollower(follower, clientX, clientY);
         };
 
         const onEnd = (ue) => {
@@ -440,19 +390,10 @@ const CaptureFrenzy = (() => {
             }
 
             const target = document.elementFromPoint(ux, uy)?.closest('.square');
-
             if (target) {
-                const tr = parseInt(target.dataset.r);
-                const tc = parseInt(target.dataset.c);
-
-                if (tr === startR && tc === startC) {
-                    renderBoard();
-                    return;
-                }
-
-                const moves = getPlayerMoves(startR, startC);
-                const isValid = moves.some(m => m.r === tr && m.c === tc);
-                if (isValid) {
+                const tr = parseInt(target.dataset.r), tc = parseInt(target.dataset.c);
+                if (tr === startR && tc === startC) { renderBoard(); return; }
+                if (getPlayerMoves(startR, startC).some(m => m.r === tr && m.c === tc)) {
                     executePlayerMove(startR, startC, tr, tc, true);
                     selectedPiece = null;
                     return;
@@ -470,25 +411,20 @@ const CaptureFrenzy = (() => {
         document.addEventListener('touchcancel', onEnd);
     }
 
-    function updateFollower(x, y) {
-        follower.style.left = x + 'px';
-        follower.style.top = y + 'px';
+    function updateFollower(foll, x, y) {
+        if (foll) { foll.style.left = x + 'px'; foll.style.top = y + 'px'; }
     }
 
     // ===== ХОД ИГРОКА =====
     function executePlayerMove(fr, fc, tr, tc, isDrag = false) {
         isAnimating = true;
         isPlayerTurn = false;
-        updateTurnIndicator(false);
 
         const piece = board[fr][fc];
         const capturedPiece = board[tr][tc];
 
-        if (capturedPiece && isEnemy(capturedPiece)) {
-            safePlaySound(audioCapture);
-        } else {
-            safePlaySound(audioMove);
-        }
+        if (capturedPiece && isEnemy(capturedPiece)) safePlaySound(audioCapture);
+        else safePlaySound(audioMove);
 
         const fromSq = document.querySelector(`[data-r="${fr}"][data-c="${fc}"]`);
         const toSq = document.querySelector(`[data-r="${tr}"][data-c="${tc}"]`);
@@ -501,8 +437,6 @@ const CaptureFrenzy = (() => {
             pieceEl.style.transform = `translate(${tR.left - fR.left}px, ${tR.top - fR.top}px)`;
         }
 
-        const delay = isDrag ? 0 : 220;
-
         setTimeout(() => {
             board[tr][tc] = piece;
             board[fr][fc] = '';
@@ -511,16 +445,13 @@ const CaptureFrenzy = (() => {
             if (pp) { pp.r = tr; pp.c = tc; }
 
             if (capturedPiece && isEnemy(capturedPiece)) {
-                const points = PIECE_VALUES[capturedPiece] || 1;
-                addScore(points, tR);
+                addScore(PIECE_VALUES[capturedPiece] || 1, tR);
                 enemyPieces = enemyPieces.filter(e => !(e.r === tr && e.c === tc));
-                
                 setTimeout(() => { 
                     spawnEnemy(true); 
                     renderBoard();
                     setTimeout(() => { executeEnemyMove(); }, 600);
                 }, 300);
-                
                 renderBoard();
                 checkMilestones();
                 return; 
@@ -530,7 +461,7 @@ const CaptureFrenzy = (() => {
             checkMilestones();
             setTimeout(() => { executeEnemyMove(); }, 400);
 
-        }, delay);
+        }, isDrag ? 0 : 220);
     }
 
     // ===== ОЧКИ =====
@@ -557,8 +488,7 @@ const CaptureFrenzy = (() => {
                 playerPieces.push({ r: pos.r, c: pos.c, type: 'B', id: 'p1' });
                 setTimeout(() => {
                     const sq = document.querySelector(`[data-r="${pos.r}"][data-c="${pos.c}"]`);
-                    const pieceEl = sq?.querySelector('.piece');
-                    if (pieceEl) pieceEl.classList.add('spawning');
+                    if (sq?.querySelector('.piece')) sq.querySelector('.piece').classList.add('spawning');
                 }, 50);
                 showFloatingText('+ Слон!', '#769656');
             }
@@ -588,7 +518,6 @@ const CaptureFrenzy = (() => {
         const safetyTimeout = setTimeout(() => {
             isAnimating = false;
             isPlayerTurn = true;
-            updateTurnIndicator(true);
             renderBoard();
         }, 1000);
 
@@ -596,35 +525,22 @@ const CaptureFrenzy = (() => {
             clearTimeout(safetyTimeout);
             isAnimating = false;
             isPlayerTurn = true;
-            updateTurnIndicator(true);
             return;
         }
 
         const shuffled = [...enemyPieces].sort(() => Math.random() - 0.5);
-        let enemy = null;
-        let moves =[];
+        let enemy = null, moves =[];
 
         for (const candidate of shuffled) {
-            if (candidate.justSpawned) {
-                candidate.justSpawned = false;
-                continue;
-            }
-            const candidateMoves = getEnemyMoves(candidate.r, candidate.c, candidate.type);
-            if (candidateMoves.length > 0) {
-                enemy = candidate;
-                moves = candidateMoves;
-                break;
-            }
+            if (candidate.justSpawned) { candidate.justSpawned = false; continue; }
+            const cMoves = getEnemyMoves(candidate.r, candidate.c, candidate.type);
+            if (cMoves.length > 0) { enemy = candidate; moves = cMoves; break; }
         }
 
         if (!enemy) {
             for (const candidate of shuffled) {
-                const candidateMoves = getEnemyMoves(candidate.r, candidate.c, candidate.type);
-                if (candidateMoves.length > 0) {
-                    enemy = candidate;
-                    moves = candidateMoves;
-                    break;
-                }
+                const cMoves = getEnemyMoves(candidate.r, candidate.c, candidate.type);
+                if (cMoves.length > 0) { enemy = candidate; moves = cMoves; break; }
             }
         }
 
@@ -632,14 +548,12 @@ const CaptureFrenzy = (() => {
             clearTimeout(safetyTimeout);
             isAnimating = false;
             isPlayerTurn = true;
-            updateTurnIndicator(true);
             return;
         }
 
         let targetMove;
         if (Math.random() < 0.65 && playerPieces.length > 0) {
-            let bestDist = Infinity;
-            let targetPlayer = playerPieces[0];
+            let bestDist = Infinity, targetPlayer = playerPieces[0];
             for (const pp of playerPieces) {
                 const dist = Math.abs(pp.r - enemy.r) + Math.abs(pp.c - enemy.c);
                 if (dist < bestDist) { bestDist = dist; targetPlayer = pp; }
@@ -665,23 +579,18 @@ const CaptureFrenzy = (() => {
         if (!pieceEl || !toSq) {
             board[targetMove.r][targetMove.c] = enemy.type;
             board[enemy.r][enemy.c] = '';
-            enemy.r = targetMove.r;
-            enemy.c = targetMove.c;
+            enemy.r = targetMove.r; enemy.c = targetMove.c;
             renderBoard();
             isAnimating = false;
             isPlayerTurn = true;
-            updateTurnIndicator(true);
             return;
         }
 
         const fR = fromSq.getBoundingClientRect();
         const tR = toSq.getBoundingClientRect();
 
-        if (board[targetMove.r][targetMove.c] && isPlayer(board[targetMove.r][targetMove.c])) {
-            safePlaySound(audioCapture);
-        } else {
-            safePlaySound(audioMove);
-        }
+        if (board[targetMove.r][targetMove.c] && isPlayer(board[targetMove.r][targetMove.c])) safePlaySound(audioCapture);
+        else safePlaySound(audioMove);
 
         pieceEl.style.transition = 'transform 0.2s ease-in-out';
         pieceEl.style.transform = `translate(${tR.left - fR.left}px, ${tR.top - fR.top}px)`;
@@ -707,7 +616,6 @@ const CaptureFrenzy = (() => {
                 renderBoard();
                 isAnimating = false;
                 isPlayerTurn = true;
-                updateTurnIndicator(true);
             }
         }, 220);
     }
@@ -718,8 +626,11 @@ const CaptureFrenzy = (() => {
         safePlaySound(audioError);
         updateUI();
 
-        document.getElementById('board').classList.add('shake');
-        setTimeout(() => document.getElementById('board').classList.remove('shake'), 400);
+        const boardEl = document.getElementById('board');
+        if(boardEl) {
+            boardEl.classList.add('shake');
+            setTimeout(() => boardEl.classList.remove('shake'), 400);
+        }
 
         if (lives <= 0) {
             setTimeout(() => gameOver(), 500);
@@ -737,24 +648,13 @@ const CaptureFrenzy = (() => {
                 renderBoard();
                 setTimeout(() => {
                     const sq = document.querySelector(`[data-r="${pos.r}"][data-c="${pos.c}"]`);
-                    const pieceEl = sq?.querySelector('.piece');
-                    if (pieceEl) pieceEl.classList.add('spawning');
+                    if (sq?.querySelector('.piece')) sq.querySelector('.piece').classList.add('spawning');
                 }, 50);
             }
             isAnimating = false;
             isPlayerTurn = true;
-            updateTurnIndicator(true);
         }, 300);
         renderBoard();
-    }
-
-    function updateTurnIndicator(isPlayerTurn) {
-        // Если вы добавите куда-то в index.html элемент <div id="turn-indicator">, он будет работать. 
-        // Иначе функция просто безопасно ничего не сделает.
-        const el = document.getElementById('turn-indicator');
-        if (!el) return; 
-        el.textContent = isPlayerTurn ? 'Твой ход' : 'Ход врага...';
-        el.className = 'turn-indicator' + (isPlayerTurn ? ' your-turn' : '');
     }
 
     // ===== GAME OVER =====
@@ -763,36 +663,23 @@ const CaptureFrenzy = (() => {
             bestScore = score;
             localStorage.setItem('cf-best-score', bestScore);
         }
-        
-        const finalScoreEl = document.getElementById('cf-final-score');
-        const bestScoreEl = document.getElementById('cf-best-score-go');
-        if(finalScoreEl) finalScoreEl.textContent = score;
-        if(bestScoreEl) bestScoreEl.textContent = bestScore;
-        
-        document.getElementById('cf-gameover-screen').style.setProperty('display', 'flex', 'important');
+        setText('cf-final-score', score);
+        setText('cf-best-score-go', bestScore);
+        safeShow('cf-gameover-screen');
     }
 
     // ===== ПУБЛИЧНЫЕ МЕТОДЫ (API) =====
     return {
         showStart: () => {
-            document.getElementById('main-menu').classList.add('hidden');
-            document.getElementById('cf-start-screen').style.setProperty('display', 'flex', 'important');
+            const mainMenu = document.getElementById('main-menu');
+            if (mainMenu) mainMenu.classList.add('hidden');
+            safeShow('cf-start-screen');
         },
         startGame: startGame,
         goBack: () => {
-            document.getElementById('cf-start-screen').style.setProperty('display', 'none', 'important');
-            document.getElementById('cf-gameover-screen').style.setProperty('display', 'none', 'important');
-            
-            // Отключаем интерфейс Охоты
+            safeHide('cf-start-screen');
+            safeHide('cf-gameover-screen');
             setFrenzyUI(false);
-            
-            // Если есть глобальная функция возврата в меню, используем её
-            if (typeof window.goHome === 'function') {
-                window.goHome();
-            } else {
-                document.querySelector('.game-container').classList.add('hidden-game');
-                document.getElementById('main-menu').classList.remove('hidden');
-            }
         },
         openFrenzyLeaderboard: () => {
             alert("Таблица рекордов для этого режима в разработке!");

@@ -270,57 +270,30 @@
 
 
 <!-- ЭКРАН СТАРТА -->
-<div id="cf-start-screen">
-    <div class="start-title">Захватная<br><span>лихорадка</span></div>
-    <div class="start-desc">
-        Съедай вражеские фигуры и набирай очки!<br>
-        После каждого твоего хода враги отвечают.<br>
-        Не теряй все жизни!
-    </div>
-
-    <div class="piece-values">
-        <div class="piece-val">
-            <div class="piece-val-img" style="background-image: url('img/p/bP.svg')"></div>
-            <div class="piece-val-num">+1</div>
-        </div>
-        <div class="piece-val">
-            <div class="piece-val-img" style="background-image: url('img/p/bN.svg')"></div>
-            <div class="piece-val-num">+3</div>
-        </div>
-        <div class="piece-val">
-            <div class="piece-val-img" style="background-image: url('img/p/bB.svg')"></div>
-            <div class="piece-val-num">+3</div>
-        </div>
-        <div class="piece-val">
-            <div class="piece-val-img" style="background-image: url('img/p/bR.svg')"></div>
-            <div class="piece-val-num">+5</div>
-        </div>
-        <div class="piece-val">
-            <div class="piece-val-img" style="background-image: url('img/p/bQ.svg')"></div>
-            <div class="piece-val-num">+9</div>
-        </div>
-    </div>
-
-    <div class="lives-info">❤️❤️❤️</div>
-
-    <button class="btn-start" onclick="CaptureFrenzy.startGame()">Играть!</button>
-    <button class="btn-back" onclick="CaptureFrenzy.goBack()">← Назад</button>
-</div>
-
-<!-- GAME OVER -->
-<div id="cf-gameover-screen">
-    <div class="gameover-box">
-        <div class="gameover-title">Игра окончена</div>
-        <div class="gameover-score" id="cf-final-score">0</div>
-        <div class="gameover-label">очков</div>
-        <div class="gameover-best">Рекорд: <b id="cf-best-score-go">0</b></div>
-        <div class="gameover-btns">
-            <button class="btn-menu" onclick="CaptureFrenzy.showStart()">Меню</button>
-            <button class="btn-again" onclick="CaptureFrenzy.startGame()">Заново!</button>
+<!-- ЭКРАНЫ РЕЖИМА ОХОТА -->
+<div id="cf-start-screen" class="modal-overlay hidden" style="z-index: 9999;">
+    <div class="modal-box" style="text-align: center; align-items: center;">
+        <h2 style="color: var(--accent); font-size: 26px; text-transform: uppercase;">Охота</h2>
+        <p style="color: var(--gray-500); font-weight: bold; margin-bottom: 15px;">Съедай вражеские фигуры и набирай очки!<br>Не теряй все жизни!</p>
+        <div style="font-size: 24px; margin-bottom: 20px;">❤️❤️❤️</div>
+        <div style="display: flex; gap: 10px; width: 100%;">
+            <button class="btn-close-modal" onclick="CaptureFrenzy.goBack()" style="flex: 1; background: var(--gray-200);">Назад</button>
+            <button class="btn-close-modal" onclick="CaptureFrenzy.startGame()" style="flex: 1; background: var(--accent); color: white;">Играть!</button>
         </div>
     </div>
 </div>
 
+<div id="cf-gameover-screen" class="modal-overlay hidden" style="z-index: 9999;">
+    <div class="modal-box" style="text-align: center; align-items: center;">
+        <h2 style="color: #ef4444; font-size: 26px; text-transform: uppercase;">Игра окончена</h2>
+        <p style="color: var(--gray-500); font-weight: bold; margin: 10px 0;">Очки: <span id="cf-final-score" style="color: #eab308; font-size: 24px;">0</span></p>
+        <p style="color: var(--gray-500); font-size: 14px; margin-bottom: 15px;">Рекорд: <b id="cf-best-score-go" style="color: var(--accent);">0</b></p>
+        <div style="display: flex; gap: 10px; width: 100%;">
+            <button class="btn-close-modal" onclick="CaptureFrenzy.goBack()" style="flex: 1; background: var(--gray-200);">В меню</button>
+            <button class="btn-close-modal" onclick="CaptureFrenzy.startGame()" style="flex: 1; background: #10b981; color: white;">Заново</button>
+        </div>
+    </div>
+</div>
 <div id="cf-drag-follower"></div>
 
 <script>
