@@ -148,6 +148,7 @@ function updateUI() {
 
     // ===== ИНИЦИАЛИЗАЦИЯ ИГРЫ =====
 function startGame() {
+    setFrenzyUI(true);
     try {
         console.log("Старт игры...");
 
@@ -871,12 +872,12 @@ function gameOver() {
     return {
         showStart: () => {
             // 1. Проверяем память браузера
-            const hasSeenTutorial = localStorage.getItem('tutorial_shown_frenzy');
-
-            if (hasSeenTutorial === 'true') {
-                // ЕСЛИ УЖЕ ВИДЕЛИ: запускаем твою правильную функцию startGame мгновенно
-                startGame();
-            } else {
+    const hasSeenTutorial = localStorage.getItem('tutorial_shown_frenzy');
+    if (hasSeenTutorial === 'true') {
+        setFrenzyUI(true); // ← добавить
+        startGame();
+    } else {
+        setFrenzyUI(true);
                 // ЕСЛИ НЕ ВИДЕЛИ: показываем плашку "Охоты" первый и последний раз
                 const gameContainer = document.querySelector('.game-container');
                 if (gameContainer) {
