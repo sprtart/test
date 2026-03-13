@@ -214,37 +214,39 @@ function startGame() {
     }
 
     // ===== РЕНДЕР =====
-    function renderBoard() {
-        const boardEl = document.getElementById('board');
-        if (!boardEl) return;
-        boardEl.innerHTML = '';
+// В capture-frenzy.js
+function renderBoard() {
 
-        for (let r = 0; r < 8; r++) {
-            for (let c = 0; c < 8; c++) {
-                const sq = document.createElement('div');
-                sq.className = `square ${(r + c) % 2 === 0 ? 'light' : 'dark'}`;
-                sq.dataset.r = r;
-                sq.dataset.c = c;
+    if (isAnimating) return; 
+    
+    // Вместо очистки всего контейнера, удаляем только фигуры
+    const squares = boardEl.querySelectorAll('.square');
+    
+    for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+            const sq = boardEl.querySelector(`[data-r="${r}"][data-c="${c}"]`);
+            if (!sq) continue;
 
-                if (selectedPiece && selectedPiece.r === r && selectedPiece.c === c) sq.classList.add('selected');
+            // Находим старую фигуру
+            const oldPiece = sq.querySelector('.piece');
+            const newPieceType = board[r][c];
 
-                const piece = board[r][c];
-                if (piece) {
+            // Если фигура изменилась — перерисовываем только эту клетку
+            if (!newPieceType) {
+                if (oldPiece) oldPiece.remove();
+            } else {
+                if (!oldPiece || oldPiece.dataset.type !== newPieceType) {
+                    if (oldPiece) oldPiece.remove();
                     const pEl = document.createElement('div');
-                    pEl.className = 'piece' + (isPlayer(piece) ? ' player-piece' : '');
-                    pEl.style.backgroundImage = `url('${PIECE_IMAGES[piece]}')`;
+                    pEl.className = 'piece' + (isPlayer(newPieceType) ? ' player-piece' : '');
+                    pEl.style.backgroundImage = `url('${PIECE_IMAGES[newPieceType]}')`;
+                    pEl.dataset.type = newPieceType; // Запоминаем тип
                     sq.appendChild(pEl);
                 }
-
-                sq.onmousedown = sq.ontouchstart = (e) => handleSquareClick(e, r, c);
-                boardEl.appendChild(sq);
             }
         }
-
-        if (selectedPiece) showMoveHints(selectedPiece.r, selectedPiece.c);
-        updateEnemyThreats();
     }
-
+}
     function updateEnemyThreats() {
         for (const enemy of enemyPieces) {
             const moves = getEnemyMoves(enemy.r, enemy.c, enemy.type);
