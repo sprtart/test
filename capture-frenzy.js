@@ -76,67 +76,70 @@ const CaptureFrenzy = (() => {
     }
 
     // ===== ИНТЕРФЕЙС =====
-    function setFrenzyUI(active) {
+function setFrenzyUI(active) {
+    const hintBtn = document.getElementById('hint-btn');
+    const topBtn = document.querySelector('.top-btn');
+    const bottomBar = document.querySelector('.bottom-bar');
+    const eloCard = document.getElementById('puzzle-elo')?.closest('.stat-card');
+
+    if (active) {
+        // Прячем кнопки
+        if (hintBtn) hintBtn.style.display = 'none';
+        if (topBtn) topBtn.style.display = 'none';
+
+        // Прячем карточку Эло, оставляем только Очки
+        if (eloCard) eloCard.style.display = 'none';
+        setText('label-score', 'Очки');
+
+        // Создаём блок жизней если нет
+        if (!document.getElementById('cf-lives-bar') && bottomBar) {
+            const livesEl = document.createElement('div');
+            livesEl.id = 'cf-lives-bar';
+            livesEl.style.cssText = 'font-size: 7vw; letter-spacing: 4px; display: flex; align-items: center; justify-content: center; width: 100%;';
+            bottomBar.appendChild(livesEl);
+        }
+
         const gameContainer = document.querySelector('.game-container');
         const mainMenu = document.getElementById('main-menu');
-        const hintBtn = document.getElementById('hint-btn');
-        const topBtn = document.querySelector('.top-btn');
+        if (gameContainer) gameContainer.classList.remove('hidden-game');
+        if (mainMenu) mainMenu.classList.add('hidden');
 
-if (active) {
-    if (gameContainer) gameContainer.classList.remove('hidden-game');
-    if (mainMenu) mainMenu.classList.add('hidden');
-    
-    setText('label-score', 'Очки');
+    } else {
+        // Возвращаем кнопки
+        if (hintBtn) {
+            hintBtn.style.display = '';
+            hintBtn.onclick = requestHint;
+            const icon = hintBtn.querySelector('.video-icon');
+            if (icon) icon.style.display = '';
+            const text = document.getElementById('hint-btn-text');
+            if (text) text.textContent = typeof i18n !== 'undefined' ? (i18n[lang]?.hintBtn || 'Помощь') : 'Помощь';
+        }
+        if (topBtn) topBtn.style.display = '';
 
-    // Прячем карточку Эло и кнопки
-    const eloCard = document.querySelector('.top-bar .stat-card:first-child');
-    if (eloCard) eloCard.style.display = 'none';
-    if (hintBtn) hintBtn.style.display = 'none';
-    if (topBtn) topBtn.style.display = 'none';
+        // Возвращаем карточку Эло
+        if (eloCard) eloCard.style.display = '';
 
-    // Показываем жизни в строке кнопок
-    let livesEl = document.getElementById('cf-lives-bar');
-    if (!livesEl) {
-        livesEl = document.createElement('div');
-        livesEl.id = 'cf-lives-bar';
-        livesEl.style.cssText = 'font-size:7vw; letter-spacing:2px; display:flex; align-items:center;';
-        document.querySelector('.bottom-bar').appendChild(livesEl);
+        // Убираем жизни
+        const livesEl = document.getElementById('cf-lives-bar');
+        if (livesEl) livesEl.remove();
+
+        const gameContainer = document.querySelector('.game-container');
+        const mainMenu = document.getElementById('main-menu');
+        if (gameContainer) gameContainer.classList.add('hidden-game');
+        if (mainMenu) mainMenu.classList.remove('hidden');
+
+        setText('label-rating', typeof i18n !== 'undefined' && i18n[lang]?.rating ? i18n[lang].rating : 'Рейтинг');
+        setText('label-best-elo', typeof i18n !== 'undefined' && i18n[lang]?.bestElo ? i18n[lang].bestElo : 'макс. Эло');
+        setText('label-score', typeof i18n !== 'undefined' && i18n[lang]?.score ? i18n[lang].score : 'Очки');
+
+        if (topBtn && typeof openLeaderboard === 'function') topBtn.onclick = openLeaderboard;
     }
-    livesEl.style.display = 'flex';
-
-    if (topBtn) topBtn.onclick = CaptureFrenzy.openFrenzyLeaderboard;
-} else {
-    if (gameContainer) gameContainer.classList.add('hidden-game');
-    if (mainMenu) mainMenu.classList.remove('hidden');
-    
-    setText('label-rating', typeof i18n !== 'undefined' && i18n[lang]?.rating ? i18n[lang].rating : 'Рейтинг');
-    setText('label-best-elo', typeof i18n !== 'undefined' && i18n[lang]?.bestElo ? i18n[lang].bestElo : 'макс. Эло');
-    setText('label-score', typeof i18n !== 'undefined' && i18n[lang]?.score ? i18n[lang].score : 'Очки');
-    
-    // Возвращаем карточку Эло
-    const eloCard = document.querySelector('.top-bar .stat-card:first-child');
-    if (eloCard) eloCard.style.display = '';
-
-    if (hintBtn) hintBtn.style.display = '';
-    if (topBtn) { topBtn.style.display = ''; }
-    if (topBtn && typeof openLeaderboard === 'function') topBtn.onclick = openLeaderboard;
-
-    // Прячем жизни
-    const livesEl = document.getElementById('cf-lives-bar');
-    if (livesEl) livesEl.style.display = 'none';
 }
-    }
 
 function updateUI() {
     setText('score-display', score);
     setText('user-max-rating', bestScore);
-    
-    const eloDisp = document.getElementById('puzzle-elo');
-    if (eloDisp) {
-        eloDisp.textContent = '❤️'.repeat(lives) + '🖤'.repeat(Math.max(0, 3 - lives));
-    }
 
-    // Обновляем жизни в нижней панели
     const livesEl = document.getElementById('cf-lives-bar');
     if (livesEl) {
         livesEl.textContent = '❤️'.repeat(Math.max(0, lives)) + '🖤'.repeat(Math.max(0, 3 - lives));
@@ -835,30 +838,33 @@ function gameOver() {
         localStorage.setItem('cf-best-score', bestScore);
     }
 
-    // Меняем кнопку Подсказка → Заново
+    isPlayerTurn = false;
+    isAnimating = false;
+
+    // Убираем жизни
+    const livesEl = document.getElementById('cf-lives-bar');
+    if (livesEl) livesEl.style.display = 'none';
+
+    // Кнопка Заново вместо Подсказки
     const hintBtn = document.getElementById('hint-btn');
     if (hintBtn) {
         hintBtn.style.display = 'flex';
         const icon = hintBtn.querySelector('.video-icon');
         if (icon) icon.style.display = 'none';
-        const text = hintBtn.querySelector('#hint-btn-text');
+        const text = document.getElementById('hint-btn-text');
         if (text) text.textContent = 'Заново';
         hintBtn.onclick = () => CaptureFrenzy.startGame();
     }
 
-    // Показываем Топ обратно как кнопку "В меню"
+    // Возвращаем кнопку Топ
     const topBtn = document.querySelector('.top-btn');
     if (topBtn) {
-        topBtn.style.display = 'flex';
-        topBtn.textContent = 'В меню';
-        topBtn.onclick = () => CaptureFrenzy.goBack();
+        topBtn.style.display = '';
+        topBtn.onclick = CaptureFrenzy.openFrenzyLeaderboard;
     }
 
-    // Показываем итог в карточке очков через всплывающий текст
-    showFloatingText(`Игра окончена! Счёт: ${score}`, '#ef4444');
-
-    isPlayerTurn = false;
-    isAnimating = false;
+    // Показываем итог
+    showFloatingText(`Счёт: ${score} | Рекорд: ${bestScore}`, '#ef4444');
 }
 
 // ===== ПУБЛИЧНЫЕ МЕТОДЫ (API) =====
