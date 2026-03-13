@@ -5,19 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Захватная лихорадка</title>
     <style>
-        :root {
-            --board-light: #f0d9b5;
-            --board-dark: #b58863;
-            --bg: #1a1917;
-            --panel-bg: #262625;
-            --accent: #769656;
-            --accent-dark: #546d3b;
-            --danger: #ef4444;
-            --danger-dark: #b91c1c;
-            --text: #ebebeb;
-            --text-dim: #888;
-            --gold: #f59e0b;
-        }
+:root {
+    --accent: #769656;
+    --accent-dark: #546d3b;
+    --danger: #ef4444;
+    --danger-dark: #b91c1c;
+    --gold: #f59e0b;
+}
 
         * {
             touch-action: none;
@@ -27,6 +21,24 @@
             margin: 0;
             padding: 0;
         }
+
+        html.dark-mode {
+    --bg: #1a1917;
+    --panel-bg: #262625;
+    --text: #ebebeb;
+    --text-dim: #888;
+    --board-light: #eeeed2;
+    --board-dark: #769656;
+}
+
+html:not(.dark-mode) {
+    --bg: #ebebeb;
+    --panel-bg: #ffffff;
+    --text: #1f2937;
+    --text-dim: #6b7280;
+    --board-light: #f0d9b5;
+    --board-dark: #b58863;
+}
 
         body {
             overscroll-behavior: none;
@@ -534,6 +546,91 @@
         @media (orientation: portrait) {
             #side-panel { display: none; }
         }
+
+
+        /* Плашка профиля — берём стили из основной игры */
+#game-screen #profile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: min(97vw, 75vh);
+    padding: 10px 16px;
+    background-color: var(--panel-bg);
+    border-radius: 50px;
+    box-sizing: border-box;
+}
+
+#cf-user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.user-text-wrapper {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+}
+
+#cf-user-name {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--text);
+}
+
+.btn-stats {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--text-dim);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--panel-bg);
+}
+.btn-stats svg { width: 22px; height: 22px; }
+
+/* Нижняя панель */
+#bottom-panel {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: min(97vw, 75vh);
+    padding: 0 4px;
+}
+
+.cf-bottom-btns {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-again-cf {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 900;
+    cursor: pointer;
+    box-shadow: 0 4px 0 var(--accent-dark);
+}
+
+.btn-top-cf {
+    background: var(--panel-bg);
+    color: var(--text);
+    border: none;
+    padding: 10px 18px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.icon-moon, .icon-sun { width: 22px; height: 22px; }
     </style>
 </head>
 <body>
@@ -579,8 +676,40 @@
 <!-- ИГРОВОЙ ЭКРАН -->
 <div id="game-screen">
 
-    <!-- Верхняя панель (портрет) -->
-    <div id="top-panel">
+    <!-- ПЛАШКА ПРОФИЛЯ (как в основной игре) -->
+    <div id="profile-header">
+        <div class="user-info">
+            <img id="cf-user-avatar" src="img/p/wQ.svg" alt="Аватар">
+            <div class="user-text-wrapper">
+                <span id="cf-user-name">Игрок</span>
+                <div id="cf-best-container">
+                    <span style="font-size:11px; color:#888;">Рекорд</span>
+                    <span id="cf-best-score" style="font-weight:900;">0</span>
+                </div>
+            </div>
+        </div>
+        <div style="display:flex; gap:8px;">
+            <button class="btn-stats" onclick="goBack()">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2.5L2 11.5h3v9h5v-6h4v6h5v-9h3L12 2.5z"
+                        stroke="currentColor" stroke-width="2"
+                        stroke-linejoin="round" stroke-linecap="round"/>
+                </svg>
+            </button>
+            <button class="btn-stats" onclick="toggleTheme()">
+                <svg class="icon-sun" viewBox="0 0 24 24" fill="currentColor"><path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58a.996.996 0 00-1.41 0 .996.996 0 000 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37a.996.996 0 00-1.41 0 .996.996 0 000 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41l-1.06-1.06zm1.06-10.96a.996.996 0 000-1.41.996.996 0 00-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06zM7.05 18.36a.996.996 0 000-1.41.996.996 0 00-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06z"/></svg>
+                <svg class="icon-moon hidden" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- ДОСКА -->
+    <div id="board-wrapper">
+        <div id="board" class="chess-board"></div>
+    </div>
+
+    <!-- НИЖНЯЯ ПАНЕЛЬ: жизни + очки + кнопки -->
+    <div id="bottom-panel">
         <div class="lives-display" id="lives-display">
             <span class="life">❤️</span>
             <span class="life">❤️</span>
@@ -590,42 +719,10 @@
             <div class="score-label">Очки</div>
             <div class="score-value" id="score-val">0</div>
         </div>
-        <div class="next-info" id="next-info">
-            <div>след. враг</div>
-            <span id="next-enemy-val">20</span>
+        <div class="cf-bottom-btns">
+            <button class="btn-again-cf hidden" id="btn-again-cf" onclick="startGame()">Заново</button>
+            <button class="btn-top-cf" onclick="openFrenzyLeaderboard()">Топ</button>
         </div>
-    </div>
-
-    <!-- Боковая панель (ландшафт) -->
-    <div id="side-panel">
-        <div class="side-lives" id="side-lives">
-            <span class="life">❤️</span>
-            <span class="life">❤️</span>
-            <span class="life">❤️</span>
-        </div>
-        <div class="side-score">
-            <div class="score-label">Очки</div>
-            <div class="score-value" id="side-score-val">0</div>
-        </div>
-        <div class="side-score">
-            <div class="score-label">След. враг</div>
-            <div class="score-value" style="color: var(--danger)" id="side-next-val">20</div>
-        </div>
-        <div class="side-score">
-            <div class="score-label">Враги</div>
-            <div class="score-value" style="color: var(--danger)" id="side-enemy-count">2</div>
-        </div>
-    </div>
-
-    <!-- Доска -->
-    <div id="board-wrapper">
-        <div id="board" class="chess-board"></div>
-    </div>
-
-    <!-- Нижняя панель (портрет) -->
-    <div id="bottom-panel">
-        <div class="turn-indicator your-turn" id="turn-indicator">Твой ход</div>
-        <div class="enemy-count">👾 <span id="enemy-count">2</span></div>
     </div>
 
 </div>
@@ -647,6 +744,22 @@
 <div id="drag-follower"></div>
 
 <script>
+
+    // Применяем тему как в основной игре
+function applySavedTheme() {
+    const saved = localStorage.getItem('user-theme');
+    if (saved === 'light') {
+        document.documentElement.classList.remove('dark-mode');
+    } else {
+        // По умолчанию тёмная
+        document.documentElement.classList.add('dark-mode');
+    }
+}
+
+applySavedTheme();
+
+
+
 // ===== КОНСТАНТЫ =====
 const PIECE_IMAGES = {
     'P': 'img/p/wP.svg', 'R': 'img/p/wR.svg', 'N': 'img/p/wN.svg',
@@ -675,6 +788,15 @@ let playerBishopAdded = false; // слон добавлен после 50 очк
 let isPlayerTurn = true;
 let isAnimating = false;
 let enemyIdCounter = 0;
+
+const audioMove = new Audio('sounds/Move.ogg');
+const audioCapture = new Audio('sounds/Capture.ogg');
+const audioError = new Audio('sounds/Error.ogg');
+
+function safePlaySound(audio) {
+    const p = audio.play();
+    if (p !== undefined) p.catch(() => {});
+}
 
 const boardEl = document.getElementById('board');
 const follower = document.getElementById('drag-follower');
@@ -718,6 +840,15 @@ function getEnemyPool() {
 
 // ===== ИНИЦИАЛИЗАЦИЯ =====
 function startGame() {
+
+    // Заполняем профиль
+if (typeof Platform !== 'undefined' && Platform.user) {
+    document.getElementById('cf-user-name').textContent = Platform.user.first_name;
+    if (Platform.user.photo_100) {
+        document.getElementById('cf-user-avatar').src = Platform.user.photo_100;
+    }
+}
+document.getElementById('btn-again-cf').classList.add('hidden');
     board = Array(8).fill(null).map(() => Array(8).fill(''));
     playerPieces = [];
     enemyPieces = [];
@@ -738,6 +869,8 @@ function startGame() {
     // Размещаем 2 врагов
     spawnEnemy();
     spawnEnemy();
+    // Стартовые враги могут ходить сразу
+enemyPieces.forEach(e => e.justSpawned = false);
 
     updateUI();
     renderBoard();
@@ -770,8 +903,25 @@ function spawnEnemy(animate = false) {
     if (!pos) return;
 
     const id = 'e' + (enemyIdCounter++);
+
+// Если пешка — не спавним на последней горизонтали (r=7)
+let spawnPos = pos;
+if (type === 'p') {
+    let attempts2 = 0;
+    do {
+        spawnPos = getRandomEmptySquare();
+        attempts2++;
+        if (!spawnPos) return;
+    } while (spawnPos.r === 7 && attempts2 < 20);
+    
+    // Если всё равно r=7 — меняем тип на коня
+    if (spawnPos.r === 7) type = 'n';
+    pos = spawnPos;
+}
+
+
     board[pos.r][pos.c] = type;
-    enemyPieces.push({ r: pos.r, c: pos.c, type, id });
+    enemyPieces.push({ r: pos.r, c: pos.c, type, id, justSpawned: true });
 
     if (animate) {
         // Помечаем для анимации появления
@@ -1051,6 +1201,12 @@ function executePlayerMove(fr, fc, tr, tc, isDrag = false) {
     const piece = board[fr][fc];
     const capturedPiece = board[tr][tc];
 
+        if (capturedPiece && isEnemy(capturedPiece)) {
+        safePlaySound(audioCapture);
+    } else {
+        safePlaySound(audioMove);
+    }
+
     const fromSq = document.querySelector(`[data-r="${fr}"][data-c="${fc}"]`);
     const toSq = document.querySelector(`[data-r="${tr}"][data-c="${tc}"]`);
     const pieceEl = fromSq?.querySelector('.piece');
@@ -1156,22 +1312,71 @@ function showFloatingText(text, color) {
 
 // ===== ХОД ВРАГОВ =====
 function executeEnemyMove() {
+    // Защитный таймаут — если что-то пошло не так, возвращаем ход игроку
+    const safetyTimeout = setTimeout(() => {
+        console.warn('Safety timeout triggered');
+        isAnimating = false;
+        isPlayerTurn = true;
+        updateTurnIndicator(true);
+        renderBoard();
+    }, 1000);
+
     if (enemyPieces.length === 0) {
+        clearTimeout(safetyTimeout);
         isAnimating = false;
         isPlayerTurn = true;
         updateTurnIndicator(true);
         return;
     }
 
-    const enemy = enemyPieces[Math.floor(Math.random() * enemyPieces.length)];
-    const moves = getEnemyMoves(enemy.r, enemy.c, enemy.type);
+const shuffled = [...enemyPieces].sort(() => Math.random() - 0.5);
+let enemy = null;
+let moves = [];
 
-    if (moves.length === 0) {
-        isAnimating = false;
-        isPlayerTurn = true;
-        updateTurnIndicator(true);
-        return;
+// Первый проход — ищем не justSpawned
+for (const candidate of shuffled) {
+    if (candidate.justSpawned) {
+        candidate.justSpawned = false;
+        continue;
     }
+    const candidateMoves = getEnemyMoves(candidate.r, candidate.c, candidate.type);
+    if (candidateMoves.length > 0) {
+        enemy = candidate;
+        moves = candidateMoves;
+        break;
+    }
+}
+
+// Второй проход — если все были justSpawned, берём любого у кого есть ходы
+if (!enemy) {
+    for (const candidate of shuffled) {
+        const candidateMoves = getEnemyMoves(candidate.r, candidate.c, candidate.type);
+        if (candidateMoves.length > 0) {
+            enemy = candidate;
+            moves = candidateMoves;
+            break;
+        }
+    }
+}
+
+console.log('выбран враг:', enemy?.type, 'ходов:', moves.length);
+
+// Если все justSpawned или никто не может ходить — просто возвращаем ход
+if (!enemy) {
+    clearTimeout(safetyTimeout);
+    isAnimating = false;
+    isPlayerTurn = true;
+    updateTurnIndicator(true);
+    return;
+}
+
+if (!enemy) {
+    clearTimeout(safetyTimeout);
+    isAnimating = false;
+    isPlayerTurn = true;
+    updateTurnIndicator(true);
+    return;
+}
 
     let targetMove;
     if (Math.random() < 0.65 && playerPieces.length > 0) {
@@ -1214,12 +1419,17 @@ function executeEnemyMove() {
 
     const fR = fromSq.getBoundingClientRect();
     const tR = toSq.getBoundingClientRect();
-
+if (board[targetMove.r][targetMove.c] && isPlayer(board[targetMove.r][targetMove.c])) {
+    safePlaySound(audioCapture);
+} else {
+    safePlaySound(audioMove);
+}
     // Запускаем анимацию
     pieceEl.style.transition = 'transform 0.2s ease-in-out';
     pieceEl.style.transform = `translate(${tR.left - fR.left}px, ${tR.top - fR.top}px)`;
 
     setTimeout(() => {
+        clearTimeout(safetyTimeout);
         const capturedPiece = board[targetMove.r][targetMove.c];
 
         board[targetMove.r][targetMove.c] = enemy.type;
@@ -1246,6 +1456,7 @@ function executeEnemyMove() {
 // ===== ПОТЕРЯ ЖИЗНИ =====
 function loseLife(capturedPiece, r, c) {
     lives--;
+    safePlaySound(audioError);
     updateUI();
 
     // Тряска
@@ -1313,8 +1524,8 @@ function updateTurnIndicator(isPlayer) {
 // ===== GAME OVER =====
 function gameOver() {
     if (score > bestScore) bestScore = score;
-    document.getElementById('final-score').textContent = score;
-    document.getElementById('best-score').textContent = bestScore;
+    document.getElementById('cf-best-score').textContent = bestScore;
+    document.getElementById('btn-again-cf').classList.remove('hidden');
     document.getElementById('gameover-screen').style.display = 'flex';
 }
 
