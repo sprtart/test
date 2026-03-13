@@ -92,12 +92,15 @@ function setFrenzyUI(active) {
         setText('label-score', 'Очки');
 
         // Создаём блок жизней если нет
-        if (!document.getElementById('cf-lives-bar') && bottomBar) {
-            const livesEl = document.createElement('div');
-            livesEl.id = 'cf-lives-bar';
-            livesEl.style.cssText = 'font-size: 7vw; letter-spacing: 4px; display: flex; align-items: center; justify-content: center; width: 100%;';
-            bottomBar.appendChild(livesEl);
-        }
+let livesEl = document.getElementById('cf-lives-bar');
+if (!livesEl && bottomBar) {
+    livesEl = document.createElement('div');
+    livesEl.id = 'cf-lives-bar';
+    livesEl.style.cssText = 'font-size: 7vw; letter-spacing: 4px; display: flex; align-items: center; justify-content: center; width: 100%;';
+    bottomBar.appendChild(livesEl);
+} else if (livesEl) {
+    livesEl.style.display = 'flex';
+}
 
         const gameContainer = document.querySelector('.game-container');
         const mainMenu = document.getElementById('main-menu');
