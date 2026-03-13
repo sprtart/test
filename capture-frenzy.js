@@ -186,18 +186,22 @@ function spawnEnemy(animate = false) {
 
         // 3. Устанавливаем ЛИМИТЫ (чтобы фигуры не дублировались сверх меры)
         const limits = {
-            'p': 3, // Максимум 3 пешки
-            'n': 2, // Максимум 2 коня
-            'b': 2, // Максимум 2 слона
-            'r': 2, // Максимум 2 ладьи
-            'q': 1  // Максимум 1 ферзь (иначе будет слишком жестко)
+            'p': 2,
+            'n': 1, // Максимум 1 конь
+            'b': 1, // Максимум 1 слон
+            'r': 1,
+            'q': 1
         };
 
         // 4. Оставляем в корзине (пуле) только те фигуры, которые не превысили лимит
         let availablePool = basePool.filter(type => counts[type] < limits[type]);
 
         // Подстраховка: если вдруг всё заблокировалось, откатываемся к базовому пулу
-        if (availablePool.length === 0) availablePool = basePool;
+        if (availablePool.length === 0) {
+            // Берём тип которого меньше всего на доске
+            const minCount = Math.min(...basePool.map(t => counts[t] || 0));
+            availablePool = basePool.filter(t => (counts[t] || 0) === minCount);
+        }
 
         // 5. Выбираем случайную фигуру уже из отфильтрованного списка
         const type = availablePool[Math.floor(Math.random() * availablePool.length)];
