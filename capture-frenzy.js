@@ -630,7 +630,7 @@ function checkMilestones() {
         // ШАГ 1: ПРОВЕРКА НА УБИЙСТВО (Инстинкт хищника)
         // Проверяем всех врагов - может ли кто-то прямо сейчас съесть игрока?
         for (const candidate of enemyPieces) {
-            if (candidate.justSpawned) continue; // Только что появившиеся не бьют
+           if (candidate.justSpawned) continue;// Только что появившиеся не бьют
             const cMoves = getEnemyMoves(candidate.r, candidate.c, candidate.type);
             for (const move of cMoves) {
                 if (isPlayer(board[move.r][move.c])) { // Ого, тут игрок!
@@ -649,7 +649,7 @@ function checkMilestones() {
 
             // Ищем любого врага, у которого вообще есть ходы
             for (const candidate of shuffled) {
-                if (candidate.justSpawned) continue;
+                //if (candidate.justSpawned) continue;
                 const cMoves = getEnemyMoves(candidate.r, candidate.c, candidate.type);
                 if (cMoves.length > 0) { 
                     enemy = candidate; 
@@ -719,6 +719,7 @@ function checkMilestones() {
             board[enemy.r][enemy.c] = '';
             enemy.r = targetMove.r;
             enemy.c = targetMove.c;
+            enemy.justSpawned = false; // Первый ход сделан — теперь может есть
 
             // Превращение вражеской пешки
             if (enemy.type === 'p' && targetMove.r === 7) {
