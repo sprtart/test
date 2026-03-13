@@ -25,7 +25,8 @@
     display: contents; /* Растворяет саму колонку, элементы встают в общую очередь */
 }
 
-#profile-header {
+#profile-header, 
+#cf-profile-header {
     order: -1;
     display: flex;
     justify-content: space-between;
@@ -54,7 +55,8 @@
     gap: 12px;
 }
 
-#user-avatar {
+#user-avatar, 
+#cf-user-avatar {
     width: 6vh;
     height: 6vh;
     border-radius: 50%;
@@ -72,7 +74,8 @@
     gap: 0.1vh;
 }
 
-#user-name {
+#user-name, 
+#cf-user-name {
     font-size: min(4.5vw, 3vh); /* Чуть уменьшили, чтобы влезло две строки */
     font-weight: 800;
     color: var(--gray-1200);
@@ -96,7 +99,8 @@
 
 /* Адаптация для ПК */
 @media (orientation: landscape) {
-    #user-name { font-size: 1.2vw; max-width: 12vw; }
+    #user-name, 
+#cf-user-name { font-size: 1.2vw; max-width: 12vw; }
     #user-best-elo-container { font-size: 1.2vw; }
 }
 
@@ -191,7 +195,8 @@
         /*min-width: 240px;*/
     }
 
-    #profile-header {
+    #profile-header, 
+#cf-profile-header {
         order: unset; /* Возвращаем на место */
         width: 100%;
         margin-bottom: 0;
@@ -203,9 +208,11 @@
     }
 
     /* Адаптируем размеры профиля для ПК */
-    #user-avatar { width: 3.5vw; height: 3.5vw; min-width: 40px; min-height: 40px; }
+    #user-avatar, 
+#cf-user-avatar { width: 3.5vw; height: 3.5vw; min-width: 40px; min-height: 40px; }
     .btn-stats, .btn-theme { width: 3.5vw; height: 3.5vw; min-width: 40px; min-height: 40px; border-radius: 1vw;}
-    #user-name { font-size: 1.5vw; max-width: 12vw;}
+    #user-name, 
+#cf-user-name { font-size: 1.5vw; max-width: 12vw;}
     
     .side-panel {
         width: 100%;
@@ -859,7 +866,8 @@ html, body {
     .game-container {
         gap: 3vw;
     }
-    #profile-header {
+    #profile-header, 
+#cf-profile-header {
         border-radius: 95px;
         margin-bottom: 4vw;
     }
@@ -869,12 +877,14 @@ html, body {
 /* Соотношение 0.63 - 0.72 */
 @media (min-aspect-ratio: 63/100) { 
 
-    #user-name {
+    #user-name, 
+#cf-user-name {
         font-size: min(4.5vw, 2.5vh);
         max-width: 28vw;
     }
 
-    #profile-header {
+    #profile-header, 
+#cf-profile-header {
         padding: 1.5vh 2.4vw;
         margin-bottom: 3vw;
     }
@@ -927,13 +937,15 @@ html, body {
 
 @media (min-aspect-ratio: 73/100) { 
 
-#user-name {
+#user-name, 
+#cf-user-name {
     font-size: min(4.5vw, 2.5vh);
     max-width: 24vw;
 
 }
 
-#profile-header {
+#profile-header, 
+#cf-profile-header {
     padding: 1.5vh 2.4vw;
 }
     .chess-board {
@@ -989,7 +1001,8 @@ html, body {
         width: 65vh;
         height: 65vh;
     }
-#profile-header {
+#profile-header, 
+#cf-profile-header {
     padding: 1.5vh 2vw;
 }
     .side-panel {
@@ -1032,7 +1045,8 @@ html, body {
         gap: 2vw;
     }
 
-#user-name {
+#user-name, 
+#cf-user-name {
     font-size: min(3.5vw, 2.5vh);
     max-width: 18vw;
 }
@@ -1083,7 +1097,8 @@ html, body {
         gap: 2vw;
     }
 
-    #profile-header {
+    #profile-header, 
+#cf-profile-header {
         order: -1;
         display: flex;
         margin-bottom: 8px;
@@ -1203,7 +1218,8 @@ html, body {
         align-items: center;
         gap: 2vw;
     }
-#user-avatar {
+#user-avatar, 
+#cf-user-avatar {
     width: 6vh;
     height: 6vh;
     border-radius: 1.1vw;
@@ -1223,7 +1239,8 @@ html, body {
     width: 3vw;
     height: 3vw;
 }
-    #user-name {
+    #user-name, 
+#cf-user-name {
         font-size: 1.5vw;
         max-width: 9vw;
     }
@@ -1309,7 +1326,8 @@ html, body {
         fill: currentColor; /* Иконка примет цвет текста кнопки */
     }
 
-    #profile-header {
+    #profile-header, 
+#cf-profile-header {
         order: -1;
         display: flex;
         margin-bottom: 0;
@@ -1327,14 +1345,16 @@ html, body {
         box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         border-radius: 5px;
     }
-    #profile-header {
+    #profile-header, 
+#cf-profile-header {
         order: -1;
         display: flex;
         margin-bottom: 8px;
         padding: 2vh 2vw;
         border-radius: 1.4vw;
     }
-        #user-name {
+        #user-name, 
+#cf-user-name {
         font-size: 1.5vw;
         max-width: 12vw;
     }
@@ -1349,14 +1369,16 @@ html, body {
         box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         border-radius: 5px;
     }
-    #user-name {
+    #user-name, 
+#cf-user-name {
         font-size: 1.5vw;
         max-width: 12vw;
     }
 }
 @media (min-aspect-ratio: 160/100) { 
     /* Здесь можно разгуляться: большие шрифты, доска 85vh. */
-        #user-name {
+        #user-name, 
+#cf-user-name {
         font-size: 1.5vw;
         max-width: 14vw;
     }
@@ -1388,7 +1410,8 @@ html, body {
 }
 
 /* Карточки и панели в стиле Chess.com */
-.dark-mode #profile-header,
+.dark-mode #profile-header, 
+#cf-profile-header,
 .dark-mode .modal-box,
 .dark-mode .btn-hint,
 .dark-mode #promotion-dialog {
@@ -1520,7 +1543,8 @@ background: #769656;
     }
 
     /* Прячем кнопку статистики в профиле */
-    #profile-header .btn-stats:not(.landscape-only) {
+    #profile-header, 
+#cf-profile-header .btn-stats:not(.landscape-only) {
         display: none;
     }
 

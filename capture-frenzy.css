@@ -504,23 +504,7 @@
 
 
         /* Плашка профиля — берём стили из основной игры */
-#cf-game-screen #cf-profile-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: min(97vw, 75vh);
-    padding: 10px 16px;
-    background-color: var(--panel-bg);
-    border-radius: 50px;
-    box-sizing: border-box;
-}
 
-#cf-user-avatar {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    object-fit: cover;
-}
 
 .user-text-wrapper {
     display: flex;
@@ -528,11 +512,7 @@
     line-height: 1.2;
 }
 
-#cf-user-name {
-    font-size: 14px;
-    font-weight: 800;
-    color: var(--text);
-}
+
 
 .btn-stats {
     width: 40px;
