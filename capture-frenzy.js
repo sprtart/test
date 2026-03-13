@@ -693,31 +693,37 @@ function renderBoard() {
     // ===== ПУБЛИЧНЫЕ МЕТОДЫ (API) =====
     return {
         showStart: () => {
-            // Убираем проверку localStorage, чтобы плашка показывалась всегда
-            console.log("Тестовый режим: показываем плашку всегда");
+            // 1. ПРОВЕРКА: Если уже играли, запускаем сразу
+            if (localStorage.getItem('tutorial_shown_frenzy') === 'true') {
+                CaptureFrenzy.startGame();
+                return;
+            }
 
-            // 1. Подготавливаем "сцену" для размытия (отрисовываем доску)
+            // 2. ПОДГОТОВКА СЦЕНЫ (чтобы было что размывать)
+            // Убираем hidden у контейнера игры, но оставляем его "прозрачным" или под плашкой
             const gameContainer = document.querySelector('.game-container');
-            gameContainer.style.display = 'flex'; // Показываем контейнер
             gameContainer.classList.remove('hidden-game');
             
-            // Инициализируем пустую доску и отрисовываем её, 
-            // чтобы backdrop-filter имел что размывать
+            // Отрисовываем доску (создаем базовое состояние, чтобы было что размывать)
+            // Инициализируем доску для Охоты, чтобы она появилась в DOM
             board = Array(8).fill(null).map(() => Array(8).fill(''));
-            // Можно поставить 1 фигуру для теста видимости
+            // Можно поставить одну фигуру, чтобы "фон" был шахматным
             board[3][3] = 'R'; 
             renderBoard();
 
-            // 2. Прячем меню
+            // 3. ПРЯЧЕМ МЕНЮ
             const mainMenu = document.getElementById('main-menu');
             if (mainMenu) mainMenu.classList.add('hidden');
 
-            // 3. Показываем плашку
+            // 4. ПОКАЗЫВАЕМ ПЛАШКУ (теперь она будет размывать доску!)
             const startScreen = document.getElementById('cf-start-screen');
             if (startScreen) {
                 startScreen.classList.remove('hidden');
                 startScreen.style.setProperty('display', 'flex', 'important');
             }
+
+            // 5. Ставим отметку, что обучение показано
+            localStorage.setItem('tutorial_shown_frenzy', 'true');
         },
         startGame: startGame,
         goBack: () => {
