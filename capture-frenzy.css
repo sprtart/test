@@ -5,7 +5,7 @@
 
 
         /* ===== ЭКРАН СТАРТА ===== */
-        #start-screen {
+        #cf-start-screen {
             position: fixed;
             inset: 0;
             background: var(--bg);
@@ -102,7 +102,7 @@
         }
 
         /* ===== ИГРОВОЙ ЭКРАН ===== */
-        #game-screen {
+        #cf-game-screen {
             display: none;
             flex-direction: column;
             align-items: center;
@@ -174,7 +174,7 @@
         }
 
         /* ===== ДОСКА ===== */
-        #board-wrapper {
+        #cf-board-wrapper {
             position: relative;
         }
 
@@ -266,7 +266,7 @@
         }
 
         /* ===== НИЖНЯЯ ПАНЕЛЬ ===== */
-        #bottom-panel {
+        #cf-bottom-panel {
             display: flex;
             align-items: center;
             justify-content: center;
@@ -334,7 +334,7 @@
         }
 
         /* ===== GAME OVER ===== */
-        #gameover-screen {
+        #cf-gameover-screen {
             display: none;
             position: fixed;
             inset: 0;
@@ -502,7 +502,7 @@
 
 
         /* Плашка профиля — берём стили из основной игры */
-#game-screen #profile-header {
+#cf-game-screen #cf-profile-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
