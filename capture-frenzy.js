@@ -103,7 +103,7 @@ if (typeof Platform !== 'undefined' && Platform.user) {
         document.getElementById('cf-user-avatar').src = Platform.user.photo_100;
     }
 }
-document.getElementById('cf-btn-again-cf').classList.add('hidden');
+document.getElementById('cf-btn-again').classList.add('hidden');
     board = Array(8).fill(null).map(() => Array(8).fill(''));
     playerPieces = [];
     enemyPieces = [];
@@ -766,7 +766,7 @@ function updateUI() {
 }
 
 function updateTurnIndicator(isPlayer) {
-    const el = document.getElementById('turn-indicator');
+    //const el = document.getElementById('turn-indicator');
     el.textContent = isPlayer ? 'Твой ход' : 'Ход врага...';
     el.className = 'turn-indicator' + (isPlayer ? ' your-turn' : '');
 }
@@ -778,7 +778,7 @@ function gameOver() {
     localStorage.setItem('cf-best-score', bestScore);
 }
     document.getElementById('cf-best-score').textContent = bestScore;
-    document.getElementById('cf-btn-again-cf').classList.remove('hidden');
+    document.getElementById('cf-btn-again').classList.remove('hidden');
     document.getElementById('cf-gameover-screen').style.display = 'flex';
 }
 
@@ -798,7 +798,8 @@ return {
     showStart: () => {
         document.getElementById('cf-start-screen').style.display = 'flex';
     },
-    startGame: startGame,
-    goBack: goBack
+    startGame,
+    goBack: goHome
 };
+
 })();
