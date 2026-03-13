@@ -800,7 +800,7 @@ function goHome() {
 return {
     showStart: () => {
         console.log('showStart вызван');
-        const el = document.getElementById('cf-start-screen');
+         document.getElementById('cf-start-screen').style.cssText = 'display: flex !important';
         console.log('cf-start-screen:', el);
         if (el) el.style.display = 'flex';
     },
