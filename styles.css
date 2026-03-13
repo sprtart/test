@@ -1622,7 +1622,7 @@ background: #769656;
 
 .btn-play-big:active { transform: translateY(8px); box-shadow: 0 0px 0 transparent; }
 
-.menu-tools { display: flex; gap: 1.5vh; }
+.menu-tools { display: flex; gap: 1.5vh; margin-top: 1vh; }
 
 .menu-tool-btn {
     width: 60px;
@@ -1756,10 +1756,10 @@ background: #769656;
     border-radius: 12px;
     overflow: hidden;
     /* Тень, чтобы выглядело как элемент игры */
-    box-shadow: 0 5px 0px rgb(185 185 185);
+    box-shadow: 0 8px 0px rgb(185 185 185);
 }
 .dark-mode .menu-board-preview {
-    box-shadow: 0 5px 0px rgb(71 71 71);
+    box-shadow: 0 8px 0px rgb(71 71 71);
 }
 
 .m-sq {
