@@ -799,7 +799,10 @@ function goHome() {
 
 return {
     showStart: () => {
-        document.getElementById('cf-start-screen').style.display = 'flex';
+        console.log('showStart вызван');
+        const el = document.getElementById('cf-start-screen');
+        console.log('cf-start-screen:', el);
+        if (el) el.style.display = 'flex';
     },
     startGame,
     goBack: goHome
