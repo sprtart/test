@@ -120,18 +120,20 @@ function startGame() {
     try {
         console.log("Старт игры...");
 
+        // === ИСПРАВЛЕНИЕ: МЕНЯЕМ ТЕКСТЫ НАВЕРХУ НА "ЖИЗНИ" И "РЕКОРД" ===
+        setFrenzyUI(true);
+
         // 1. Прячем меню
         const mainMenu = document.getElementById('main-menu');
         if (mainMenu) mainMenu.classList.add('hidden');
 
-        // 2. ИСПРАВЛЕНИЕ: Убираем только инлайновый style="display: none"
+        // 2. Показываем игровой контейнер
         const gameContainer = document.querySelector('.game-container');
         gameContainer.style.display = 'flex';
-            const boardEl = document.getElementById('board');
-    boardEl.innerHTML = ''; // Очистить доску перед отрисовкой
+        const boardEl = document.getElementById('board');
+        boardEl.innerHTML = ''; // Очистить доску перед отрисовкой
         if (gameContainer) {
             gameContainer.classList.remove('hidden-game');
-            // Удаляем только инлайновое свойство, оставляя CSS-классы в покое
             gameContainer.style.removeProperty('display');
         }
 
@@ -692,33 +694,28 @@ function renderBoard() {
 
     // ===== ПУБЛИЧНЫЕ МЕТОДЫ (API) =====
     return {
-        showStart: () => {
-            // Убираем проверку localStorage, чтобы плашка показывалась всегда
-            console.log("Тестовый режим: показываем плашку всегда");
+showStart: () => {
+    // Подготавливаем сцену
+    const gameContainer = document.querySelector('.game-container');
+    gameContainer.style.display = 'flex'; 
+    gameContainer.classList.remove('hidden-game');
+    
+    // Отрисовываем доску-фон (ладья по центру)
+    board = Array(8).fill(null).map(() => Array(8).fill(''));
+    board[3][3] = 'R'; 
+    renderBoard();
 
-            // 1. Подготавливаем "сцену" для размытия (отрисовываем доску)
-            const gameContainer = document.querySelector('.game-container');
-            gameContainer.style.display = 'flex'; // Показываем контейнер
-            gameContainer.classList.remove('hidden-game');
-            
-            // Инициализируем пустую доску и отрисовываем её, 
-            // чтобы backdrop-filter имел что размывать
-            board = Array(8).fill(null).map(() => Array(8).fill(''));
-            // Можно поставить 1 фигуру для теста видимости
-            board[3][3] = 'R'; 
-            renderBoard();
+    // Прячем главное меню
+    const mainMenu = document.getElementById('main-menu');
+    if (mainMenu) mainMenu.classList.add('hidden');
 
-            // 2. Прячем меню
-            const mainMenu = document.getElementById('main-menu');
-            if (mainMenu) mainMenu.classList.add('hidden');
-
-            // 3. Показываем плашку
-            const startScreen = document.getElementById('cf-start-screen');
-            if (startScreen) {
-                startScreen.classList.remove('hidden');
-                startScreen.style.setProperty('display', 'flex', 'important');
-            }
-        },
+    // Показываем плашку "Охоты"
+    const startScreen = document.getElementById('cf-start-screen');
+    if (startScreen) {
+        startScreen.classList.remove('hidden');
+        startScreen.style.setProperty('display', 'flex', 'important');
+    }
+},
         startGame: startGame,
         goBack: () => {
             safeHide('cf-start-screen');
