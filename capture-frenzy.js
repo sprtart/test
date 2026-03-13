@@ -716,11 +716,39 @@ function renderBoard() {
                 localStorage.setItem('tutorial_shown_frenzy', 'true');
             }
         },*/
-        showStart: () => {
-            const mainMenu = document.getElementById('main-menu');
-            if (mainMenu) mainMenu.classList.add('hidden');
-            safeShow('cf-start-screen');
-        },
+showStart: () => {
+    // 1. ПРОВЕРКА: Если уже играли, запускаем сразу
+    if (localStorage.getItem('tutorial_shown_frenzy') === 'true') {
+        CaptureFrenzy.startGame();
+        return;
+    }
+
+    // 2. ПОДГОТОВКА СЦЕНЫ (чтобы было что размывать)
+    // Убираем hidden у контейнера игры, но оставляем его "прозрачным" или под плашкой
+    const gameContainer = document.querySelector('.game-container');
+    gameContainer.classList.remove('hidden-game');
+    
+    // Отрисовываем доску (создаем базовое состояние, чтобы было что размывать)
+    // Инициализируем доску для Охоты, чтобы она появилась в DOM
+    board = Array(8).fill(null).map(() => Array(8).fill(''));
+    // Можно поставить одну фигуру, чтобы "фон" был шахматным
+    board[3][3] = 'R'; 
+    CaptureFrenzy.renderBoard();
+
+    // 3. ПРЯЧЕМ МЕНЮ
+    const mainMenu = document.getElementById('main-menu');
+    if (mainMenu) mainMenu.classList.add('hidden');
+
+    // 4. ПОКАЗЫВАЕМ ПЛАШКУ (теперь она будет размывать доску!)
+    const startScreen = document.getElementById('cf-start-screen');
+    if (startScreen) {
+        startScreen.classList.remove('hidden');
+        startScreen.style.setProperty('display', 'flex', 'important');
+    }
+
+    // 5. Ставим отметку, что обучение показано
+    localStorage.setItem('tutorial_shown_frenzy', 'true');
+},
         startGame: startGame,
         goBack: () => {
             safeHide('cf-start-screen');
