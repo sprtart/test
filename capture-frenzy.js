@@ -120,19 +120,16 @@ function startGame() {
     try {
         console.log("Старт игры...");
 
-        // 1. Прячем главное меню
+        // 1. Прячем меню
         const mainMenu = document.getElementById('main-menu');
         if (mainMenu) mainMenu.classList.add('hidden');
 
-        // 2. ПРИНУДИТЕЛЬНО показываем игровой контейнер
-        // Убираем класс, который скрывает игру
+        // 2. ИСПРАВЛЕНИЕ: Убираем только инлайновый style="display: none"
         const gameContainer = document.querySelector('.game-container');
         if (gameContainer) {
             gameContainer.classList.remove('hidden-game');
-            // Удаляем инлайновый display: none, если он там есть
+            // Удаляем только инлайновое свойство, оставляя CSS-классы в покое
             gameContainer.style.removeProperty('display');
-            // Добавляем !important через стиль, чтобы перебить любые другие display: none
-            gameContainer.style.setProperty('display', 'block', 'important');
         }
 
         // 3. Прячем стартовое окно Охоты
@@ -141,7 +138,7 @@ function startGame() {
             startScreen.style.setProperty('display', 'none', 'important');
         }
 
-        // 4. Очищаем состояние игры перед стартом
+        // 4. Очистка состояния игры
         board = Array(8).fill(null).map(() => Array(8).fill(''));
         playerPieces = [];
         enemyPieces = [];
@@ -154,7 +151,7 @@ function startGame() {
         isAnimating = false;
         enemyIdCounter = 0;
 
-        // 5. Инициализация (спавн фигур)
+        // 5. Размещение ладьи
         const pos1 = getRandomEmptySquare();
         if (pos1) {
             board[pos1.r][pos1.c] = 'R';
@@ -165,7 +162,7 @@ function startGame() {
         spawnEnemy();
         enemyPieces.forEach(e => e.justSpawned = false);
 
-        // 6. Обновление UI и доски
+        // 6. Отрисовка
         updateUI();
         renderBoard();
         
