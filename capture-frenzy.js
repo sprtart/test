@@ -497,7 +497,7 @@ function handleSquareClick(e, r, c) {
     }
 
     // ===== ХОД ИГРОКА =====
-    function executePlayerMove(fr, fc, tr, tc, isDrag = false) {
+function executePlayerMove(fr, fc, tr, tc, isDrag = false) {
         isAnimating = true;
         isPlayerTurn = false;
 
@@ -525,26 +525,31 @@ function handleSquareClick(e, r, c) {
             const pp = playerPieces.find(p => p.r === fr && p.c === fc);
             if (pp) { pp.r = tr; pp.c = tc; }
 
+            // Если съели врага
             if (capturedPiece && isEnemy(capturedPiece)) {
                 addScore(PIECE_VALUES[capturedPiece] || 1, tR);
                 enemyPieces = enemyPieces.filter(e => !(e.r === tr && e.c === tc));
-                setTimeout(() => { 
-                    spawnEnemy(true); 
-                    renderBoard();
-                    setTimeout(() => { executeEnemyMove(); }, 600);
-                }, 300);
+                
+                // Рендерим доску без съеденной фигуры
                 renderBoard();
                 checkMilestones();
-                return; 
+
+                // Ждем немного перед тем, как спавнить нового и отдавать ход
+                setTimeout(() => {
+                    spawnEnemy(true); 
+                    renderBoard();
+                    
+                    // Теперь, когда все анимации спавна завершены, отдаем ход врагу
+                    setTimeout(() => { executeEnemyMove(); }, 400);
+                }, 300);
+            } else {
+                // Если просто походили (без взятия)
+                renderBoard();
+                checkMilestones();
+                setTimeout(() => { executeEnemyMove(); }, 400);
             }
-
-            renderBoard();
-            checkMilestones();
-            setTimeout(() => { executeEnemyMove(); }, 400);
-
         }, isDrag ? 0 : 220);
     }
-
     // ===== ОЧКИ =====
     function addScore(points, rect) {
         score += points;
