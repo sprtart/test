@@ -133,9 +133,9 @@ enemyPieces.forEach(e => e.justSpawned = false);
     updateUI();
     renderBoard();
 
-    document.getElementById('cf-start-screen').style.display = 'none';
-    document.getElementById('cf-game-screen').style.display = 'flex';
-    document.getElementById('cf-gameover-screen').style.display = 'none';
+document.getElementById('cf-start-screen').style.setProperty('display', 'none', 'important');
+    document.getElementById('cf-game-screen').style.setProperty('display', 'flex', 'important');
+    document.getElementById('cf-gameover-screen').style.setProperty('display', 'none', 'important');
 }
 
 function spawnEnemy(animate = false) {
@@ -769,7 +769,8 @@ function updateUI() {
 }
 
 function updateTurnIndicator(isPlayer) {
-    //const el = document.getElementById('turn-indicator');
+    const el = document.getElementById('turn-indicator');
+    if (!el) return; // Защита от ошибки, если элемента нет в HTML
     el.textContent = isPlayer ? 'Твой ход' : 'Ход врага...';
     el.className = 'turn-indicator' + (isPlayer ? ' your-turn' : '');
 }
@@ -777,12 +778,34 @@ function updateTurnIndicator(isPlayer) {
 // ===== GAME OVER =====
 function gameOver() {
     if (score > bestScore) {
-    bestScore = score;
-    localStorage.setItem('cf-best-score', bestScore);
+        bestScore = score;
+        localStorage.setItem('cf-best-score', bestScore);
+    }
+    
+    // Обновляем текст счета и рекорда
+    document.getElementById('cf-final-score').textContent = score;
+    document.getElementById('cf-best-score-go').textContent = bestScore;
+    
+    const btnAgain = document.getElementById('cf-btn-again');
+    if (btnAgain) btnAgain.classList.remove('hidden');
+    
+    // Показываем экран окончания с флагом important
+    document.getElementById('cf-gameover-screen').style.setProperty('display', 'flex', 'important');
 }
-    document.getElementById('cf-best-score').textContent = bestScore;
-    document.getElementById('cf-btn-again').classList.remove('hidden');
-    document.getElementById('cf-gameover-screen').style.display = 'flex';
+
+function returnToMainMenu() {
+    // Прячем экраны режима Охоты
+    document.getElementById('cf-start-screen').style.setProperty('display', 'none', 'important');
+    document.getElementById('cf-game-screen').style.setProperty('display', 'none', 'important');
+    document.getElementById('cf-gameover-screen').style.setProperty('display', 'none', 'important');
+    
+    // Вызываем глобальную функцию возврата в меню из вашего index.html
+    if (typeof window.goHome === 'function') {
+        window.goHome();
+    } else {
+        const mainMenu = document.getElementById('main-menu');
+        if (mainMenu) mainMenu.classList.remove('hidden');
+    }
 }
 
     function showStart() { 
@@ -799,13 +822,20 @@ function goHome() {
 
 return {
     showStart: () => {
-        console.log('showStart вызван');
-         document.getElementById('cf-start-screen').style.cssText = 'display: flex !important';
-        console.log('cf-start-screen:', el);
-        if (el) el.style.display = 'flex';
+        // Прячем главное меню игры
+        const mainMenu = document.getElementById('main-menu');
+        if (mainMenu) mainMenu.classList.add('hidden');
+        
+        // Показываем стартовый экран Охоты и прячем остальные
+        document.getElementById('cf-start-screen').style.setProperty('display', 'flex', 'important');
+        document.getElementById('cf-game-screen').style.setProperty('display', 'none', 'important');
+        document.getElementById('cf-gameover-screen').style.setProperty('display', 'none', 'important');
     },
     startGame,
-    goBack: goHome
+    goBack: returnToMainMenu,
+    openFrenzyLeaderboard: () => {
+        alert("Таблица рекордов для этого режима в разработке!");
+    }
 };
 
 })();
