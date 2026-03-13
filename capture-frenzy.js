@@ -116,39 +116,59 @@ const CaptureFrenzy = (() => {
     }
 
     // ===== ИНИЦИАЛИЗАЦИЯ ИГРЫ =====
-// Замените вашу функцию startGame на эту:
 function startGame() {
     try {
         console.log("Старт игры...");
-        
-        // 1. Скрываем экраны
-        const startScreen = document.getElementById('cf-start-screen');
-        if (startScreen) startScreen.style.setProperty('display', 'none', 'important');
-        
-        // 2. ВАЖНО: Убедитесь, что класс hidden-game снят с контейнера
-        const gameContainer = document.querySelector('.game-container');
-        if (gameContainer) gameContainer.classList.remove('hidden-game');
-        
-        document.getElementById('main-menu').classList.add('hidden');
 
-        // 3. Инициализация (здесь часто ошибка)
+        // 1. Прячем главное меню
+        const mainMenu = document.getElementById('main-menu');
+        if (mainMenu) mainMenu.classList.add('hidden');
+
+        // 2. ПРИНУДИТЕЛЬНО показываем игровой контейнер
+        // Убираем класс, который скрывает игру
+        const gameContainer = document.querySelector('.game-container');
+        if (gameContainer) {
+            gameContainer.classList.remove('hidden-game');
+            // Удаляем инлайновый display: none, если он там есть
+            gameContainer.style.removeProperty('display');
+            // Добавляем !important через стиль, чтобы перебить любые другие display: none
+            gameContainer.style.setProperty('display', 'block', 'important');
+        }
+
+        // 3. Прячем стартовое окно Охоты
+        const startScreen = document.getElementById('cf-start-screen');
+        if (startScreen) {
+            startScreen.style.setProperty('display', 'none', 'important');
+        }
+
+        // 4. Очищаем состояние игры перед стартом
         board = Array(8).fill(null).map(() => Array(8).fill(''));
         playerPieces = [];
         enemyPieces = [];
-        score = 0;
+        selectedPiece = null;
         lives = 3;
+        score = 0;
+        nextEnemyAt = 20;
+        playerBishopAdded = false;
+        isPlayerTurn = true;
+        isAnimating = false;
+        enemyIdCounter = 0;
 
+        // 5. Инициализация (спавн фигур)
         const pos1 = getRandomEmptySquare();
-        if(!pos1) throw new Error("Не удалось найти место для ладьи");
-        
-        board[pos1.r][pos1.c] = 'R';
-        playerPieces.push({ r: pos1.r, c: pos1.c, type: 'R' });
+        if (pos1) {
+            board[pos1.r][pos1.c] = 'R';
+            playerPieces.push({ r: pos1.r, c: pos1.c, type: 'R', id: 'p0' });
+        }
 
         spawnEnemy();
         spawnEnemy();
-        
+        enemyPieces.forEach(e => e.justSpawned = false);
+
+        // 6. Обновление UI и доски
         updateUI();
         renderBoard();
+        
         console.log("Игра успешно отрисована");
         
     } catch (err) {
