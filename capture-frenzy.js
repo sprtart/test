@@ -2,7 +2,7 @@ console.log('capture-frenzy.js загружен');
 console.log('cf-board:', document.getElementById('cf-board'));
 
 const CaptureFrenzy = (() => {
-
+console.log('модуль начал выполняться');
     // Применяем тему как в основной игре
 function applySavedTheme() {
     const saved = localStorage.getItem('user-theme');
@@ -806,3 +806,5 @@ return {
 };
 
 })();
+
+console.log('CaptureFrenzy определён:', typeof CaptureFrenzy);
