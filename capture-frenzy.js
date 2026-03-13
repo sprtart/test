@@ -692,19 +692,30 @@ function renderBoard() {
 
     // ===== ПУБЛИЧНЫЕ МЕТОДЫ (API) =====
     return {
- showStart: () => {
-    // Проверяем, видели ли уже инструкцию
-    if (localStorage.getItem('tutorial_shown_frenzy')) {
-        // Если видели — просто запускаем игру без лишних окон
-        CaptureFrenzy.startGame();
-    } else {
-        // Если нет — показываем окно и ставим отметку
-        const mainMenu = document.getElementById('main-menu');
-        if (mainMenu) mainMenu.classList.add('hidden');
-        document.getElementById('cf-start-screen').classList.remove('hidden');
-        localStorage.setItem('tutorial_shown_frenzy', 'true');
-    }
-},
+        showStart: () => {
+            // ВАЖНО: Добавим отладку
+            const hasSeen = localStorage.getItem('tutorial_shown_frenzy');
+            console.log("Инструкция Охоты была показана?", hasSeen);
+
+            if (hasSeen === 'true') {
+                console.log("Видели, запускаем сразу!");
+                CaptureFrenzy.startGame();
+            } else {
+                console.log("Первый раз, показываем экран!");
+                const mainMenu = document.getElementById('main-menu');
+                if (mainMenu) mainMenu.classList.add('hidden');
+                
+                // Показываем наше окно
+                const startScreen = document.getElementById('cf-start-screen');
+                if (startScreen) {
+                    startScreen.classList.remove('hidden');
+                    startScreen.style.setProperty('display', 'flex', 'important');
+                }
+                
+                // Ставим отметку
+                localStorage.setItem('tutorial_shown_frenzy', 'true');
+            }
+        },
         /*showStart: () => {
             const mainMenu = document.getElementById('main-menu');
             if (mainMenu) mainMenu.classList.add('hidden');
