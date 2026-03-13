@@ -1501,17 +1501,12 @@ function loseLife(capturedPiece, r, c) {
 // ===== UI =====
 function updateUI() {
     document.getElementById('score-val').textContent = score;
-    document.getElementById('side-score-val').textContent = score;
-    document.getElementById('next-enemy-val').textContent = nextEnemyAt - score > 0 ? nextEnemyAt - score : '...';
-    document.getElementById('side-next-val').textContent = nextEnemyAt - score > 0 ? nextEnemyAt - score : '...';
-    document.getElementById('enemy-count').textContent = enemyPieces.length;
-    document.getElementById('side-enemy-count').textContent = enemyPieces.length;
+    document.getElementById('cf-best-score').textContent = bestScore;
 
     // Жизни
-    const livesEls = document.querySelectorAll('#lives-display .life, #side-lives .life');
+    const livesEls = document.querySelectorAll('#lives-display .life');
     livesEls.forEach((el, i) => {
-        const lifeIndex = i % 3; // по 3 в каждом блоке
-        el.classList.toggle('lost', lifeIndex >= lives);
+        el.classList.toggle('lost', i >= lives);
     });
 }
 
