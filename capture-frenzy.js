@@ -222,9 +222,15 @@ function renderBoard() {
         return;
     }
     
-    // Принудительная очистка и создание сетки
+    // Очищаем
     boardEl.innerHTML = '';
-    boardEl.style.display = 'grid'; // Убеждаемся, что это сетка
+    
+    // Принудительно задаем стиль сетки (если вдруг он слетает)
+    boardEl.style.display = 'grid';
+    boardEl.style.gridTemplateColumns = 'repeat(8, 1fr)';
+    boardEl.style.gridTemplateRows = 'repeat(8, 1fr)';
+
+    console.log("Отрисовка доски, состояние массива:", board);
 
     for (let r = 0; r < 8; r++) {
         for (let c = 0; c < 8; c++) {
@@ -233,8 +239,9 @@ function renderBoard() {
             sq.dataset.r = r;
             sq.dataset.c = c;
             
-            // Если в массиве board есть фигура — рисуем её
-            if (board[r] && board[r][c]) {
+            // Проверка: есть ли фигура
+            if (board[r] && board[r][c] !== '') {
+                console.log(`Рисую фигуру ${board[r][c]} на ${r},${c}`);
                 const pEl = document.createElement('div');
                 pEl.className = 'piece' + (isPlayer(board[r][c]) ? ' player-piece' : '');
                 pEl.style.backgroundImage = `url('${PIECE_IMAGES[board[r][c]]}')`;
@@ -245,7 +252,6 @@ function renderBoard() {
             boardEl.appendChild(sq);
         }
     }
-    console.log("Доска отрисована");
 }
     function updateEnemyThreats() {
         for (const enemy of enemyPieces) {
