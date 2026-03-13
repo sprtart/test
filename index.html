@@ -273,13 +273,44 @@
 <!-- ЭКРАН СТАРТА -->
 <!-- ЭКРАНЫ РЕЖИМА ОХОТА -->
 <div id="cf-start-screen" class="modal-overlay hidden" style="z-index: 9999;">
-    <div class="modal-box" style="text-align: center; align-items: center;">
+    <div class="modal-box" style="text-align: center; align-items: center; max-width: 380px;">
         <h2 style="color: var(--gray-700); font-size: 26px; text-transform: uppercase;">Охота</h2>
-        <p style="color: var(--gray-500); font-weight: bold; margin-bottom: 15px;">Съедай вражеские фигуры и набирай очки!<br>Не теряй все жизни!</p>
-        <div style="font-size: 24px; margin-bottom: 20px;">❤️❤️❤️</div>
+        
+        <p style="color: var(--gray-500); font-weight: bold; margin-bottom: 15px; line-height: 1.4;">
+            Съедай вражеские фигуры и набирай очки!<br>
+            После каждого твоего хода враги отвечают.<br>
+            Не теряй все жизни!
+        </p>
+
+        <!-- Блок с фигурами и очками -->
+        <div class="piece-values" style="display: flex; gap: 12px; background: #f3f4f6; padding: 15px; border-radius: 12px; margin-bottom: 20px;">
+            <div class="piece-val" style="display: flex; flex-direction: column; align-items: center; gap: 5px;">
+                <div class="piece-val-img" style="width: 30px; height: 30px; background-image: url('img/p/bP.svg'); background-size: contain;"></div>
+                <div class="piece-val-num" style="font-weight: 900; color: #d97706;">+1</div>
+            </div>
+            <div class="piece-val" style="display: flex; flex-direction: column; align-items: center; gap: 5px;">
+                <div class="piece-val-img" style="width: 30px; height: 30px; background-image: url('img/p/bN.svg'); background-size: contain;"></div>
+                <div class="piece-val-num" style="font-weight: 900; color: #d97706;">+3</div>
+            </div>
+            <div class="piece-val" style="display: flex; flex-direction: column; align-items: center; gap: 5px;">
+                <div class="piece-val-img" style="width: 30px; height: 30px; background-image: url('img/p/bB.svg'); background-size: contain;"></div>
+                <div class="piece-val-num" style="font-weight: 900; color: #d97706;">+3</div>
+            </div>
+            <div class="piece-val" style="display: flex; flex-direction: column; align-items: center; gap: 5px;">
+                <div class="piece-val-img" style="width: 30px; height: 30px; background-image: url('img/p/bR.svg'); background-size: contain;"></div>
+                <div class="piece-val-num" style="font-weight: 900; color: #d97706;">+5</div>
+            </div>
+            <div class="piece-val" style="display: flex; flex-direction: column; align-items: center; gap: 5px;">
+                <div class="piece-val-img" style="width: 30px; height: 30px; background-image: url('img/p/bQ.svg'); background-size: contain;"></div>
+                <div class="piece-val-num" style="font-weight: 900; color: #d97706;">+9</div>
+            </div>
+        </div>
+
+        <div style="font-size: 28px; margin-bottom: 20px;">❤️❤️❤️</div>
+
         <div style="display: flex; gap: 10px; width: 100%;">
             <button class="btn-close-modal" onclick="CaptureFrenzy.goBack()" style="flex: 1; background: var(--gray-200);">Назад</button>
-            <button class="btn-close-modal" onclick="CaptureFrenzy.startGame()" style="flex: 1; background: var(--gray-700); color: white;">Играть!</button>
+            <button class="btn-close-modal" onclick="CaptureFrenzy.startGame()" style="flex: 1; background: #10b981; color: white;">Играть!</button>
         </div>
     </div>
 </div>
