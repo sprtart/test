@@ -794,5 +794,13 @@ function goHome() {
 }
 
 
-    return { showStart: () => { /* показать экран правил */ } };
+    return {
+    showStart: () => {
+        document.getElementById('cf-start-screen').style.display = 'flex';
+    },
+    startGame,
+    goBack,
+    showStart,
+    openFrenzyLeaderboard
+};
 })();
