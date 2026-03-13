@@ -1584,7 +1584,7 @@ background: #769656;
 
 .btn-piece {
     width: 60%;
-    height: 70%;
+    height: 60%;
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
@@ -1597,12 +1597,12 @@ background: #769656;
     border: none;
     background-color: #769656;
     color: white;
-    box-shadow: 0 5px 0 #546d3b;
+    box-shadow: 0 8px 0 #546d3b;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    /*gap: 10px;*/
+    gap: 2px;
     cursor: pointer;
     transition: transform 0.1s, box-shadow 0.1s;
 }
