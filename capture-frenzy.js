@@ -116,41 +116,45 @@ const CaptureFrenzy = (() => {
     }
 
     // ===== ИНИЦИАЛИЗАЦИЯ ИГРЫ =====
-    function startGame() {
-        // Подтягиваем имя пользователя, если платформа загружена
-        if (typeof Platform !== 'undefined' && Platform.user) {
-            setText('user-name', Platform.user.first_name);
-            const userAvatar = document.getElementById('user-avatar');
-            if (userAvatar && Platform.user.photo_100) userAvatar.src = Platform.user.photo_100;
-        }
+// Замените вашу функцию startGame на эту:
+function startGame() {
+    try {
+        console.log("Старт игры...");
+        
+        // 1. Скрываем экраны
+        const startScreen = document.getElementById('cf-start-screen');
+        if (startScreen) startScreen.style.setProperty('display', 'none', 'important');
+        
+        // 2. ВАЖНО: Убедитесь, что класс hidden-game снят с контейнера
+        const gameContainer = document.querySelector('.game-container');
+        if (gameContainer) gameContainer.classList.remove('hidden-game');
+        
+        document.getElementById('main-menu').classList.add('hidden');
 
+        // 3. Инициализация (здесь часто ошибка)
         board = Array(8).fill(null).map(() => Array(8).fill(''));
         playerPieces = [];
-        enemyPieces =[];
-        selectedPiece = null;
-        lives = 3;
+        enemyPieces = [];
         score = 0;
-        nextEnemyAt = 20;
-        playerBishopAdded = false;
-        isPlayerTurn = true;
-        isAnimating = false;
-        enemyIdCounter = 0;
+        lives = 3;
 
         const pos1 = getRandomEmptySquare();
+        if(!pos1) throw new Error("Не удалось найти место для ладьи");
+        
         board[pos1.r][pos1.c] = 'R';
-        playerPieces.push({ r: pos1.r, c: pos1.c, type: 'R', id: 'p0' });
+        playerPieces.push({ r: pos1.r, c: pos1.c, type: 'R' });
 
         spawnEnemy();
         spawnEnemy();
-        enemyPieces.forEach(e => e.justSpawned = false);
-
-        safeHide('cf-start-screen');
-        safeHide('cf-gameover-screen');
-        setFrenzyUI(true);
-
+        
         updateUI();
         renderBoard();
+        console.log("Игра успешно отрисована");
+        
+    } catch (err) {
+        console.error("ОШИБКА В STARTGAME:", err);
     }
+}
 
     function spawnEnemy(animate = false) {
         const pool = getEnemyPool();
