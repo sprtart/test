@@ -2,7 +2,9 @@
 #cf-start-screen, #cf-game-screen, #cf-gameover-screen {
     display: none;
 }
-
+#cf-start-screen {
+    z-index: 1000;
+}
 
         /* ===== ЭКРАН СТАРТА ===== */
         #cf-start-screen {
