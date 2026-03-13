@@ -692,57 +692,33 @@ function renderBoard() {
 
     // ===== ПУБЛИЧНЫЕ МЕТОДЫ (API) =====
     return {
-        /*showStart: () => {
-            // ВАЖНО: Добавим отладку
-            const hasSeen = localStorage.getItem('tutorial_shown_frenzy');
-            console.log("Инструкция Охоты была показана?", hasSeen);
+        showStart: () => {
+            // Убираем проверку localStorage, чтобы плашка показывалась всегда
+            console.log("Тестовый режим: показываем плашку всегда");
 
-            if (hasSeen === 'true') {
-                console.log("Видели, запускаем сразу!");
-                CaptureFrenzy.startGame();
-            } else {
-                console.log("Первый раз, показываем экран!");
-                const mainMenu = document.getElementById('main-menu');
-                if (mainMenu) mainMenu.classList.add('hidden');
-                
-                // Показываем наше окно
-                const startScreen = document.getElementById('cf-start-screen');
-                if (startScreen) {
-                    startScreen.classList.remove('hidden');
-                    startScreen.style.setProperty('display', 'flex', 'important');
-                }
-                
-                // Ставим отметку
-                localStorage.setItem('tutorial_shown_frenzy', 'true');
+            // 1. Подготавливаем "сцену" для размытия (отрисовываем доску)
+            const gameContainer = document.querySelector('.game-container');
+            gameContainer.style.display = 'flex'; // Показываем контейнер
+            gameContainer.classList.remove('hidden-game');
+            
+            // Инициализируем пустую доску и отрисовываем её, 
+            // чтобы backdrop-filter имел что размывать
+            board = Array(8).fill(null).map(() => Array(8).fill(''));
+            // Можно поставить 1 фигуру для теста видимости
+            board[3][3] = 'R'; 
+            renderBoard();
+
+            // 2. Прячем меню
+            const mainMenu = document.getElementById('main-menu');
+            if (mainMenu) mainMenu.classList.add('hidden');
+
+            // 3. Показываем плашку
+            const startScreen = document.getElementById('cf-start-screen');
+            if (startScreen) {
+                startScreen.classList.remove('hidden');
+                startScreen.style.setProperty('display', 'flex', 'important');
             }
-        },*/
-showStart: () => {
-    // Убираем проверку localStorage, чтобы плашка показывалась всегда
-    console.log("Тестовый режим: показываем плашку всегда");
-
-    // 1. Подготавливаем "сцену" для размытия (отрисовываем доску)
-    const gameContainer = document.querySelector('.game-container');
-    gameContainer.style.display = 'flex'; // Показываем контейнер
-    gameContainer.classList.remove('hidden-game');
-    
-    // Инициализируем пустую доску и отрисовываем её, 
-    // чтобы backdrop-filter имел что размывать
-    board = Array(8).fill(null).map(() => Array(8).fill(''));
-    // Можно поставить 1 фигуру для теста видимости
-    board[3][3] = 'R'; 
-    CaptureFrenzy.renderBoard();
-
-    // 2. Прячем меню
-    const mainMenu = document.getElementById('main-menu');
-    if (mainMenu) mainMenu.classList.add('hidden');
-
-    // 3. Показываем плашку
-    const startScreen = document.getElementById('cf-start-screen');
-    if (startScreen) {
-        startScreen.classList.remove('hidden');
-        startScreen.style.setProperty('display', 'flex', 'important');
-    }
-},
+        },
         startGame: startGame,
         goBack: () => {
             safeHide('cf-start-screen');
@@ -752,5 +728,6 @@ showStart: () => {
         openFrenzyLeaderboard: () => {
             alert("Таблица рекордов для этого режима в разработке!");
         }
+        
     };
 })();
