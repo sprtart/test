@@ -217,35 +217,43 @@ function startGame() {
     }
 
     // ===== РЕНДЕР =====
-// В capture-frenzy.js
 function renderBoard() {
-    const boardEl = document.getElementById('board');
-    if (!boardEl) return;
+        const boardEl = document.getElementById('board');
+        if (!boardEl) return;
 
-    // ВАЖНО: Очищаем DOM полностью
-    boardEl.innerHTML = '';
-    
-    // Перебираем массив board (который определен в CaptureFrenzy)
-    for (let r = 0; r < 8; r++) {
-        for (let c = 0; c < 8; c++) {
-            const sq = document.createElement('div');
-            sq.className = `square ${(r + c) % 2 === 0 ? 'light' : 'dark'}`;
-            sq.dataset.r = r;
-            sq.dataset.c = c;
-            
-            // Если в ячейке есть фигура (не пустая строка)
-            if (board[r] && board[r][c] !== '') {
-                const pEl = document.createElement('div');
-                pEl.className = 'piece' + (isPlayer(board[r][c]) ? ' player-piece' : '');
-                pEl.style.backgroundImage = `url('${PIECE_IMAGES[board[r][c]]}')`;
-                sq.appendChild(pEl);
+        // ВАЖНО: Очищаем DOM полностью
+        boardEl.innerHTML = '';
+        
+        for (let r = 0; r < 8; r++) {
+            for (let c = 0; c < 8; c++) {
+                const sq = document.createElement('div');
+                sq.className = `square ${(r + c) % 2 === 0 ? 'light' : 'dark'}`;
+                sq.dataset.r = r;
+                sq.dataset.c = c;
+                
+                // === НОВОЕ: Восстанавливаем желтое выделение, если фигура выбрана ===
+                if (selectedPiece && selectedPiece.r === r && selectedPiece.c === c) {
+                    sq.classList.add('selected');
+                }
+
+                if (board[r] && board[r][c] !== '') {
+                    const pEl = document.createElement('div');
+                    pEl.className = 'piece' + (isPlayer(board[r][c]) ? ' player-piece' : '');
+                    pEl.style.backgroundImage = `url('${PIECE_IMAGES[board[r][c]]}')`;
+                    sq.appendChild(pEl);
+                }
+
+                sq.onmousedown = sq.ontouchstart = (e) => handleSquareClick(e, r, c);
+                boardEl.appendChild(sq);
             }
-
-            sq.onmousedown = sq.ontouchstart = (e) => handleSquareClick(e, r, c);
-            boardEl.appendChild(sq);
+        }
+        
+        // === НОВОЕ: Восстанавливаем точки возможных ходов ===
+        if (selectedPiece) {
+            showMoveHints(selectedPiece.r, selectedPiece.c);
         }
     }
-}
+
     function updateEnemyThreats() {
         for (const enemy of enemyPieces) {
             const moves = getEnemyMoves(enemy.r, enemy.c, enemy.type);
@@ -334,7 +342,7 @@ function renderBoard() {
 // ===== ОБРАБОТКА КЛИКОВ =====
     let lastTouchTime = 0, lastTouchDeselect = 0;
 
-    function handleSquareClick(e, r, c) {
+function handleSquareClick(e, r, c) {
         if (e.type === 'mousedown' && Date.now() - lastTouchTime < 500) return;
         if (e.type === 'touchstart') lastTouchTime = Date.now();
         if (e.cancelable) e.preventDefault();
@@ -342,6 +350,7 @@ function renderBoard() {
 
         const piece = board[r][c];
 
+        // 1. КЛИК НА ЦЕЛЬ: Если фигура уже выбрана, и мы кликаем куда сходить
         if (selectedPiece && !isPlayer(piece)) {
             const moves = getPlayerMoves(selectedPiece.r, selectedPiece.c);
             if (moves.some(m => m.r === r && m.c === c)) {
@@ -351,11 +360,13 @@ function renderBoard() {
             }
         }
 
+        // 2. Клик на пустую/вражескую клетку (мимо хода) - снимаем выделение
         if (!isPlayer(piece)) {
             if (selectedPiece) { selectedPiece = null; renderBoard(); }
             return;
         }
 
+        // 3. Снятие выделения (клик на ту же самую фигуру повторно)
         if (selectedPiece && selectedPiece.r === r && selectedPiece.c === c) {
             if (e.type === 'touchstart') lastTouchDeselect = Date.now();
             selectedPiece = null;
@@ -365,20 +376,20 @@ function renderBoard() {
 
         if (e.type === 'mousedown' && Date.now() - lastTouchDeselect < 500) return;
 
-        // ВЫДЕЛЯЕМ ФИГУРУ
+        // 4. ВЫБОР ФИГУРЫ
         selectedPiece = { r, c };
-
-        // === ИСПРАВЛЕНИЕ: УДАЛИЛИ РЕНДЕР ДОСКИ ===
-        // Раньше тут стоял renderBoard(); который убивал клетку под пальцем!
 
         const currentSqEl = document.querySelector(`[data-r="${r}"][data-c="${c}"]`);
         const follower = document.getElementById('drag-follower');
         if (!currentSqEl || !follower) return;
 
-        // Счищаем старые подсказки и рисуем новые вручную (чтобы не перерисовывать всю доску)
+        // Визуально очищаем прошлые подсказки и рисуем новые (без перерисовки всей доски!)
+        document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
         document.querySelectorAll('.hint-dot, .hint-ring').forEach(el => el.remove());
-        showMoveHints(r, c);
+        currentSqEl.classList.add('selected'); // Желтый фон выделения
+        showMoveHints(r, c); // Точки куда можно ходить
 
+        // Настройка копии фигуры для перетаскивания
         const rect = currentSqEl.getBoundingClientRect();
         follower.style.width = (rect.width * (window.innerHeight > window.innerWidth ? 1.6 : 1.0)) + 'px';
         follower.style.height = follower.style.width;
@@ -422,9 +433,12 @@ function renderBoard() {
             if (target) {
                 const tr = parseInt(target.dataset.r), tc = parseInt(target.dataset.c);
                 if (tr === startR && tc === startC) { 
-                    renderBoard(); // Если бросили на ту же клетку, сбрасываем всё
+                    // === ИСПРАВЛЕНИЕ ===
+                    // Это был просто КЛИК (тап) без перетаскивания. 
+                    // Ничего не перерисовываем, точки уже есть! Просто выходим.
                     return; 
                 }
+                // Если успешно перетащили:
                 if (getPlayerMoves(startR, startC).some(m => m.r === tr && m.c === tc)) {
                     executePlayerMove(startR, startC, tr, tc, true);
                     selectedPiece = null;
@@ -432,8 +446,11 @@ function renderBoard() {
                 }
             }
 
-            if (isDragging) selectedPiece = null;
-            renderBoard();
+            // Если перетащили "в молоко" (за пределы доски или на неверную клетку):
+            if (isDragging) {
+                selectedPiece = null;
+                renderBoard();
+            }
         };
 
         document.addEventListener('mousemove', onMove, { passive: false });
@@ -442,7 +459,7 @@ function renderBoard() {
         document.addEventListener('touchend', onEnd);
         document.addEventListener('touchcancel', onEnd);
     }
-
+    
     function updateFollower(foll, x, y) {
         if (foll) { foll.style.left = x + 'px'; foll.style.top = y + 'px'; }
     }
