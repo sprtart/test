@@ -795,10 +795,10 @@ function goHome() {
 
 
 return {
-        showStart: () => {
-            document.getElementById('cf-start-screen').style.display = 'flex';
-        },
-        startGame,
-        goBack
-    };
+    showStart: () => {
+        document.getElementById('cf-start-screen').style.display = 'flex';
+    },
+    startGame: startGame,
+    goBack: goBack
+};
 })();
