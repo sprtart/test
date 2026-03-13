@@ -822,17 +822,30 @@ function goHome() {
 
 return {
     showStart: () => {
-        // Прячем главное меню игры
+        console.log('showStart вызван');
+        
+        // 1. Скрываем главное меню шахмат
         const mainMenu = document.getElementById('main-menu');
         if (mainMenu) mainMenu.classList.add('hidden');
         
-        // Показываем стартовый экран Охоты и прячем остальные
+        // 2. Показываем стартовый экран Охоты (с флагом important)
         document.getElementById('cf-start-screen').style.setProperty('display', 'flex', 'important');
+        
+        // 3. Убеждаемся, что остальные экраны Охоты скрыты
         document.getElementById('cf-game-screen').style.setProperty('display', 'none', 'important');
         document.getElementById('cf-gameover-screen').style.setProperty('display', 'none', 'important');
     },
     startGame,
-    goBack: returnToMainMenu,
+    goBack: () => {
+        // Прячем все экраны режима Охоты
+        document.getElementById('cf-start-screen').style.setProperty('display', 'none', 'important');
+        document.getElementById('cf-game-screen').style.setProperty('display', 'none', 'important');
+        document.getElementById('cf-gameover-screen').style.setProperty('display', 'none', 'important');
+        
+        // Показываем обратно главное меню
+        const mainMenu = document.getElementById('main-menu');
+        if (mainMenu) mainMenu.classList.remove('hidden');
+    },
     openFrenzyLeaderboard: () => {
         alert("Таблица рекордов для этого режима в разработке!");
     }
