@@ -692,21 +692,17 @@ function renderBoard() {
 
     // ===== ПУБЛИЧНЫЕ МЕТОДЫ (API) =====
     return {
-        showStart: () => {
-    // Проверяем, видели ли мы инструкцию именно для "frenzy"
-    const tutorialKey = 'tutorial_shown_frenzy';
-    const needTutorial = !localStorage.getItem(tutorialKey);
-
-    if (needTutorial) {
-        // Если это первый раз, показываем экран старта (там у тебя описание)
+ showStart: () => {
+    // Проверяем, видели ли уже инструкцию
+    if (localStorage.getItem('tutorial_shown_frenzy')) {
+        // Если видели — просто запускаем игру без лишних окон
+        CaptureFrenzy.startGame();
+    } else {
+        // Если нет — показываем окно и ставим отметку
         const mainMenu = document.getElementById('main-menu');
         if (mainMenu) mainMenu.classList.add('hidden');
-        safeShow('cf-start-screen');
-        // Сохраняем, что показали
-        localStorage.setItem(tutorialKey, 'true');
-    } else {
-        // Если уже видели, сразу запускаем игру
-        CaptureFrenzy.startGame();
+        document.getElementById('cf-start-screen').classList.remove('hidden');
+        localStorage.setItem('tutorial_shown_frenzy', 'true');
     }
 },
         /*showStart: () => {
