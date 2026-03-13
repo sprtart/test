@@ -82,38 +82,66 @@ const CaptureFrenzy = (() => {
         const hintBtn = document.getElementById('hint-btn');
         const topBtn = document.querySelector('.top-btn');
 
-        if (active) {
-            if (gameContainer) gameContainer.classList.remove('hidden-game');
-            if (mainMenu) mainMenu.classList.add('hidden');
-            
-            setText('label-rating', 'Жизни');
-            setText('label-best-elo', 'Рекорд');
-            setText('label-score', 'Очки');
+if (active) {
+    if (gameContainer) gameContainer.classList.remove('hidden-game');
+    if (mainMenu) mainMenu.classList.add('hidden');
+    
+    setText('label-score', 'Очки');
 
-            if (hintBtn) hintBtn.style.display = 'none';
-            if (topBtn) topBtn.onclick = CaptureFrenzy.openFrenzyLeaderboard;
-        } else {
-            if (gameContainer) gameContainer.classList.add('hidden-game');
-            if (mainMenu) mainMenu.classList.remove('hidden');
-            
-            setText('label-rating', typeof i18n !== 'undefined' && i18n[lang]?.rating ? i18n[lang].rating : 'Рейтинг');
-            setText('label-best-elo', typeof i18n !== 'undefined' && i18n[lang]?.bestElo ? i18n[lang].bestElo : 'макс. Эло');
-            setText('label-score', typeof i18n !== 'undefined' && i18n[lang]?.score ? i18n[lang].score : 'Очки');
-            
-            if (hintBtn) hintBtn.style.display = ''; 
-            if (topBtn && typeof openLeaderboard === 'function') topBtn.onclick = openLeaderboard;
-        }
+    // Прячем карточку Эло и кнопки
+    const eloCard = document.querySelector('.top-bar .stat-card:first-child');
+    if (eloCard) eloCard.style.display = 'none';
+    if (hintBtn) hintBtn.style.display = 'none';
+    if (topBtn) topBtn.style.display = 'none';
+
+    // Показываем жизни в строке кнопок
+    let livesEl = document.getElementById('cf-lives-bar');
+    if (!livesEl) {
+        livesEl = document.createElement('div');
+        livesEl.id = 'cf-lives-bar';
+        livesEl.style.cssText = 'font-size:7vw; letter-spacing:2px; display:flex; align-items:center;';
+        document.querySelector('.bottom-bar').appendChild(livesEl);
+    }
+    livesEl.style.display = 'flex';
+
+    if (topBtn) topBtn.onclick = CaptureFrenzy.openFrenzyLeaderboard;
+} else {
+    if (gameContainer) gameContainer.classList.add('hidden-game');
+    if (mainMenu) mainMenu.classList.remove('hidden');
+    
+    setText('label-rating', typeof i18n !== 'undefined' && i18n[lang]?.rating ? i18n[lang].rating : 'Рейтинг');
+    setText('label-best-elo', typeof i18n !== 'undefined' && i18n[lang]?.bestElo ? i18n[lang].bestElo : 'макс. Эло');
+    setText('label-score', typeof i18n !== 'undefined' && i18n[lang]?.score ? i18n[lang].score : 'Очки');
+    
+    // Возвращаем карточку Эло
+    const eloCard = document.querySelector('.top-bar .stat-card:first-child');
+    if (eloCard) eloCard.style.display = '';
+
+    if (hintBtn) hintBtn.style.display = '';
+    if (topBtn) { topBtn.style.display = ''; }
+    if (topBtn && typeof openLeaderboard === 'function') topBtn.onclick = openLeaderboard;
+
+    // Прячем жизни
+    const livesEl = document.getElementById('cf-lives-bar');
+    if (livesEl) livesEl.style.display = 'none';
+}
     }
 
-    function updateUI() {
-        setText('score-display', score);
-        setText('user-max-rating', bestScore);
-        
-        const eloDisp = document.getElementById('puzzle-elo');
-        if (eloDisp) {
-            eloDisp.textContent = '❤️'.repeat(lives) + '🖤'.repeat(Math.max(0, 3 - lives));
-        }
+function updateUI() {
+    setText('score-display', score);
+    setText('user-max-rating', bestScore);
+    
+    const eloDisp = document.getElementById('puzzle-elo');
+    if (eloDisp) {
+        eloDisp.textContent = '❤️'.repeat(lives) + '🖤'.repeat(Math.max(0, 3 - lives));
     }
+
+    // Обновляем жизни в нижней панели
+    const livesEl = document.getElementById('cf-lives-bar');
+    if (livesEl) {
+        livesEl.textContent = '❤️'.repeat(Math.max(0, lives)) + '🖤'.repeat(Math.max(0, 3 - lives));
+    }
+}
 
     // ===== ИНИЦИАЛИЗАЦИЯ ИГРЫ =====
 function startGame() {
@@ -801,15 +829,37 @@ function checkMilestones() {
     }
 
     // ===== GAME OVER =====
-    function gameOver() {
-        if (score > bestScore) {
-            bestScore = score;
-            localStorage.setItem('cf-best-score', bestScore);
-        }
-        setText('cf-final-score', score);
-        setText('cf-best-score-go', bestScore);
-        safeShow('cf-gameover-screen');
+function gameOver() {
+    if (score > bestScore) {
+        bestScore = score;
+        localStorage.setItem('cf-best-score', bestScore);
     }
+
+    // Меняем кнопку Подсказка → Заново
+    const hintBtn = document.getElementById('hint-btn');
+    if (hintBtn) {
+        hintBtn.style.display = 'flex';
+        const icon = hintBtn.querySelector('.video-icon');
+        if (icon) icon.style.display = 'none';
+        const text = hintBtn.querySelector('#hint-btn-text');
+        if (text) text.textContent = 'Заново';
+        hintBtn.onclick = () => CaptureFrenzy.startGame();
+    }
+
+    // Показываем Топ обратно как кнопку "В меню"
+    const topBtn = document.querySelector('.top-btn');
+    if (topBtn) {
+        topBtn.style.display = 'flex';
+        topBtn.textContent = 'В меню';
+        topBtn.onclick = () => CaptureFrenzy.goBack();
+    }
+
+    // Показываем итог в карточке очков через всплывающий текст
+    showFloatingText(`Игра окончена! Счёт: ${score}`, '#ef4444');
+
+    isPlayerTurn = false;
+    isAnimating = false;
+}
 
 // ===== ПУБЛИЧНЫЕ МЕТОДЫ (API) =====
     return {
@@ -849,11 +899,29 @@ function checkMilestones() {
             }
         },
         startGame: startGame,
-        goBack: () => {
-            safeHide('cf-start-screen');
-            safeHide('cf-gameover-screen');
-            setFrenzyUI(false);
-        },
+goBack: () => {
+    safeHide('cf-start-screen');
+    safeHide('cf-gameover-screen');
+
+    // Сбрасываем кнопку Заново обратно в Подсказка
+    const hintBtn = document.getElementById('hint-btn');
+    if (hintBtn) {
+        hintBtn.onclick = requestHint;
+        const icon = hintBtn.querySelector('.video-icon');
+        if (icon) icon.style.display = '';
+        const text = hintBtn.querySelector('#hint-btn-text');
+        if (text) text.textContent = typeof i18n !== 'undefined' ? i18n[lang]?.hintBtn : 'Помощь';
+    }
+
+    const topBtn = document.querySelector('.top-btn');
+    if (topBtn) {
+        const topText = document.getElementById('top-btn-text');
+        if (topText) topBtn.innerHTML = `<span id="top-btn-text">Топ</span>`;
+        if (typeof openLeaderboard === 'function') topBtn.onclick = openLeaderboard;
+    }
+
+    setFrenzyUI(false);
+},
         openFrenzyLeaderboard: () => {
             alert("Таблица рекордов для этого режима в разработке!");
         }
