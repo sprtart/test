@@ -331,7 +331,7 @@ function renderBoard() {
         return moves;
     }
 
-    // ===== ОБРАБОТКА КЛИКОВ =====
+// ===== ОБРАБОТКА КЛИКОВ =====
     let lastTouchTime = 0, lastTouchDeselect = 0;
 
     function handleSquareClick(e, r, c) {
@@ -365,12 +365,19 @@ function renderBoard() {
 
         if (e.type === 'mousedown' && Date.now() - lastTouchDeselect < 500) return;
 
+        // ВЫДЕЛЯЕМ ФИГУРУ
         selectedPiece = { r, c };
-        renderBoard();
+
+        // === ИСПРАВЛЕНИЕ: УДАЛИЛИ РЕНДЕР ДОСКИ ===
+        // Раньше тут стоял renderBoard(); который убивал клетку под пальцем!
 
         const currentSqEl = document.querySelector(`[data-r="${r}"][data-c="${c}"]`);
         const follower = document.getElementById('drag-follower');
         if (!currentSqEl || !follower) return;
+
+        // Счищаем старые подсказки и рисуем новые вручную (чтобы не перерисовывать всю доску)
+        document.querySelectorAll('.hint-dot, .hint-ring').forEach(el => el.remove());
+        showMoveHints(r, c);
 
         const rect = currentSqEl.getBoundingClientRect();
         follower.style.width = (rect.width * (window.innerHeight > window.innerWidth ? 1.6 : 1.0)) + 'px';
@@ -414,7 +421,10 @@ function renderBoard() {
             const target = document.elementFromPoint(ux, uy)?.closest('.square');
             if (target) {
                 const tr = parseInt(target.dataset.r), tc = parseInt(target.dataset.c);
-                if (tr === startR && tc === startC) { renderBoard(); return; }
+                if (tr === startR && tc === startC) { 
+                    renderBoard(); // Если бросили на ту же клетку, сбрасываем всё
+                    return; 
+                }
                 if (getPlayerMoves(startR, startC).some(m => m.r === tr && m.c === tc)) {
                     executePlayerMove(startR, startC, tr, tc, true);
                     selectedPiece = null;
