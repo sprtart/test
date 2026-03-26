@@ -69,8 +69,8 @@
     --gm-bg-pattern: #1c1c1c3f;
     --gm-vignette: #0f0f0f;
     
-    --gm-title-color: #f0eeec;   
-    --gm-subtitle-color: #e5e0d8; 
+    --gm-title-color: #e0e0e0;   
+    --gm-subtitle-color: #cdcdcd; 
     --gm-line-color: #e5e0d8;
     --gm-title-shadow: 0 4px 10px rgba(0,0,0,0.5);
     
@@ -126,9 +126,9 @@
 }
 
 #user-avatar {
-    width: 6vh;
-    height: 6vh;
-    border-radius: 50%;
+    width: 7vh;
+    height: 7vh;
+    border-radius: 30%;
     object-fit: cover;
     background-color: var(--board-dark);
     /*box-shadow: 0 2px 5px rgba(0,0,0,0.1);*/
@@ -174,7 +174,7 @@
 .btn-stats, .btn-theme {
     width: 10vw;
     height: 10vw;
-    border-radius: 50%;
+    border-radius: 30%;
     background: var(--board-dark);
     border: none;
     /*box-shadow: 0 3px 0 var(--gray-200);*/
@@ -906,7 +906,7 @@ html, body {
 
 
     .stat-value {
-        font-size: 6vw;
+        font-size: 7vw;
         font-weight: 900;
     }
     .bottom-bar {
@@ -925,8 +925,9 @@ html, body {
         gap: 3vw;
     }
     #profile-header {
-        border-radius: 8vw;
+        border-radius: 5vw;
         margin-bottom: 4vw;
+                box-shadow: 0 1px 20px rgba(0, 0, 0, 0.027)
     }
 }
 
@@ -2173,11 +2174,11 @@ body {
 /* Корона для 1 места */
 .crown-icon {
     position: absolute;
-    top: -1.3em;
+    top: -1.6em;
     left: 50%;
     transform: translateX(-50%);
-    width: 24px;
-    height: 24px;
+    width: 26px;
+    height: 26px;
     fill: #81b64c;
 }
 
