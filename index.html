@@ -1121,19 +1121,20 @@ async function initGame() {
 
     document.getElementById('user-max-rating').textContent = statsMaxElo;
     
-    // Подставляем аватарку и имя, если играем в ВК
-    if (Platform.id === 'vk' && Platform.user) {
-        document.getElementById('user-name').textContent = Platform.user.first_name;
-        if (Platform.user.photo_100) {
-            document.getElementById('user-avatar').src = Platform.user.photo_100;
-        }
-    } else {
-        if (Platform.id === 'vk' && Platform.user) {
-            document.getElementById('user-name').textContent = Platform.user.first_name;
-        } else {
-            document.getElementById('user-name').textContent = i18n[lang].playerName;
-        }
+// НОВЫЙ ИСПРАВЛЕННЫЙ КОД:
+if (Platform.id === 'vk' && Platform.user) {
+    // Обновляем имя сразу в двух местах
+    updateDualText('user-name', Platform.user.first_name);
+    
+    // Обновляем аватарку сразу в двух местах
+    if (Platform.user.photo_100) {
+        updateDualSrc('user-avatar', Platform.user.photo_100);
     }
+} else {
+    // Если мы не в ВК, ставим дефолтное "Игрок" (тоже в оба места)
+    const defName = i18n[lang].playerName || "Игрок";
+    updateDualText('user-name', defName);
+}
 
     const savedIds = await Platform.getSolvedIds();
     solvedIds = new Set(savedIds); 
