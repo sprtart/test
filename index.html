@@ -10,19 +10,13 @@
     <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
     
     <title id="page-title">Шахматные задачи</title>
-        <link rel="stylesheet" href="capture-frenzy.css">
     <link rel="stylesheet" href="styles.css">
-
     <style>
         .btn-hint.disabled {
             opacity: 0.6;
             pointer-events: none;
             background-color: #888;
         }
-
-        #cf-start-screen, #cf-game-screen, #cf-gameover-screen {
-    display: none !important;
-}
     </style>
 </head>
 <body>
@@ -48,37 +42,26 @@
     <div class="m-sq dark"><div class="m-piece" style="background-image: url('img/p/bN.svg')"></div></div>
     <div class="m-sq light"><div class="m-piece" style="background-image: url('img/p/wB.svg')"></div></div>
 </div>
-    <button class="btn-play-big btn-frenzy" onclick="CaptureFrenzy.showStart()">
-        <div class="btn-piece" style="background-image: url('img/p/wwR.svg')"></div>
-        <span>ОХОТА</span>
-    </button>
+            <h1 class="menu-title">Шахматные<br>задачи</h1>
         </div>
 
         <!-- Кнопки режимов игры -->
-        <div class="menu-play-buttons">
+<!-- Кнопки режимов игры в Главном меню -->
+<div class="menu-play-buttons">
+    <button class="btn-play-big" onclick="startGameMode('standard')">
+        <div class="btn-piece" style="background-image: url('img/p/wwQ.svg')"></div>
+        <span data-i18n="playStandard">ЗАДАЧИ</span>
+        <!-- ДОБАВЛЕНО: Рекорд для обычного режима -->
+        <div id="record-standard-menu" class="menu-record-text">Рекорд: 0</div>
+    </button>
 
-
-
-            <button class="btn-play-big" onclick="startGameMode('survival')">
-                <!-- <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"/></svg> -->
-                <div class="btn-piece" style="background-image: url('img/p/wwN.svg')"></div>
-                <span data-i18n="playSurvival">ШТУРМ</span>
-            </button>
-
-            <button class="btn-play-big btn-survival" onclick="startGameMode('standard')">
-                <!-- <svg viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M6 4v16l14-8z"           
-                    stroke="currentColor" 
-                    stroke-width="2" 
-                    stroke-linejoin="round" 
-                    stroke-linecap="round"
-                    />
-                </svg> -->
-                <div class="btn-piece" style="background-image: url('img/p/wwQ.svg')"></div>
-                <span data-i18n="playStandard">ЗАДАЧИ</span>
-            </button>
-
-        </div>
+    <button class="btn-play-big btn-survival" onclick="startGameMode('survival')">
+        <div class="btn-piece" style="background-image: url('img/p/wwN.svg')"></div>
+        <span data-i18n="playSurvival">ШТУРМ</span>
+        <!-- ДОБАВЛЕНО: Рекорд для штурма -->
+        <div id="record-survival-menu" class="menu-record-text">Рекорд: 0</div>
+    </button>
+</div>
 
         <!-- Нижние кнопки инструментов (как на твоем референсе) -->
         <div class="menu-tools">
@@ -96,49 +79,44 @@
         </div>
     </div>
 </div>
-
 <div class="game-container hidden-game">
     
-    <!-- КОЛОНКА 1 (ЛЕВАЯ НА ПК): Только доска -->
+    <!-- КОЛОНКА 1: Только доска -->
     <div id="board-wrapper">
         <div id="board" class="chess-board"></div>
     </div>
 
-    <!-- КОЛОНКА 2 (ПРАВАЯ НА ПК): Профиль + Панель -->
+    <!-- КОЛОНКА 2: Профиль + Панель -->
     <div class="right-column">
         
-        <!-- Блок профиля -->
-        <div id="profile-header">
-            <div class="user-info" onclick="showStatsModal()" style="cursor: pointer;" title="Показать статистику">
-<img id="user-avatar" src="img/p/wQ.svg" alt="Аватар">                <!-- Оборачиваем имя и рейтинг в контейнер -->
-                <div class="user-text-wrapper">
-                    <span id="user-name">Игрок</span>
-                    <div id="user-best-elo-container">
-                        <span id="label-best-elo" data-i18n="bestElo">макс. Эло</span>
-                        <span id="user-max-rating">0</span>
+        <!-- ========================================== -->
+        <!-- ПОРТРЕТНАЯ ВЕРСИЯ (Осталась как была)      -->
+        <!-- ========================================== -->
+        <div class="portrait-only">
+            
+            <div id="profile-header">
+                <div class="user-info" onclick="showStatsModal()" style="cursor: pointer;" title="Показать статистику">
+                    <img id="user-avatar" src="img/p/wQ.svg" alt="Аватар">
+                    <div class="user-text-wrapper">
+                        <span id="user-name">Игрок</span>
+                        <div id="user-best-elo-container">
+                            <span id="label-best-elo" data-i18n="bestElo">макс. Эло</span>
+                            <span id="user-max-rating">0</span>
+                        </div>
                     </div>
                 </div>
+                <div class="header-actions" style="display: flex; gap: 8px;">
+                    <button class="btn-stats" onclick="goHome()">
+                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Слой_1" x="0px" y="0px" viewBox="0 0 24 24" style="enable-background:new 0 0 24 24;" xml:space="preserve" fill="currentColor">
+                    <path d="M20.5,10l-7.3-6.7c-0.7-0.6-1.7-0.6-2.4,0L3.5,10c-1.2,1.1-0.4,3.1,1.2,3.1h0.6v5.9c0,1.1,0.9,2,2,2h9.9  c0.8,0,1.4-0.6,1.4-1.4v-6.6h0.6C20.9,13.1,21.7,11.1,20.5,10z M14.1,16.9c0,0.6-0.5,1.1-1.1,1.1H11c-0.6,0-1.1-0.5-1.1-1.1v-2.1  c0-0.6,0.5-1.1,1.1-1.1H13c0.6,0,1.1,0.5,1.1,1.1V16.9z"/>
+                    </svg>
+                    </button>
+                    <button id="settings-toggle" class="btn-theme" onclick="toggleSettingsDropdown(event)">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg>
+                    </button>
+                </div>
             </div>
-    <!-- Группа кнопок действий -->
-    <div class="header-actions" style="display: flex; gap: 8px;">
 
-<button class="btn-stats" onclick="goHome()">
-    <!-- Иконка Домика -->
-<svg viewBox="0 0 24 24" fill="currentColor">
-    <path d="M12 2.5L2 11.5h3v9h5v-6h4v6h5v-9h3L12 2.5z" 
-          stroke="currentColor" 
-          stroke-width="2" 
-          stroke-linejoin="round" 
-          stroke-linecap="round"/>
-</svg>
-</button>
-        
-<button id="settings-toggle" class="btn-theme" onclick="toggleSettingsDropdown(event)">
-    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg>
-</button>
-
-    </div>
-        </div>
             <div class="top-bar">
                 <div class="stat-card">
                     <span class="stat-label" id="label-rating">Рейтинг</span>
@@ -150,51 +128,121 @@
                     <span class="stat-label" id="label-score">Очки</span>
                 </div>
             </div>
-<div class="bottom-bar">
 
-    <button id="hint-btn" onclick="requestHint()" class="btn-hint">
-        <div class="video-icon">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 4H3C1.895 4 1 4.895 1 6V18C1 19.105 1.895 20 3 20H21C22.105 20 23 19.105 23 18V6C23 4.895 22.105 4 21 4ZM21 18H3V6H21V18ZM9.5 15L16 11.5L9.5 8V15Z"/></svg>
+            <div class="bottom-bar">
+                <button id="hint-btn" onclick="requestHint()" class="btn-hint">
+                    <div class="video-icon"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Слой_1" x="0px" y="0px" viewBox="0 0 24 24" style="enable-background:new 0 0 24 24;" xml:space="preserve">
+<path d="M17.2,3H6.6C3.8,3,1.6,5.2,1.6,8v8.1c0,2.7,2.2,4.9,4.9,4.9h10.7c2.7,0,4.9-2.2,4.9-4.9V8C22.2,5.2,20,3,17.2,3z M9.5,16.5  v-9L17,12L9.5,16.5z"/>
+</svg></div>
+                    <span id="hint-btn-text">Помощь</span>
+                </button>
+                <button class="top-btn" onclick="openLeaderboard()">
+                    <span id="top-btn-text">Топ</span>
+                    <svg fill="currentColor" width="20" viewBox="0 0 24 24"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z"></path></svg>
+                </button>
+            </div>
+            
+        </div> <!-- Конец portrait-only -->
+
+
+        <!-- ========================================== -->
+        <!-- АЛЬБОМНАЯ ВЕРСИЯ (Твой новый дизайн)       -->
+        <!-- ========================================== -->
+        <div class="landscape-only">
+            
+            <!-- Блок профиля -->
+            <div class="panel-card user-profile-card">
+                <button id="settings-toggle-l" class="btn-settings-small" onclick="toggleSettingsDropdown(event)">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg>
+                </button>
+                <img id="user-avatar-l" src="img/p/wQ.svg" alt="Аватар">
+                <div class="user-info-text">
+                    <div id="user-name-l">Игрок</div>
+                    <div class="label-best-elo"> 
+                        <span id="label-best-elo-l" data-i18n="bestElo">Макс задачи</span>: <b id="user-max-rating-l">---</b>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Блок основного рейтинга -->
+            <div class="panel-card rating-main-card">
+                <div id="label-small-l" class="label-small" data-i18n="puzzleEloLabel">Рейтинг задачи</div>
+                <div id="puzzle-elo-l" class="rating-big-value">0</div>
+            </div>
+
+            <!-- Блок подробной статистики -->
+        <!-- Блок подробной статистики (Альбомная версия) -->
+        <div class="panel-card stats-list-card">
+        <div class="stat-item">
+            <!-- Добавляем id="label-score-l" -->
+            <span id="label-score-l" data-i18n="tScore">Общий счёт</span>
+            <div class="dot-leader"></div>
+            <span id="score-display-l">0</span>
         </div>
-        <span id="hint-btn-text">Помощь</span>
-    </button>
-<button class="btn-stats landscape-only" onclick="goHome()" style="display:none;">
-    <!-- Иконка Домика -->
-<svg viewBox="0 0 24 24" fill="currentColor">
-    <path d="M12 2.5L2 11.5h3v9h5v-6h4v6h5v-9h3L12 2.5z" 
-          stroke="currentColor" 
-          stroke-width="2" 
-          stroke-linejoin="round" 
-          stroke-linecap="round"/>
-</svg>
-</button>
-    <button class="top-btn" onclick="openLeaderboard()">
-        <span id="top-btn-text">Топ</span>
-    </button>
-</div>
-
-<!-- Кнопка помощь для альбомного режима (внизу отдельно) -->
-<button onclick="requestHint()" class="btn-hint hint-landscape" style="display:none; width:100%; margin-top:-4px;">
-    <div class="video-icon">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 4H3C1.895 4 1 4.895 1 6V18C1 19.105 1.895 20 3 20H21C22.105 20 23 19.105 23 18V6C23 4.895 22.105 4 21 4ZM21 18H3V6H21V18ZM9.5 15L16 11.5L9.5 8V15Z"/></svg>
-    </div>
-    <span data-i18n="hintBtn">Помощь</span>
-</button>
-
-            <div id="leaderboard-modal" class="modal-overlay hidden" onclick="hideTopModal()">
-    <div class="modal-box" onclick="event.stopPropagation()">
-        <h2 id="top-title">Рейтинг игроков</h2>
-        <div id="leaderboard-container" style="max-height: 60vh; overflow-y: auto; margin: 10px 0;">
-            <!-- Сюда будут вставляться строки игроков -->
-            <div id="top-loading" style="text-align: center; padding: 20px;">Загрузка...</div>
+            <div class="stat-item">
+                <span data-i18n="tSolved">Решено</span>
+                <div class="dot-leader"></div>
+                <span id="mdl-solved-l">0</span>
+            </div>
+            <!-- НОВАЯ СТРОКА: Решено идеально -->
+            <div class="stat-item">
+                <span data-i18n="tFlawless">Без ошибок</span>
+                <div class="dot-leader"></div>
+                <span id="mdl-flawless-l">0</span>
+            </div>
+            <!-- НОВАЯ СТРОКА: Ошибки -->
+            <div class="stat-item">
+                <span data-i18n="tMistakes">Ошибки</span>
+                <div class="dot-leader"></div>
+                <span id="mdl-mistakes-l" >0</span>
+            </div>
+            <!-- НОВАЯ СТРОКА: Макс. серия -->
+            <!-- <div class="stat-item">
+               
+                <span id="label-extra-stat-l" data-i18n="tMaxStreak">Рекорд серии</span>
+                <div class="dot-leader"></div>
+                <span id="val-extra-stat-l">0</span>
+            </div> -->
+            <div class="stat-item">
+                <span data-i18n="winrate">Винрейт</span>
+                <div class="dot-leader"></div>
+                <span id="user-winrate-l">0%</span>
+            </div>
         </div>
-        <button class="btn-close-modal" onclick="hideTopModal()" data-i18n="tClose">Закрыть</button>
-    </div>
-</div>
+
+            <!-- Блок кнопок действий -->
+            <div class="action-grid">
+                <button class="btn-action green-btn btn-top" onclick="openLeaderboard()">
+                    <svg viewBox="0 0 24 24" width="20" fill="currentColor"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z"/></svg>
+                    <span data-i18n="topBtn">ТОП</span>
+                </button>
+                <button class="btn-action green-btn btn-home-only" onclick="goHome()">
+                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Слой_1" x="0px" y="0px" viewBox="0 0 24 24" style="enable-background:new 0 0 24 24;" xml:space="preserve" fill="currentColor">
+                <path d="M20.5,10l-7.3-6.7c-0.7-0.6-1.7-0.6-2.4,0L3.5,10c-1.2,1.1-0.4,3.1,1.2,3.1h0.6v5.9c0,1.1,0.9,2,2,2h9.9  c0.8,0,1.4-0.6,1.4-1.4v-6.6h0.6C20.9,13.1,21.7,11.1,20.5,10z M14.1,16.9c0,0.6-0.5,1.1-1.1,1.1H11c-0.6,0-1.1-0.5-1.1-1.1v-2.1  c0-0.6,0.5-1.1,1.1-1.1H13c0.6,0,1.1,0.5,1.1,1.1V16.9z"/>
+                </svg>
+                </button>
+                <button id="hint-btn-l" class="btn-action green-btn btn-help" onclick="requestHint()"><div class="video-icon-desk">
+                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Слой_1" x="0px" y="0px" viewBox="0 0 24 24" style="enable-background:new 0 0 24 24;" xml:space="preserve">
+                <path d="M17.2,3H6.6C3.8,3,1.6,5.2,1.6,8v8.1c0,2.7,2.2,4.9,4.9,4.9h10.7c2.7,0,4.9-2.2,4.9-4.9V8C22.2,5.2,20,3,17.2,3z M9.5,16.5  v-9L17,12L9.5,16.5z"/>
+                </svg></div>
+                    <span data-i18n="hintBtn">ПОМОЩЬ</span>
+                </button>
+            </div>
+            
+        </div> <!-- Конец landscape-only -->
+
+        <!-- Модалка Топа (одна на обе версии) -->
+        <div id="leaderboard-modal" class="modal-overlay hidden" onclick="hideTopModal()">
+            <div class="modal-box" onclick="event.stopPropagation()">
+            
+                <div id="leaderboard-container" style="max-height: 60vh; overflow-y: auto;">
+                    <div id="top-loading" style="text-align: center; ;">Загрузка...</div>
+                </div>
+                <button class="btn-close-modal" onclick="hideTopModal()" data-i18n="tClose">Закрыть</button>
+            </div>
         </div>
 
     </div> <!-- Конец right-column -->
-
 </div>
 
 <div id="stats-modal" class="modal-overlay hidden">
@@ -245,7 +293,22 @@
         </div>
         <span id="drop-theme-text" data-i18n="themeLight">Тема: Светлая</span>
     </button>
+
+        <hr style="border: 0; border-top: 1px solid var(--gray-200); margin: 8px 0;">
+    
+    <!-- Секция выбора доски -->
+    <div style="padding: 8px 16px;">
+        <div style="font-size: 12px; font-weight: 800; color: var(--text-gray); text-transform: uppercase; margin-bottom: 10px;" data-i18n="boardColor">Цвет доски</div>
+        <div class="board-theme-picker">
+            <div class="theme-dot dot-green" onclick="setBoardTheme('green')" title="Green"></div>
+            <div class="theme-dot dot-brown" onclick="setBoardTheme('brown')" title="Brown"></div>
+            <div class="theme-dot dot-blue" onclick="setBoardTheme('blue')" title="Blue"></div>
+            <div class="theme-dot dot-grey" onclick="setBoardTheme('grey')" title="Grey"></div>
+        </div>
+    </div>
+
 </div>
+
 <div id="game-over-modal" class="modal-overlay hidden">
     <div class="modal-box" style="align-items: center;">
         <h2 style="color: #ef4444; font-size: 28px;" data-i18n="gameOver">Игра окончена</h2>
@@ -267,119 +330,64 @@
         <button class="btn-close-modal" onclick="closeTutorial()" data-i18n="understood">Понятно!</button>
     </div>
 </div>
-
-
-
-
-<!-- ЭКРАН СТАРТА -->
-<!-- ЭКРАНЫ РЕЖИМА ОХОТА -->
-<div id="cf-start-screen" class="modal-overlay hidden">
-    <div class="modal-box" style="text-align: center; align-items: center; max-width: 380px;">
-        <h2 style="color: var(--gray-700); font-size: 26px; text-transform: uppercase;">Охота</h2>
-        
-        <p style="color: var(--gray-500); font-weight: bold; margin-bottom: 15px; line-height: 1.4; font-size: 15px;">
-            Съедай вражеские фигуры и набирай очки!<br>
-            После каждого твоего хода враги отвечают.<br>
-            Не теряй все жизни!
-        </p>
-
-        <!-- Блок с фигурами и очками -->
-        <div class="piece-values" style="display: flex; gap: 12px; background: #f3f4f6; padding: 15px; border-radius: 12px; margin-bottom: 20px;">
-            <div class="piece-val" style="display: flex; flex-direction: column; align-items: center; gap: 5px;">
-                <div class="piece-val-img" style="width: 30px; height: 30px; background-image: url('img/p/bP.svg'); background-size: contain;"></div>
-                <div class="piece-val-num" style="font-weight: 900; color: #d97706;">+1</div>
-            </div>
-            <div class="piece-val" style="display: flex; flex-direction: column; align-items: center; gap: 5px;">
-                <div class="piece-val-img" style="width: 30px; height: 30px; background-image: url('img/p/bN.svg'); background-size: contain;"></div>
-                <div class="piece-val-num" style="font-weight: 900; color: #d97706;">+3</div>
-            </div>
-            <div class="piece-val" style="display: flex; flex-direction: column; align-items: center; gap: 5px;">
-                <div class="piece-val-img" style="width: 30px; height: 30px; background-image: url('img/p/bB.svg'); background-size: contain;"></div>
-                <div class="piece-val-num" style="font-weight: 900; color: #d97706;">+3</div>
-            </div>
-            <div class="piece-val" style="display: flex; flex-direction: column; align-items: center; gap: 5px;">
-                <div class="piece-val-img" style="width: 30px; height: 30px; background-image: url('img/p/bR.svg'); background-size: contain;"></div>
-                <div class="piece-val-num" style="font-weight: 900; color: #d97706;">+5</div>
-            </div>
-            <div class="piece-val" style="display: flex; flex-direction: column; align-items: center; gap: 5px;">
-                <div class="piece-val-img" style="width: 30px; height: 30px; background-image: url('img/p/bQ.svg'); background-size: contain;"></div>
-                <div class="piece-val-num" style="font-weight: 900; color: #d97706;">+9</div>
-            </div>
-        </div>
-
-        <div style="font-size: 28px; margin-bottom: 20px;">❤️❤️❤️</div>
-
-        <div style="display: flex; gap: 10px; width: 100%;">
-            <button class="btn-close-modal" onclick="CaptureFrenzy.goBack()" style="flex: 1; background: var(--gray-200);">Назад</button>
-            <button class="btn-close-modal" onclick="CaptureFrenzy.startGame()" style="flex: 1; background: #10b981; color: white;">Играть!</button>
-        </div>
-    </div>
-</div>
-
-<div id="cf-gameover-screen" class="modal-overlay hidden" style="z-index: 9999;">
-    <div class="modal-box" style="text-align: center; align-items: center;">
-        <h2 style="color: #ef4444; font-size: 26px; text-transform: uppercase;">Игра окончена</h2>
-        <p style="color: var(--gray-500); font-weight: bold; margin: 10px 0;">Очки: <span id="cf-final-score" style="color: #eab308; font-size: 24px;">0</span></p>
-        <p style="color: var(--gray-500); font-size: 14px; margin-bottom: 15px;">Рекорд: <b id="cf-best-score-go" style="color: var(--accent);">0</b></p>
-        <div style="display: flex; gap: 10px; width: 100%;">
-            <button class="btn-close-modal" onclick="CaptureFrenzy.goBack()" style="flex: 1; background: var(--gray-200);">В меню</button>
-            <button class="btn-close-modal" onclick="CaptureFrenzy.startGame()" style="flex: 1; background: #10b981; color: white;">Заново</button>
-        </div>
-    </div>
-</div>
-<div id="cf-drag-follower"></div>
-
 <script>
 // ==========================================
 // ОБЪЕКТ PLATFORM (ТОЛЬКО VK И LOCAL)
 // ==========================================
 const Platform = {
-    id: 'local', // По умолчанию работаем локально
+    id: 'local',
+    user: null,
 
     async init() {
-            // 1. Проверяем наличие моста
-            if (typeof vkBridge !== 'undefined') {
-                
-            // 1. Сначала ПОДПИСЫВАЕМСЯ
-vkBridge.subscribe((e) => {
-    if (e.detail.type === 'VKWebAppUpdateConfig') {
-        const data = e.detail.data;
-        // Если пользователь НЕ менял тему в игре вручную, слушаемся приложение ВК
-        if (!localStorage.getItem('user-theme')) {
-            if (data.appearance === 'dark' || data.appearance === 'space_gray') {
-                document.documentElement.classList.add('dark-mode');
-            } else {
-                document.documentElement.classList.remove('dark-mode');
-            }
-            updateThemeIcons();
-        }
-    }
-});
+        console.log("Инициализация платформы...");
 
+        // Проверяем, есть ли скрипт VK и запущены ли мы внутри VK (через параметры в URL)
+        const isVkEnv = typeof vkBridge !== 'undefined' && 
+                        (window.location.search.includes('vk_app_id') || window.location.search.includes('vk_access_token'));
+
+        if (isVkEnv) {
             try {
-                // 2. Только потом ИНИЦИАЛИЗИРУЕМ
-                await vkBridge.send('VKWebAppInit');
+                // Устанавливаем таймаут: если ВК не ответит за 2 секунды, идем в local
+                const initPromise = vkBridge.send('VKWebAppInit');
+                const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('VK timeout')), 2000));
+
+                await Promise.race([initPromise, timeoutPromise]);
+                
+                vkBridge.subscribe((e) => {
+                    if (e.detail.type === 'VKWebAppUpdateConfig') {
+                        const data = e.detail.data;
+                        if (!localStorage.getItem('user-theme')) {
+                            if (data.appearance === 'dark' || data.appearance === 'space_gray') {
+                                document.documentElement.classList.add('dark-mode');
+                            } else {
+                                document.documentElement.classList.remove('dark-mode');
+                            }
+                            updateThemeIcons();
+                        }
+                    }
+                });
+
                 this.id = 'vk';
-                    // 3. Сразу запрашиваем данные пользователя
-                    const userData = await vkBridge.send('VKWebAppGetUserInfo');
-                    this.user = userData; // Сохраняем объект пользователя внутри Platform
-
-                    console.log("Платформа: ВКонтакте. Игрок:", this.user.first_name);
-                    return; 
-                } catch (e) {
-                    console.warn("Ошибка при инициализации VK SDK:", e);
-                    // Если произошла ошибка, проваливаемся в local
-                }
+                const userData = await vkBridge.send('VKWebAppGetUserInfo');
+                this.user = userData;
+                console.log("Платформа: ВКонтакте. Игрок:", this.user.first_name);
+                return;
+            } catch (e) {
+                console.warn("VK SDK не ответил или ошибка, переходим в локальный режим:", e);
             }
-
-                    // 2. ДЛЯ ЛОКАЛЬНОЙ ВЕРСИИ (проверка системной темы)
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            document.body.classList.add('dark-mode');
         }
 
-            this.id = 'local';
-            console.log("Платформа: Локальная (без SDK)");
-        },
+        // Если мы не в ВК или произошла ошибка инициализации
+        this.id = 'local';
+        console.log("Платформа: Локальная (без SDK)");
+
+        // Для локальной версии проверяем системную тему
+        if (!localStorage.getItem('user-theme')) {
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.classList.add('dark-mode');
+            }
+        }
+    },
 
     getLang() {
         if (this.id === 'vk') {
@@ -391,53 +399,108 @@ vkBridge.subscribe((e) => {
         return navigator.language.slice(0, 2) === 'ru' ? 'ru' : 'en';
     },
 
- async getStats() {
-        let stats = { score: 0, solved: 0, mistakes: 0, maxElo: 0 };
+    async getStats() {
+        let cloudStats = null;
+        let localStats = null;
+        const defaultStats = { score: 0, solved: 0, mistakes: 0, maxElo: 0, flawless: 0, eloStandard: 400, maxStreak: 0 };
+
+        // 1. Пытаемся получить данные из Облака ВК
         if (this.id === 'vk') {
             try {
-                // Запрашиваем новый ключ и старый для переноса очков
-                const data = await vkBridge.send('VKWebAppStorageGet', { keys: ['chessStats', 'totalScore'] });
+                const data = await vkBridge.send('VKWebAppStorageGet', { keys: ['chessStats'] });
                 const statsStr = data.keys.find(k => k.key === 'chessStats')?.value;
-                const oldScoreStr = data.keys.find(k => k.key === 'totalScore')?.value;
-                
-                if (statsStr) {
-                    stats = JSON.parse(statsStr); // Если уже есть новая стата
-                } else if (oldScoreStr) {
-                    stats.score = parseInt(oldScoreStr, 10); // Переносим старые очки игрока!
+                if (statsStr && statsStr !== "") {
+                    cloudStats = JSON.parse(statsStr);
                 }
-            } catch(e) {}
+            } catch (e) {
+                console.warn("Ошибка при получении данных из ВК");
+            }
         }
-        return stats;
+
+        // 2. Пытаемся получить данные из LocalStorage
+        try {
+            const localStr = localStorage.getItem('chessStats');
+            if (localStr) {
+                localStats = JSON.parse(localStr);
+            }
+        } catch (e) {
+            console.warn("Ошибка при получении данных из LocalStorage");
+        }
+
+        // 3. ЛОГИКА СРАВНЕНИЯ ("Кто больше - тот и прав")
+        let finalStats;
+
+        const cloudScore = cloudStats ? (parseInt(cloudStats.score) || 0) : -1;
+        const localScore = localStats ? (parseInt(localStats.score) || 0) : -1;
+
+        if (localScore > cloudScore) {
+            // ЛОКАЛЬНЫЕ ДАННЫЕ ЛУЧШЕ (игрок играл оффлайн или ВК не сохранил)
+            console.log("LocalStorage выиграл! Синхронизируем облако...");
+            finalStats = localStats;
+            // Сразу отправляем эти данные в облако, чтобы подтянуть его
+            this.saveStats(finalStats); 
+        } 
+        else if (cloudScore > localScore) {
+            // ОБЛАЧНЫЕ ДАННЫЕ ЛУЧШЕ (игрок зашел с другого устройства)
+            console.log("Облако ВК выиграло! Обновляем LocalStorage...");
+            finalStats = cloudStats;
+            // Обновляем локальную копию
+            localStorage.setItem('chessStats', JSON.stringify(finalStats));
+        } 
+        else {
+            // Либо они равны, либо данных нигде нет
+            finalStats = cloudStats || localStats || defaultStats;
+        }
+
+        return finalStats;
     },
 
     saveStats(statsObj) {
+        const strData = JSON.stringify(statsObj);
+
+        // 1. Сохраняем локально (всегда)
+        try {
+            localStorage.setItem('chessStats', strData);
+        } catch (e) {
+            console.error("Ошибка сохранения в LocalStorage");
+        }
+
+        // 2. Сохраняем в ВК
         if (this.id === 'vk') {
-            vkBridge.send('VKWebAppStorageSet', { key: 'chessStats', value: JSON.stringify(statsObj) }).catch(()=>{});
-            vkBridge.send('VKWebAppSetScore', { score: parseInt(statsObj.score) }).catch(()=>{});
+            // В облако (для синхронизации между устройствами)
+            vkBridge.send('VKWebAppStorageSet', { 
+                key: 'chessStats', 
+                value: strData 
+            }).catch(e => console.error("Ошибка ВК StorageSet:", e));
+
+            // В глобальный рейтинг (чтобы быть в Топе ВК)
+            vkBridge.send('VKWebAppSetScore', { 
+                score: parseInt(statsObj.score) 
+            }).catch(()=>{});
         }
     },
 
-showLeaderboard() {
-    if (this.id === 'vk') {
-        console.log("Пытаюсь открыть лидерборд. Очки:", totalScore);
-        
-        vkBridge.send('VKWebAppShowLeaderBoardBox', { 
-            user_score: parseInt(totalScore) || 0 
-        })
-        .then((data) => {
-            console.log("Лидерборд открыт успешно:", data);
-        })
-        .catch((error) => {
-            if (error?.error_data?.error_code === 5) {
-                alert(i18n[lang].lbFriendsText + totalScore);
-            } else {
-                alert(i18n[lang].lbError + "\n" + i18n[lang].score + ": " + totalScore);
-            }
-        });
-    } else {
-        alert(i18n[lang].score + ": " + totalScore);
-    }
-},
+    showLeaderboard() {
+        if (this.id === 'vk') {
+            console.log("Пытаюсь открыть лидерборд. Очки:", totalScore);
+            
+            vkBridge.send('VKWebAppShowLeaderBoardBox', { 
+                user_score: parseInt(totalScore) || 0 
+            })
+            .then((data) => {
+                console.log("Лидерборд открыт успешно:", data);
+            })
+            .catch((error) => {
+                if (error?.error_data?.error_code === 5) {
+                    alert(i18n[lang].lbFriendsText + totalScore);
+                } else {
+                    alert(i18n[lang].lbError + "\n" + i18n[lang].score + ": " + totalScore);
+                }
+            });
+        } else {
+            alert(i18n[lang].score + ": " + totalScore);
+        }
+    },
     
     setScore(score) {
         if (this.id === 'vk') {
@@ -605,6 +668,7 @@ function translatePage() {
 
 const i18n = {
     ru: {
+        boardColor: "Цвет доски",
         title: "Шахматные задачи: найди лучший ход",
         loading: "Загрузка:",
         preparing: "Подготовка шахмат...",
@@ -652,9 +716,13 @@ const i18n = {
         again: "Заново",
         record: "Рекорд",
         streak: "Серия",
-        menuTitle: "Шахматные<br>задачи"
+        menuTitle: "Шахматные<br>задачи",
+                tFlawless: "Без ошибок",
+        tMistakes: "Ошибки",
+        tMaxStreak: "Рекорд серии"
     },
     en: {
+        boardColor: "Board Color",
         title: "Chess Puzzles: Find the Best Move",
         loading: "Loading:",
         preparing: "Preparing chess...",
@@ -702,7 +770,10 @@ const i18n = {
         again: "Again",
         record: "Record",
         streak: "Streak",
-        menuTitle: "Chess<br>Puzzles"
+        menuTitle: "Chess<br>Puzzles",
+                tFlawless: "Flawless",
+        tMistakes: "Mistakes",
+        tMaxStreak: "Best Streak"
     }
 };
 
@@ -759,28 +830,43 @@ function checkSavedTheme() {
 
 function applyTranslations() {
     const t = i18n[lang];
-    //document.querySelector('.menu-title').innerHTML = t.menuTitle;
-    // Главный экран
-    document.getElementById('page-title').textContent = t.title;
-    document.getElementById('label-rating').textContent = t.rating;
-    document.getElementById('label-score').textContent = t.score;
-    document.getElementById('hint-btn-text').textContent = t.hintBtn; 
-    document.getElementById('top-btn-text').textContent = t.topBtn;
-    document.getElementById('loading-text').textContent = t.preparing;
-    document.getElementById('label-best-elo').textContent = t.bestElo;
+    if (!t) return;
 
-    // Модальное окно статистики
-    document.getElementById('modal-title').textContent = t.statsTitle;
-    document.getElementById('t-score').textContent = t.tScore;
-    document.getElementById('t-solved').textContent = t.tSolved;
-    document.getElementById('t-flawless').textContent = t.tFlawless;
-    document.getElementById('t-mistakes').textContent = t.tMistakes;
-    document.getElementById('t-max').textContent = t.tMax;
-    document.getElementById('t-close').textContent = t.tClose;
-    document.getElementById('t-max-streak').textContent = t.tMaxStreak;
+    // Вспомогательная функция: если элемент есть — меняем текст, если нет — игнорируем
+const setSafeText = (id, text) => {
+        updateDualText(id, text);
+    };
 
-    // Модальное окно Лидерборда
-    document.getElementById('top-title').textContent = t.lbTitle;
+    // 1. Заголовок меню (через innerHTML, так как там может быть <br>)
+    const menuTitle = document.querySelector('.menu-title');
+    if (menuTitle) menuTitle.innerHTML = t.menuTitle || "Шахматные задачи";
+ updateMenuRecords(); 
+    // 2. Главный экран
+    setSafeText('page-title', t.title);
+    setSafeText('loading-text', t.preparing);
+    setSafeText('label-rating', t.rating);
+    setSafeText('label-score', t.score);
+    setSafeText('hint-btn-text', t.hintBtn); 
+    setSafeText('top-btn-text', t.topBtn);
+    setSafeText('label-best-elo', t.bestElo);
+
+    // 3. Модальное окно статистики
+    setSafeText('modal-title', t.statsTitle);
+    setSafeText('t-score', t.tScore);
+    setSafeText('t-solved', t.tSolved);
+    setSafeText('t-flawless', t.tFlawless);
+    setSafeText('t-mistakes', t.tMistakes);
+    setSafeText('t-max', t.tMax);
+    setSafeText('t-close', t.tClose);
+    setSafeText('t-max-streak', t.tMaxStreak);
+
+    // 4. Лидерборд
+    setSafeText('top-title', t.lbTitle);
+
+    // 5. Перевод всех новых кнопок (Винрейт, ТОП, ПОМОЩЬ) через атрибуты data-i18n
+    if (typeof translatePage === 'function') {
+        translatePage();
+    }
 }
 
 function saveCurrentStats() {
@@ -813,27 +899,29 @@ let lives = 3; // Для режима выживания
 // Открытие / Закрытие выпадающего меню настроек
 function toggleSettingsDropdown(event) {
     const dropdown = document.getElementById('settings-dropdown');
-    const btn = document.getElementById('settings-toggle');
+    const btn = event.currentTarget; // БЕРЕМ ИМЕННО ТУ КНОПКУ, НА КОТОРУЮ НАЖАЛИ
     
     if (dropdown.classList.contains('hidden')) {
-        // Позиционируем меню прямо под кнопкой
         const rect = btn.getBoundingClientRect();
         dropdown.style.top = (rect.bottom + 10) + 'px';
-        dropdown.style.right = (window.innerWidth - rect.right) + 'px'; // Выравниваем по правому краю кнопки
+        dropdown.style.right = (window.innerWidth - rect.right) + 'px';
         dropdown.classList.remove('hidden');
     } else {
         dropdown.classList.add('hidden');
     }
-    
-    // Предотвращаем всплытие клика, чтобы меню не закрылось сразу же
     event.stopPropagation();
 }
 
 // Закрываем меню при клике в любое другое место
 document.addEventListener('click', (e) => {
     const dropdown = document.getElementById('settings-dropdown');
-    const btn = document.getElementById('settings-toggle');
-    if (!dropdown.classList.contains('hidden') && !dropdown.contains(e.target) && !btn.contains(e.target)) {
+    const btnP = document.getElementById('settings-toggle'); // Кнопка портрета
+    const btnL = document.getElementById('settings-toggle-l'); // Кнопка пейзажа
+    
+    if (!dropdown.classList.contains('hidden') && 
+        !dropdown.contains(e.target) && 
+        (!btnP || !btnP.contains(e.target)) && 
+        (!btnL || !btnL.contains(e.target))) {
         dropdown.classList.add('hidden');
     }
 });
@@ -843,10 +931,6 @@ function toggleSound() {
     isSoundEnabled = !isSoundEnabled;
     document.getElementById('drop-sound-text').textContent = isSoundEnabled ? i18n[lang].soundOn : i18n[lang].soundOff;
     setAllAudioMute(!isSoundEnabled);
-
-    // Меняем текст в выпадающем меню
-    //const dropText = document.getElementById('drop-sound-text');
-    //if (dropText) dropText.textContent = isSoundEnabled ? 'Звук: Вкл' : 'Звук: Выкл';
 
     // Переключаем ВСЕ иконки звука на странице
     document.querySelectorAll('.icon-sound-on').forEach(el => {
@@ -873,96 +957,100 @@ function updateDropdownThemeText() {
     const isDark = document.documentElement.classList.contains('dark-mode');
     document.getElementById('drop-theme-text').textContent = isDark ? i18n[lang].themeDark : i18n[lang].themeLight;
 
-    // Меняем только текст, так как иконки (SVG) теперь переключаются в updateThemeIcons
-    /*if (dropText) {
-        dropText.textContent = isDark ? 'Тема: Тёмная' : 'Тема: Светлая';
-    }*/
 }
 
 // Переход в главное меню
 function goHome() {
     // 1. Прячем игровой контейнер
-    document.querySelector('.game-container').style.display = 'none';
+    const gameContainer = document.querySelector('.game-container');
+    if (gameContainer) gameContainer.style.display = 'none';
     
-    // 2. Прячем окно поражения (если оно было открыто)
-    document.getElementById('game-over-modal').classList.add('hidden');
-
-    document.querySelector('#game-over-modal h2').textContent = i18n[lang].gameOver;
-    document.querySelector('#game-over-modal p').innerHTML = `${i18n[lang].solvedTasks} <span id="survival-score">0</span>`;
+    // 2. Прячем окно поражения
+    const gameOverModal = document.getElementById('game-over-modal');
+    if (gameOverModal) {
+        gameOverModal.classList.add('hidden');
+        // Сбрасываем текст в окне поражения на всякий случай
+        const goTitle = gameOverModal.querySelector('h2');
+        if (goTitle) goTitle.textContent = i18n[lang].gameOver;
+    }
     
-    // 3. Прячем модалки (на всякий случай)
-    document.getElementById('stats-modal').classList.add('hidden');
-    document.getElementById('leaderboard-modal').classList.add('hidden');
+    // 3. Прячем модальные окна (статистика, лидерборд)
+    const statsModal = document.getElementById('stats-modal');
+    if (statsModal) statsModal.classList.add('hidden');
     
-    // 4. Показываем меню
-    document.getElementById('main-menu').classList.remove('hidden');
+    const lbModal = document.getElementById('leaderboard-modal');
+    if (lbModal) lbModal.classList.add('hidden');
+    
+    // 4. ПОКАЗЫВАЕМ ГЛАВНОЕ МЕНЮ
+    const mainMenu = document.getElementById('main-menu');
+    if (mainMenu) {
+        mainMenu.classList.remove('hidden');
+    } else {
+        console.error("Ошибка: Элемент с id='main-menu' не найден!");
+    }
 }
 let survivalSolvedCount = 0; // Счётчик решенных задач в текущей попытке выживания
 
 function startGameMode(mode) {
     gameMode = mode;
     
+    // Скрываем меню и показываем игру
     document.getElementById('main-menu').classList.add('hidden');
-    document.getElementById('game-over-modal').classList.add('hidden');
+    const gameOverModal = document.getElementById('game-over-modal');
+    if (gameOverModal) gameOverModal.classList.add('hidden');
     document.querySelector('.game-container').style.display = '';
 
-    // Скрываем индикатор жизней, раз мы их убрали
-    //document.getElementById('survival-lives').classList.add('hidden');
-    
+    // Берем элементы (теперь они под защитой)
     const labelBest = document.getElementById('label-best-elo');
     const valBest = document.getElementById('user-max-rating');
     const labelScore = document.getElementById('label-score');
     const valScore = document.getElementById('score-display');
+    const t = i18n[lang];
 
-    if (mode === 'survival') {
+if (mode === 'survival') {
         survivalFailed = false;
-            survivalStreak = 0; // <- здесь уже должно быть
-    document.getElementById('score-display').textContent = survivalStreak;
-    // Сбрасываем ОБЕ кнопки обратно
-    const hintBtns = document.querySelectorAll('.btn-hint');
-    hintBtns.forEach(btn => {
-        btn.onclick = requestHint;
-        const icon = btn.querySelector('.video-icon');
-        if (icon) icon.style.display = '';
-        const text = btn.querySelector('span');
-        if (text) text.textContent = i18n[lang].hintBtn;
-    });
+        survivalStreak = 0;
+        updateDualText('score-display', survivalStreak); // <--- ИЗМЕНЕНИЕ
 
-        currentElo = eloSurvival; // ВСЕГДА начинаем с простых
-        survivalStreak = 0; 
-        
-        labelBest.textContent = i18n[lang].record;
-        valBest.textContent = statsMaxStreak;
-        labelScore.textContent = i18n[lang].streak;
-        valScore.textContent = survivalStreak;
+        // Ищем обе кнопки по ID
+        const hintBtns = document.querySelectorAll('#hint-btn, #hint-btn-l'); // <--- ИЗМЕНЕНИЕ
+        hintBtns.forEach(btn => {
+            btn.onclick = requestHint;
+            const icon = btn.querySelector('.video-icon') || btn.querySelector('svg');
+            if (icon) icon.style.display = '';
+            const text = btn.querySelector('span');
+            if (text) text.textContent = t.hintBtn;
+        });
+
+        currentElo = 400; 
+        updateDualText('label-best-elo', t.record); // <--- ИЗМЕНЕНИЕ
+        updateDualText('user-max-rating', statsMaxStreak); // <--- ИЗМЕНЕНИЕ
+        updateDualText('label-score', t.streak); // <--- ИЗМЕНЕНИЕ
     } else {
         currentElo = eloStandard;
-        // Обычный режим
-        labelBest.textContent = i18n[lang].bestElo;
-        valBest.textContent = statsMaxElo;
-        labelScore.textContent = i18n[lang].score;
-        valScore.textContent = totalScore;
+        updateDualText('label-best-elo', t.bestElo); // <--- ИЗМЕНЕНИЕ
+        updateDualText('user-max-rating', statsMaxElo); // <--- ИЗМЕНЕНИЕ
+        updateDualText('label-score', t.score); // <--- ИЗМЕНЕНИЕ
+        updateDualText('score-display', totalScore); // <--- ИЗМЕНЕНИЕ
     }
+
     document.querySelector('.game-container').classList.remove('hidden-game');
 
-        // Проверка онбординга
-        const tutorialKey = 'tutorial_shown_' + mode;
+    // Обучение
+    const tutorialKey = 'tutorial_shown_' + mode;
     const needTutorial = !localStorage.getItem(tutorialKey);
-
     if (needTutorial) {
         showTutorial(mode);
         localStorage.setItem(tutorialKey, 'true');
-        // ВАЖНО: блокируем доску, пока игрок не нажмет "Понятно!"
         isLocked = true; 
     } else {
-        // Если инструкцию не показываем, разблокируем доску для хода компа
         isLocked = false; 
     }
 
-        // --- ТЕСТОВЫЙ РЕЖИМ: Окно будет открываться ВСЕГДА ---
-    //showTutorial(mode); 
-
     startPuzzle(needTutorial);
+    
+    // Обновляем винрейт и прочее в новой панели
+    if (typeof updateRightPanelUI === 'function') updateRightPanelUI();
 }
 
 function showTutorial(mode) {
@@ -999,6 +1087,7 @@ async function initGame() {
     await Platform.init();
 
      checkSavedTheme();
+     loadSavedBoardTheme();
 
     Platform.preloadAds();
     setInterval(() => Platform.preloadAds(), 60000);
@@ -1061,8 +1150,9 @@ async function initGame() {
 
     // Вызываем обновление текста темы в дропдауне при старте
     updateDropdownThemeText();
-
+ updateMenuRecords();
     loadData(); 
+updateRightPanelUI();
 }
 
 function submitScore(newTotalScore) {
@@ -1236,12 +1326,15 @@ async function pushToGlobalLeaderboard() {
 function requestHint() {
     if (isLocked || hasHint || isAdLoading) return;
     
-    const hintBtn = document.getElementById('hint-btn');
-    const hintText = document.getElementById('hint-btn-text'); 
+    // Блокируем сразу ОБЕ кнопки
+    const hintBtns = document.querySelectorAll('#hint-btn, #hint-btn-l');
     
     isAdLoading = true;
-    hintBtn.classList.add('disabled');
-    hintText.textContent = i18n[lang].adLoading; 
+    hintBtns.forEach(btn => {
+        btn.classList.add('disabled');
+        const text = btn.querySelector('span');
+        if (text) text.textContent = i18n[lang].adLoading;
+    });
 
     Platform.gameplayStop();
 
@@ -1249,14 +1342,20 @@ function requestHint() {
         () => { applyHint(); }, 
         () => { 
             isAdLoading = false;
-            hintBtn.classList.remove('disabled');
-            hintText.textContent = i18n[lang].hintBtn;
+            hintBtns.forEach(btn => {
+                btn.classList.remove('disabled');
+                const text = btn.querySelector('span');
+                if (text) text.textContent = i18n[lang].hintBtn;
+            });
             Platform.gameplayStart();
         },
         () => { 
             isAdLoading = false;
-            hintBtn.classList.remove('disabled');
-            hintText.textContent = i18n[lang].hintBtn;
+            hintBtns.forEach(btn => {
+                btn.classList.remove('disabled');
+                const text = btn.querySelector('span');
+                if (text) text.textContent = i18n[lang].hintBtn;
+            });
             applyHint(); 
             Platform.gameplayStart();
         }
@@ -1290,7 +1389,8 @@ function startPuzzle(skipAutoMove) {
     const selectedPuzzle = closestPuzzles[Math.floor(Math.random() * closestPuzzles.length)];
     console.log(`Задача: https://lichess.org/training/${selectedPuzzle.id} [Elo: ${selectedPuzzle.elo}]`);
     currentPuzzleIndex = puzzles.indexOf(selectedPuzzle);
-    document.getElementById('puzzle-elo').textContent = selectedPuzzle.elo;
+// Обновляем рейтинг задачи сразу в обоих интерфейсах
+updateDualText('puzzle-elo', selectedPuzzle.elo);
 
     boardState = parseFEN(selectedPuzzle.fen);
     currentStep = 0;
@@ -1358,6 +1458,7 @@ function isSquareUnderAttack(targetR, targetC, attackerIsWhite) {
 }
 
 function renderBoard() {
+    if (!boardState || boardState.length === 0) return;
     boardEl.innerHTML = '';
     const range = (playerColor === 'b') ?[7, 6, 5, 4, 3, 2, 1, 0] :[0, 1, 2, 3, 4, 5, 6, 7];
     
@@ -1795,25 +1896,27 @@ function finalizeMove(moveStr, isOpponent, f, t) {
 
         statsTotalSolved++; 
 
-        if (gameMode === 'survival') {
-            
-            if (survivalFailed) {
-                // Задача решена после ошибки — начинаем заново автоматически
-                survivalFailed = false;
-                setTimeout(() => startGameMode('survival'), 800);
-                return;
-            }
+if (gameMode === 'survival') {
+    if (survivalFailed) {
+        survivalFailed = false;
+        setTimeout(() => startGameMode('survival'), 800);
+        return;
+    }
 
-            survivalStreak++;
-            document.getElementById('score-display').textContent = survivalStreak;
-            
-            if (survivalStreak > statsMaxStreak) {
-                statsMaxStreak = survivalStreak;
-                document.getElementById('user-max-rating').textContent = statsMaxStreak;
-            }
-            // Поднимаем сложность: чем дольше серия, тем выше Эло
-        currentElo += Math.floor(Math.random() * 23) + 33;
-        } else {
+    survivalStreak++;
+    // ОБНОВЛЯЕМ ТЕКУЩУЮ СЕРИЮ НА ЭКРАНЕ (вместо старого document.getElementById)
+    updateDualText('score-display', survivalStreak);
+    
+    if (survivalStreak > statsMaxStreak) {
+        statsMaxStreak = survivalStreak;
+        // Обновляем рекорд в профиле
+        updateDualText('user-max-rating', statsMaxStreak);
+        // Обновляем рекорд в списке (если мы в режиме задач)
+        updateDualText('val-extra-stat', statsMaxStreak);
+        updateMenuRecords();
+    }
+    currentElo += Math.floor(Math.random() * 23) + 33;
+} else {
     // --- ЛОГИКА ОБЫЧНОГО РЕЖИМА --- else {
             // --- ЛОГИКА ОБЫЧНОГО РЕЖИМА ---
             if (!hasHint && !hasMistake) {
@@ -1836,6 +1939,7 @@ function finalizeMove(moveStr, isOpponent, f, t) {
         }
 
         saveCurrentStats();
+        updateRightPanelUI();
         previousPuzzleElo = thisElo;
 
         // Отправляем в Supabase только для обычного режима (пока что)
@@ -1865,6 +1969,50 @@ function finalizeMove(moveStr, isOpponent, f, t) {
             }
         }, 800);
     }
+}
+
+function updateRightPanelUI() {
+    const t = i18n[lang];
+
+    // 1. Общие данные
+    updateDualText('mdl-solved', statsTotalSolved);
+    updateDualText('mdl-flawless', statsFlawless);
+    updateDualText('mdl-mistakes', statsTotalMistakes);
+    
+    if (gameMode === 'survival') {
+        // --- РЕЖИМ ШТУРМ ---
+        updateDualText('label-best-elo', t.record); 
+        updateDualText('user-max-rating', statsMaxStreak);
+
+        // ВОТ ТУТ ИСПРАВЛЕНИЕ:
+        updateDualText('label-score', t.streak); // Меняем "Очки" на "Серия"
+        updateDualText('score-display', survivalStreak); // Ставим число текущей серии
+
+        // Доп. строка в списке (Ландшафт)
+        const labelExtra = document.getElementById('label-extra-stat-l');
+        if (labelExtra) labelExtra.textContent = t.tMax; 
+        updateDualText('val-extra-stat', statsMaxElo);
+    } 
+    else {
+        // --- РЕЖИМ ЗАДАЧИ ---
+        updateDualText('label-best-elo', t.bestElo);
+        updateDualText('user-max-rating', statsMaxElo);
+
+        // ВОТ ТУТ ИСПРАВЛЕНИЕ:
+        updateDualText('label-score', t.score); // Меняем "Серия" на "Очки"
+        updateDualText('score-display', totalScore); // Ставим число общего счета
+
+        // Доп. строка в списке (Ландшафт)
+        const labelExtra = document.getElementById('label-extra-stat-l');
+        if (labelExtra) labelExtra.textContent = t.tMaxStreak;
+        updateDualText('val-extra-stat', statsMaxStreak);
+    }
+
+    // 3. Винрейт
+    const totalAttempts = statsTotalSolved + statsTotalMistakes;
+    const winrate = totalAttempts > 0 ? Math.round((statsTotalSolved / totalAttempts) * 100) : 0;
+    updateDualText('user-winrate', winrate + '%');
+    updateDualColor('user-winrate', winrate > 70 ? '#16a34a' : '#8b8987');
 }
 
 function showPieceBadge(pos, type) {
@@ -1921,7 +2069,11 @@ async function openLeaderboard() {
     const modal = document.getElementById('leaderboard-modal');
     const container = document.getElementById('leaderboard-container');
     const title = document.getElementById('top-title');
-    
+    // Если заголовка нет в HTML, код просто пропустит эту строку и не выдаст ошибку
+    if (title) {
+        title.textContent = isSurvival ? i18n[lang].lbTitleSurvival : i18n[lang].lbTitle;
+    }
+        
     modal.classList.remove('hidden');
     container.innerHTML = `<div style="text-align:center; padding:20px;">${i18n[lang].lbLoading}</div>`;
 
@@ -1931,7 +2083,7 @@ async function openLeaderboard() {
     const orderBy = isSurvival ? 'streak' : 'score';
     
     // Меняем заголовок в зависимости от режима
-    title.textContent = isSurvival ? i18n[lang].lbTitleSurvival : i18n[lang].lbTitle;
+    //title.textContent = isSurvival ? i18n[lang].lbTitleSurvival : i18n[lang].lbTitle;
 
     try {
         const { data, error } = await sb
@@ -2080,13 +2232,7 @@ function showStatsModal() {
 function hideStatsModal() {
     document.getElementById('stats-modal').classList.add('hidden');
 }
-/*
-// Переводы для нового пункта
-const translationsExtensions = {
-    ru: { mTitle: "Статистика", mScore: "Общий счет:", mSolv: "Всего решено:", mFlaw: "Решено без ошибок:", mMist: "Сделано ошибок:", mMax: "Макс. рейтинг задачи:", mClose: "Закрыть" },
-    en: { mTitle: "Statistics", mScore: "Total Score:", mSolv: "Total Solved:", mFlaw: "Flawlessly Solved:", mMist: "Mistakes Made:", mMax: "Max Puzzle Rating:", mClose: "Close" }
-};
-*/
+
 function updateModalTexts() {
     const txt = translationsExtensions[lang];
     document.getElementById('modal-title').textContent = txt.mTitle;
@@ -2097,7 +2243,6 @@ function updateModalTexts() {
     document.getElementById('t-max').textContent = txt.mMax;
     document.getElementById('t-close').textContent = txt.mClose;
 }
-// Вызовите updateModalTexts() внутри вашей applyTranslations()
 
 
 
@@ -2107,74 +2252,62 @@ function renderTopList(items) {
     container.innerHTML = '';
     
     if (!items || items.length === 0) {
-    container.innerHTML = `<div style="text-align:center; padding:20px;">${i18n[lang].lbEmpty}</div>`;
-            return;
+        container.innerHTML = `<div style="text-align:center; padding:20px;">${i18n[lang].lbEmpty}</div>`;
+        return;
     }
 
-    // В ВК ID пользователя — это Platform.user.id
     const myId = (Platform.user && Platform.user.id) ? String(Platform.user.id) : null;
-    let myOriginalRow = null;
 
-    // 1. Отрисовываем всех игроков
-    items.forEach((item, index) => {
-        // ID из Supabase может быть строкой или числом, приводим к String
-        const isMe = (myId && String(item.user_id) === myId);
+    // 1. СОЗДАЕМ ПЬЕДЕСТАЛ (Топ-3)
+    const podiumContainer = document.createElement('div');
+    podiumContainer.className = 'podium-container';
+
+    // Порядок на пьедестале: 2-е место, 1-е место, 3-е место
+    const podiumOrder = [1, 0, 2]; 
+    
+    podiumOrder.forEach(idx => {
+        const p = items[idx];
+        if (!p) return;
+
+        const isMe = (myId && String(p.user_id) === myId);
+        const item = document.createElement('div');
+        item.className = `podium-item place-${idx + 1} ${isMe ? 'is-me' : ''}`;
         
+        item.innerHTML = `
+            <div class="podium-avatar-wrapper">
+                ${idx === 0 ? '<svg class="crown-icon" viewBox="0 0 24 24"><path d="M5 16L3 5L8.5 10L12 4L15.5 10L21 5L19 16H5Z"/></svg>' : ''}
+                <img class="podium-avatar" src="${p.photo_100 || 'img/logo.png'}" alt="">
+                <div class="rank-badge">${idx + 1}</div>
+            </div>
+            <div class="podium-name">${isMe ? (i18n[lang].lbYou || 'Вы') : p.first_name}</div>
+            <div class="podium-score">${p.score}</div>
+        `;
+        podiumContainer.appendChild(item);
+    });
+
+    container.appendChild(podiumContainer);
+
+    // 2. СОЗДАЕМ СПИСОК (с 4-го места)
+    const listContainer = document.createElement('div');
+    listContainer.className = 'leaderboard-list';
+
+    items.forEach((item, index) => {
+        if (index < 3) return; // Пропускаем тех, кто на пьедестале
+
+        const isMe = (myId && String(item.user_id) === myId);
         const row = document.createElement('div');
         row.className = `leaderboard-row ${isMe ? 'is-me' : ''}`;
         
         row.innerHTML = `
-            <div class="rank-num">${index + 1}</div>
-            <img class="top-avatar" src="${item.photo_100 || 'img/logo.png'}" alt="">
-            <div class="top-name">${item.first_name}</div>
-            <div class="top-score">${item.score}</div>
+            <div class="row-rank">${index + 1}</div>
+            <img class="row-avatar" src="${item.photo_100 || 'img/logo.png'}" alt="">
+            <div class="row-name">${isMe ? (i18n[lang].lbYou || 'Вы') : item.first_name}</div>
+            <div class="row-score">${item.score}</div>
         `;
-        container.appendChild(row);
-
-        if (isMe) myOriginalRow = row;
+        listContainer.appendChild(row);
     });
 
-    // 2. Если мы нашли себя в списке, создаем "липкую" копию
-    if (myOriginalRow) {
-        const stickyRow = myOriginalRow.cloneNode(true);
-        stickyRow.className = 'leaderboard-row is-me sticky-me';
-        
-        // Применяем стили отображения (как в Яндекс версии)
-        Object.assign(stickyRow.style, {
-            position: 'sticky',
-            bottom: '0',
-            top: 'auto',
-            zIndex: '10',
-            display: 'none', // Скрыта по умолчанию
-            boxShadow: '0 -2px 8px rgba(0,0,0,0.2)',
-            backgroundColor: 'var(--bg-color, #fff)'
-        });
-        
-        container.appendChild(stickyRow);
-
-        // 3. Логика появления через IntersectionObserver
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    // Если оригинал виден — прячем липкую
-                    stickyRow.style.display = 'none';
-                } else {
-                    const rect = myOriginalRow.getBoundingClientRect();
-                    const containerRect = container.getBoundingClientRect();
-
-                    // Если мы ниже зоны видимости — показываем липкую снизу
-                    if (rect.top > containerRect.bottom) {
-                        stickyRow.style.display = 'flex';
-                    } else {
-                        // Если мы выше (пролистали) — скрываем
-                        stickyRow.style.display = 'none';
-                    }
-                }
-            });
-        }, { root: container, threshold: 0.5 });
-
-        observer.observe(myOriginalRow);
-    }
+    container.appendChild(listContainer);
 }
 
 
@@ -2226,7 +2359,86 @@ window.onload = initGame;
     }, { passive: false }); // Важно: false позволяет вызывать preventDefault
 })();
 
+
+
+function updateMenuRecords() {
+    const t = i18n[lang];
+    // Для стандартного режима обычно рекордом считается Макс. Эло
+    const standardRecord = document.getElementById('record-standard-menu');
+    if (standardRecord) {
+        standardRecord.textContent = t.record + ": " + statsMaxElo;
+    }
+    
+    // Для штурма рекордом считается Максимальная серия
+    const survivalRecord = document.getElementById('record-survival-menu');
+    if (survivalRecord) {
+        survivalRecord.textContent = t.record + ": " + statsMaxStreak;
+    }
+}
+
+// ==========================================
+// ХЕЛПЕРЫ ДЛЯ ДВОЙНОГО ИНТЕРФЕЙСА
+// ==========================================
+function updateDualText(id, text) {
+    const el1 = document.getElementById(id); // Например, 'label-score'
+    const el2 = document.getElementById(id + '-l'); // Ищет 'label-score-l'
+    if (el1) el1.textContent = text;
+    if (el2) el2.textContent = text;
+}
+
+function updateDualSrc(id, src) {
+    const el1 = document.getElementById(id);
+    const el2 = document.getElementById(id + '-l');
+    if (el1) el1.src = src;
+    if (el2) el2.src = src;
+}
+
+function updateDualColor(id, color) {
+    const el1 = document.getElementById(id);
+    const el2 = document.getElementById(id + '-l');
+    if (el1) el1.style.color = color;
+    if (el2) el2.style.color = color;
+}
+
+
+
+function setBoardTheme(theme) {
+    // 1. Удаляем все старые классы тем с body
+    document.body.classList.remove('board-green', 'board-brown', 'board-blue', 'board-grey');
+    
+    // 2. Добавляем новую тему (кроме зеленой, так как она по умолчанию)
+    if (theme !== 'green') {
+        document.body.classList.add('board-' + theme);
+    }
+    
+    // 3. Подсвечиваем активный кружочек в меню
+    document.querySelectorAll('.theme-dot').forEach(dot => {
+        dot.classList.remove('active');
+    });
+    const activeDot = document.querySelector('.dot-' + theme);
+    if (activeDot) activeDot.classList.add('active');
+    
+    // 4. Сохраняем выбор
+    localStorage.setItem('chess-board-theme', theme);
+    
+    // 5. Перерисовываем доску, чтобы обновились координаты и прочее
+    if (typeof renderBoard === 'function') renderBoard();
+    
+    if (Platform.vibrate) Platform.vibrate('move');
+}
+
+function loadSavedBoardTheme() {
+    const savedTheme = localStorage.getItem('chess-board-theme') || 'green';
+    setBoardTheme(savedTheme);
+}
+
 </script>
-<script src="capture-frenzy.js"></script>
 </body>
 </html>
+
+
+
+
+
+
+

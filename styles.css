@@ -16,8 +16,77 @@
             --gray-1000: #fff;
             --gray-1100: #555E60;
             --gray-1200: #3d4041;
+            --gray-1010: #836953;
+            --dak-ui: #769656;
+
+
+                --gm-bg-base: #eeeeee;       
+    --gm-bg-pattern: #e2e2e2;    
+    --gm-vignette: #d1d1d1;      
+    
+    --gm-title-color: #1a1a1a;   
+    --gm-subtitle-color: #4a4a4a;
+    --gm-line-color: #a0a0a0;
+    --gm-title-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    
+    --gm-btn-primary-bg: #272727; 
+    --gm-btn-primary-text: #fcfcfc;
+    --gm-btn-primary-shadow: 0 4px 15px rgba(231, 231, 231, 0.6);
+    
+    --gm-btn-secondary-bg: rgba(218, 218, 218, 0.8);
+    --gm-btn-secondary-border: rgba(0, 0, 0, 0.1);
+    --gm-btn-secondary-text: #383838e0;
+    
+    --gm-tool-bg: rgba(255, 255, 255, 0.8);
+    --gm-tool-icon: #4a4a4a;
+    --gm-tool-text: #666666;
+    
+    --gm-piece-color: #000000;
+    --gm-piece-opacity: 0.04;
         }
 
+.dark-mode {
+    --gray-100: #262625;
+    /*--gray-100: #161512; /* Глубокий темный фон страницы */
+    --gray-200: #312e2b; /* Цвет границ */
+    --gray-400: #bababa;
+    --gray-500: #959492;
+    --gray-700: #374151; /* Белый текст */
+    --gray-800: #ffffff;
+    --gray-900: #ebebeb;
+
+    /* Доска в темной теме остается той же зеленой, 
+       либо можно чуть приглушить яркость (по желанию) */
+    --board-light: #eeeed2;
+    --board-dark: #769656;
+    --dak-ui: #769656;
+    background-image: none;
+    background-color: #161512;
+
+        --gm-bg-base: #202020;
+    --gm-bg-pattern: #1c1c1ccc;
+    --gm-vignette: #0f0f0f;
+    
+    --gm-title-color: #f0eeec;   
+    --gm-subtitle-color: #e5e0d8; 
+    --gm-line-color: #e5e0d8;
+    --gm-title-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    
+    --gm-btn-primary-bg: #e6e6e6; 
+    --gm-btn-primary-text: #0e0e0e;
+    --gm-btn-primary-shadow: 0 4px 15px rgba(118, 150, 86, 0.2);
+    
+    --gm-btn-secondary-bg: rgba(43, 43, 43, 0.8);
+    --gm-btn-secondary-border: rgba(255, 255, 255, 0.05);
+    --gm-btn-secondary-text: #e4e4e4;
+    
+    --gm-tool-bg: rgba(41, 40, 40, 0.8);
+    --gm-tool-icon: #b0b0b0;
+    --gm-tool-text: #666666;
+    
+    --gm-piece-color: #ffffff;
+    --gm-piece-opacity: 0.03;
+}
 
 /* --- ПРОФИЛЬ НАД ДОСКОЙ --- */
 /* --- БАЗОВЫЕ СТИЛИ ПРОФИЛЯ (СМАРТФОН) --- */
@@ -30,12 +99,12 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: min(80vw, 45vh);
+    width: min(80vw, 49vh);
     /*min-width: min(85vw, 72vh);*/
     margin-bottom: 3vw;
     padding: 1.5vh 3.3vw;
     box-sizing: border-box;
-    background-color: #ffffff;
+    background-color: var(--gray-1000);
     border-radius: 8vw;
 }
 
@@ -47,13 +116,7 @@
     order: 1; /* Статистика под доской */
 }
 
-#board {
-    display: grid;
-    grid-template-columns: repeat(8, 1fr);
-    grid-template-rows: repeat(8, 1fr);
-    width: 100%;
-    aspect-ratio: 1 / 1; /* Обязательно для шахматной доски */
-}
+
 .user-info {
     display: flex;
     align-items: center;
@@ -65,7 +128,7 @@
     height: 6vh;
     border-radius: 50%;
     object-fit: cover;
-    background-color: #374151;
+    background-color: var(--board-dark);
     /*box-shadow: 0 2px 5px rgba(0,0,0,0.1);*/
 }
 
@@ -110,7 +173,7 @@
     width: 10vw;
     height: 10vw;
     border-radius: 50%;
-    background: var(--gray-1100);
+    background: var(--board-dark);
     border: none;
     /*box-shadow: 0 3px 0 var(--gray-200);*/
     display: flex;
@@ -124,8 +187,8 @@
     transform: translateY(3px);
     box-shadow: 0 0px 0 var(--gray-200);
 }
-.btn-stats svg { width: 6.5vw;
-    height: 6.5vw;}
+.btn-stats svg { width: 5.7vw;
+    height: 5.7vw;}
 
 /* --- МОДАЛЬНОЕ ОКНО СТАТИСТИКИ --- */
 .modal-overlay {
@@ -143,7 +206,7 @@
 .modal-overlay.hidden { display: none !important; opacity: 0; }
 
 .modal-box {
-    background: white;
+    background: var(--gray-100);
     padding: 24px;
     border-radius: 20px;
     width: 85%;
@@ -171,13 +234,13 @@
 
 .btn-close-modal {
     margin-top: 8px;
-    background: var(--gray-200);
+    background: var(--dak-ui);
     border: none;
     padding: 12px;
     border-radius: 12px;
     font-weight: bold;
     font-size: 16px;
-    color: var(--gray-800);
+    color: #fff;
     cursor: pointer;
 }
 .btn-close-modal:active { background: var(--gray-400); }
@@ -432,24 +495,20 @@ html, body {
             opacity: 0.5;
         }
 
-        /* --- ДОСКА --- */
         #board-wrapper { position: relative; }
 
-/* Найти и заменить стиль .chess-board */
+
 .chess-board { 
     display: grid; 
     grid-template-columns: repeat(8, 1fr); 
     grid-template-rows: repeat(8, 1fr); 
-    width: min(97vw, 85vh); /* Используем одинаковые размеры */
+    width: min(97vw, 85vh);
     height: min(97vw, 85vh);
-    aspect-ratio: 1 / 1; /* Жестко фиксируем пропорции */
-    /*border-radius: 4px; */
+    aspect-ratio: 1 / 1;
+
     overflow: hidden; 
     position: relative; 
     box-shadow: 0 1px 10px rgba(0, 0, 0, 0.2);
-    /* Добавляем, чтобы предотвратить схлопывание */
-    /*min-width: min(97vw, 72vh);
-    min-height: min(97vw, 72vh);*/
 }
 
         .square { display: flex; align-items: center; justify-content: center; position: relative; }
@@ -468,64 +527,78 @@ html, body {
             z-index: 10; cursor: grab; position: absolute; top: 1%; left: 1%;
         }
 
-/* Убираем зазор между кнопками, чтобы они состыковались */
+
 .bottom-bar {
     display: flex;
     justify-content: center;
-    gap: 2vw; /* Убираем промежуток */
+    gap: 1.5vw; 
 }
 
 .top-btn {
-    border-radius: 1vw 7vw 7vw 1vw;
+    border-radius: 1vw 5vw 7vw 1vw;
     font-size: 5vw;
     padding: 4vw 7vw;
     background-color: var(--gray-1000);
     border: none;
     box-shadow: 0 4px 0 #b9bdc3;
     color: var(--gray-1100);
-    font-weight: 900;
+    font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.1em;
     transition: transform 0.1s, box-shadow 0.1s;
     cursor: pointer;
     outline: none;
     position: relative;
-    display: flex; /* Чтобы иконка и текст были в ряд */
-    align-items: center; /* Центровка по вертикали */
-    justify-content: center; /* Центровка по горизонтали */
-    gap: 2vw; /* Расстояние между иконкой и текстом */
+    display: flex;
+    align-items: center; 
+    justify-content: center;
+    gap: 2vw;
 }
 
-/* Найти и заменить эти стили в блоке <style> */
+
 .btn-hint {
-    background-color: var(--gray-1100);
+    background-color: var(--board-dark);
     border: none;
-    box-shadow: 0 4px 0 var(--gray-1200);
+    box-shadow: 0 4px 0 var(--gray-1010);
     color: var(--gray-1000);
     padding: 4vw 7vw;
     border-radius: 7vw 1vw 1vw 7vw;
-    font-weight: 900;
+    font-weight: 800;
     font-size: 5vw;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.04em;
     transition: transform 0.1s, box-shadow 0.1s;
     cursor: pointer;
     outline: none;
     position: relative;
-    display: flex; /* Чтобы иконка и текст были в ряд */
-    align-items: center; /* Центровка по вертикали */
-    justify-content: center; /* Центровка по горизонтали */
-    gap: 2vw; /* Расстояние между иконкой и текстом */
+    display: flex;
+    align-items: center;
+    justify-content: center; 
+    gap: 2vw; 
 
 }
-
+.btn-stats svg{
+    width: 5vh;
+    height: 5vh;
+}
 .video-icon svg {
-    width: 6vw;
-    height: 6vw;
+    width: 5vh;
+    height: 5vh;
     display: block;
-    fill: currentColor; /* Иконка примет цвет текста кнопки */
+    fill: currentColor;
 }
 
+.top-btn svg {
+    width: 5vh;
+    height: 5vh;
+    display: block;
+    fill: currentColor;
+}
+.video-icon-desk {
+        /*width: 3vw;
+    height: 3vw;*/
+    fill: currentColor;
+}
 .btn-hint:active {
     /* Не меняем размер, только смещаем и уменьшаем тень */
     box-shadow: 0 0px 0 var(--gray-200);
@@ -592,17 +665,14 @@ html, body {
     pointer-events: none;
     z-index: 1000;
     display: none;
-    /* Центрируем фигуру относительно курсора/пальца */
     transform: translate(-50%, -50%); 
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
-    /* Можно добавить небольшую прозрачность, чтобы видеть клетку под фигурой */
     opacity: 0.9;
     transition: transform 0.05s linear;
 }
 
-/* Точка для пустого поля */
 .hint-dot {
     position: absolute;
     width: 25%;
@@ -613,7 +683,6 @@ html, body {
     pointer-events: none;
 }
 
-/* Кольцо для захвата фигуры */
 .hint-ring {
     position: absolute;
     width: 90%;
@@ -625,7 +694,6 @@ html, body {
     box-sizing: border-box;
 }
 
-/* Стили для координат */
 .square .coord {
     position: absolute;
     font-size: min(2.5vw, 2vh);
@@ -713,18 +781,14 @@ html, body {
     transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s;
 }
 
-/* Эффект вращения при появлении */
 #theme-toggle:active .theme-icon {
     transform: scale(0.7) rotate(45deg);
 }
 
-/* Плавный переход для всех цветов при смене темы */
 * {
     transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
-/* Чтобы анимация не мешала во время игры, 
-   ограничим transition только для UI элементов */
 .piece, .square { transition: none; }
 
 
@@ -813,15 +877,6 @@ html, body {
     }
 }
 
-@media (min-aspect-ratio: 2/3) and (max-aspect-ratio: 4/5) {
-
-
-}
-
-
-@media (min-aspect-ratio: 4/5) and (max-aspect-ratio: 4/4) {
-
-}
 
 /* --- Ультра-длинные (21:9, 20:9) --- */
 @media (max-aspect-ratio: 32/100) { 
@@ -859,22 +914,80 @@ html, body {
 
     .btn-hint {
         font-size: 5vw;
-        padding: 4vw 8vw;
-        border-radius: 7vw 1vw 1vw 7vw;
+        padding: 3.5vw 6vw;
+        border-radius: 7vw 1vw 1vw 5vw;
     }
     .game-container {
         gap: 3vw;
     }
     #profile-header {
-        border-radius: 95px;
+        border-radius: 7vw 7vw 7vw 7vw;
         margin-bottom: 4vw;
+    }
+}
+
+@media (min-aspect-ratio: 62/100) { 
+
+    #user-name {
+        font-size: min(4.5vw, 2.5vh);
+        max-width: 28vw;
+    }
+    .btn-hint {
+        font-size: 5vw;
+        padding: 3.4vw 6vw;
+        border-radius: 7vw 1vw 1vw 5vw;
+    }
+    #profile-header {
+        padding: 1.5vh 2.4vw;
+        margin-bottom: 3vw;
+    }
+
+    .chess-board {
+        width: 100vw;
+        height: 100vw;
+        border-radius: 0vw;
+    }
+    .side-panel {
+        gap: 2vw;
+    }
+    .stat-label {
+        font-size: 3.7vw;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+    .stat-value {
+        font-size: 6vw;
+        font-weight: 900;
+    }
+
+    .bottom-bar {
+        display: flex;
+        justify-content: center;
+        gap: 1.3vw
+    }
+
+    .top-btn {
+        font-size: 5vw;
+        padding: 3vw 6vw;
+        border-radius: 1vw 5vw 7vw 1vw;
+    }
+    .btn-stats, .btn-theme {
+        width: 6vh;
+        height: 6vh;
+        border-radius: 50%;
+    }
+    .game-container {
+        gap: 1vh;
     }
 }
 
 /* --- Широкие смартфоны (iPhone 8, старые Android 3:2) --- */
 /* Соотношение 0.63 - 0.72 */
-@media (min-aspect-ratio: 63/100) { 
-
+@media (min-aspect-ratio: 69/100) { 
+    .btn-stats svg {
+        width: 6.5vw;
+        height: 6.5vw;
+    }
     #user-name {
         font-size: min(4.5vw, 2.5vh);
         max-width: 28vw;
@@ -886,8 +999,8 @@ html, body {
     }
 
     .chess-board {
-        width: 85vw;
-        height: 85vw;
+        width: 95vw;
+        height: 95vw;
         border-radius: 1vw;
     }
         /* Шрифты ЧИСТО НА VW */
@@ -913,12 +1026,12 @@ html, body {
     .btn-hint {
         font-size: 3.4vw;
         padding: 3vw 6vw;
-        border-radius: 7vw 1vw 1vw 7vw;
+        border-radius: 7vw 1vw 1vw 5vw;
     }
     .top-btn {
         font-size: 3.4vw;
         padding: 3vw 6vw;
-        border-radius: 1vw 7vw 7vw 1vw;
+        border-radius: 1vw 5vw 7vw 1vw
     }
     .btn-stats, .btn-theme {
         width: 6vh;
@@ -926,7 +1039,7 @@ html, body {
         border-radius: 50%;
     }
     .game-container {
-        gap: 4vw;
+        gap: 1vh;
     }
 }
 
@@ -1104,10 +1217,10 @@ html, body {
     }
 
     .dark-mode .stat-card {
-        background-color:var(--gray-1100); /* Фирменный цвет панелей Chess.com */
+        /*background-color:var(--gray-1100); /* Фирменный цвет панелей Chess.com */
         color: #ffffff;
         border: none;
-        box-shadow: 0 4px 0 var(--gray-1200); /* Темная тень под кнопками */
+        /*box-shadow: 0 4px 0 var(--gray-1200); /* Темная тень под кнопками */
     }
 }
 
@@ -1369,24 +1482,7 @@ html, body {
 }
 
 /* --- ТЕМНАЯ ТЕМА (CHESS.COM STYLE) --- */
-.dark-mode {
-    --gray-100: #262625;
-    /*--gray-100: #161512; /* Глубокий темный фон страницы */
-    --gray-200: #312e2b; /* Цвет границ */
-    --gray-400: #bababa;
-    --gray-500: #959492;
-    --gray-700: #374151; /* Белый текст */
-    --gray-800: #ffffff;
-    --gray-900: #ebebeb;
 
-    /* Доска в темной теме остается той же зеленой, 
-       либо можно чуть приглушить яркость (по желанию) */
-    --board-light: #eeeed2;
-    --board-dark: #769656;
-
-    background-image: none;
-    background-color: #161512;
-}
 
 
 .dark-mode .modal-box h2 {
@@ -1398,13 +1494,13 @@ html, body {
 .dark-mode .modal-box,
 .dark-mode .btn-hint,
 .dark-mode #promotion-dialog {
-    background-color: var(--gray-900); /* Фирменный цвет панелей Chess.com */
+    /*background-color: var(--gray-900); /* Фирменный цвет панелей Chess.com */
     color: #161512;
     border: none;
     box-shadow: 0 4px 0 #262625; /* Темная тень под кнопками */
 }
 .dark-mode .btn-theme {
-background: #769656;
+background: var(--board-dark);
     color: white;
     box-shadow: 0 0 0 #637d49;
 }
@@ -1415,7 +1511,7 @@ background: #769656;
     transform: translateY(4px);
 }
 .dark-mode .btn-stats {
-    background: #769656;
+    background: var(--board-dark);
     color: white;
     /*box-shadow: 0 0 0 #637d49;*/
 }
@@ -1425,9 +1521,9 @@ background: #769656;
 
 /* Специальный стиль для кнопки подсказки в темной теме (зеленоватая) */
 .dark-mode .btn-hint {
-    background-color: #769656;
+    background-color: var(--board-dark);
     color: #fff;
-    box-shadow: 0 4px 0 #637d49;
+    box-shadow: 0 4px 0 var(--gray-1010);
 }
 .dark-mode .btn-hint:active {
     box-shadow: 0 0px 0 #457520;
@@ -1437,16 +1533,9 @@ background: #769656;
 }
 .dark-mode .top-btn {
     background-color: var(--gray-900);
-    color: #769656;
-    box-shadow: 0 4px 0 #637d49
+    color: var(--gray-1200);
+    box-shadow: 0 4px 0 #b9bdc3
 }
-/*
-.dark-mode .top-btn, .btn-stats {
-    background-color: var(--board-dark) !important;
-    color: var(--gray-900) !important;
-    box-shadow: 0 4px 0 #637d49 ;
-}*/
-
 
 
 
@@ -1475,7 +1564,7 @@ background: #769656;
     background: #fff;
 }
 .dark-mode .leaderboard-row {
-    background: var(--gray-900);
+    background: var(--card-bg);
 }
 
 /* Подсветка самого игрока в списке */
@@ -1520,17 +1609,14 @@ background: #769656;
 
 @media (orientation: landscape) {
 
-    /* Показываем кнопку статистики в bottom-bar */
     .bottom-bar .landscape-only {
         display: flex !important;
     }
 
-    /* Прячем кнопку статистики в профиле */
     #profile-header .btn-stats:not(.landscape-only) {
         display: none;
     }
 
-    /* Статистика и Топ — в один ряд под профилем */
     .bottom-bar {
         display: flex;
         flex-direction: row;
@@ -1538,12 +1624,10 @@ background: #769656;
         order: -1;
     }
 
-    /* Прячем оригинальную кнопку помощь из bottom-bar */
     .bottom-bar .btn-hint {
         display: none;
     }
 
-    /* Показываем отдельную кнопку помощь внизу */
     .hint-landscape {
         display: flex !important;
     }
@@ -1567,19 +1651,17 @@ background: #769656;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 2.5vh;
+    gap: 4vh;
 }
 
 .menu-header { 
     text-align: center;
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     align-items: center;
-    gap: 2vh;
  }
 .menu-logo { width: 120px; height: 120px; animation: bounce 2s infinite ease-in-out; }
 .menu-title { font-size: 20px; 
-    /*font-weight: 900;*/ 
     color: var(--gray-1200); 
     margin-top: 10px;
      line-height: 1.1; 
@@ -1597,9 +1679,9 @@ background: #769656;
 }
 
 .btn-play-big {
-    width: 130px;
-    height: 130px;
-    border-radius: 25px;
+    width: 35vw;
+    height: 43vw;
+    border-radius: 6vw;
     border: none;
     background-color: #769656;
     color: white;
@@ -1608,12 +1690,12 @@ background: #769656;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 2px;
+    gap: 0px;
     cursor: pointer;
     transition: transform 0.1s, box-shadow 0.1s;
 }
 .btn-play-big svg { width: 48px; height: 48px; }
-.btn-play-big span { font-weight: 900; font-size: 14px; letter-spacing: 0.5px;}
+.btn-play-big span { font-weight: 900; font-size: 4.5vw; letter-spacing: 0.5px; margin-top: -2vw;}
 
 .btn-play-big.btn-survival {
     background-color: #ef4444; /* Красный для выживания */
@@ -1622,12 +1704,12 @@ background: #769656;
 
 .btn-play-big:active { transform: translateY(8px); box-shadow: 0 0px 0 transparent; }
 
-.menu-tools { display: flex; gap: 1.5vh; margin-top: 1vh; }
+.menu-tools { display: flex; gap: 1.5vh; }
 
 .menu-tool-btn {
-    width: 60px;
-    height: 60px;
-    border-radius: 16px;
+    width: 16vw;
+    height: 16vw;
+    border-radius: 4vw;
     border: none;
     background-color: var(--gray-1100);
     color: white;
@@ -1643,14 +1725,12 @@ background: #769656;
     color: #484544;
     box-shadow: 0 5px 0 #a5a5a5;
 }
-.menu-tool-btn svg { width: 30px; height: 30px; }
+.menu-tool-btn svg { width: 9vw; height: 9vw; }
 .menu-tool-btn:active { transform: translateY(5px); box-shadow: 0 0px 0 transparent; }
 
-/* В темной теме корректируем цвета меню */
 .dark-mode #main-menu { background-color: var(--gray-100); }
 .dark-mode .menu-title { color: white; }
 
-/* --- ВЫПАДАЮЩЕЕ МЕНЮ НАСТРОЕК --- */
 #settings-dropdown {
     position: absolute;
     background: white;
@@ -1750,16 +1830,16 @@ background: #769656;
 .menu-board-preview {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    width: 125px;
-    height: 125px;
+    width: 30vw;
+    height: 30vw;
     /*margin-bottom: 1rem;*/
-    border-radius: 12px;
+    border-radius: 4vw;
     overflow: hidden;
     /* Тень, чтобы выглядело как элемент игры */
-    box-shadow: 0 8px 0px rgb(185 185 185);
+    box-shadow: 0 5px 0px rgb(185 185 185);
 }
 .dark-mode .menu-board-preview {
-    box-shadow: 0 8px 0px rgb(71 71 71);
+    box-shadow: 0 5px 0px rgb(71 71 71);
 }
 
 .m-sq {
@@ -1782,10 +1862,13 @@ background: #769656;
 
 
 @media (orientation: landscape) {
-
+.btn-play-big span {
+    margin-top: -2vh;
+}
 .btn-play-big {
-    width: 180px;
-    height: 180px;
+    width: 23vh;
+    height: 28vh;
+    border-radius: 4vh;
 }
 .btn-play-big svg {
     width: 91px;
@@ -1793,20 +1876,23 @@ background: #769656;
 }
 .btn-play-big span {
     font-weight: 900;
-    font-size: 16px;
+    font-size: 3vh;
     letter-spacing: 0.5px;
+    
 }
 .menu-tool-btn {
-    width: 80px;
-    height: 80px;
+    width: 10vh;
+    height: 10vh;
+    border-radius: 2.3vh;
 }
 .menu-tool-btn svg {
-    width: 45px;
-    height: 45px;
+    width: 6vh;
+    height: 6vh;
 }
 .menu-board-preview {
-    width: 180px;
-    height: 180px;
+    width: 20vh;
+    height: 20vh;
+    border-radius: 3vh;
 }
 }
 
@@ -1835,5 +1921,388 @@ background: #769656;
 .piece-badge svg {
     width: 70%;
     height: 70%;
+
 }
 
+
+/* --- НОВЫЕ ПЕРЕМЕННЫЕ (Глобально) --- */
+:root {
+    --card-bg: #f8f8f8;
+    --text-main: #312e2b;
+    --text-gray: #8b8987;
+    --green-accent: #2d5f43;
+    --green-hover: #3d7a58;
+}
+
+.dark-mode {
+    --card-bg: #303030;
+    --text-main: #ffffff;
+    --text-gray: #ababab;
+}
+
+/* --- БАЗОВАЯ ЛОГИКА ОТОБРАЖЕНИЯ (ПОРТРЕТ ПО УМОЛЧАНИЮ) --- */
+.portrait-only {
+    display: contents; /* Сохраняем твою идеальную сетку портрета */
+}
+.landscape-only {
+    display: none !important;
+}
+
+/* --- АЛЬБОМНАЯ ВЕРСИЯ (PC и Планшеты) --- */
+@media (orientation: landscape) {
+    .portrait-only {
+        display: none !important;
+    }
+    
+    .landscape-only {
+        display: flex !important;
+        flex-direction: column;
+        gap: 1.3vh;
+        width: 100%;
+    }
+
+    /* Все твои новые стили для альбомной ориентации */
+    .panel-card {
+        background: var(--card-bg);
+        border-radius: 1.2vw;
+        padding: 1.6vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .user-profile-card {
+        flex-direction: row;
+        gap: 1.5vh;
+        align-items: center;
+        position: relative;
+    }
+    #user-avatar-l {
+        width: 6vh;
+        height: 6vh;
+        border-radius: 1.2vh;
+        background: var(--board-dark);
+        object-fit: cover;
+    }
+    .user-info-text { display: flex; flex-direction: column; align-items: flex-start; }
+    #user-name-l { font-size: 2.2vh; font-weight: 800; color: var(--text-main); }
+    .label-best-elo { font-size: 1.5vh; color: var(--text-gray); }
+    
+    .rating-main-card { padding: 2vh; }
+    .label-small { font-size: 1.7vh; color: var(--text-gray); text-transform: uppercase; letter-spacing: 0.5px; }
+    .rating-big-value { font-size: 8vh; font-weight: 900; color: var(--text-main); margin: 5px 0; }
+    
+    .stats-list-card { align-items: stretch; gap: 1vh; }
+    .stat-item { display: flex; align-items: baseline; justify-content: space-between; font-size: 2vh; color: var(--gm-btn-secondary-text); }
+    .stat-item span:last-child { font-weight: 800; color: var(--text-main); font-size: 1.7vw; }
+    .dot-leader { flex-grow: 1; border-bottom: 2px dotted var(--text-gray); margin: 0 8px; position: relative; top: -4px; }
+    .stat-subtext { font-size: 1vw; color: var(--text-gray); margin-top: -6px; margin-bottom: 5px; }
+    #user-winrate-l { color: var(--board-dark) !important; }
+    
+    .action-grid { display: grid; grid-template-columns: 1fr 6vw; gap: 1vw; }
+    .btn-action {
+        border: none; border-radius:1.3vw; color: white; font-weight: 800;
+        display: flex; align-items: center; justify-content: center; gap: .4vw;
+        cursor: pointer; transition: transform 0.1s, background 0.2s; height: 7.5vh;
+    }
+    .btn-action:active { transform: scale(0.96); }
+    .btn-action svg {
+        width: 4vh;
+    }
+    .green-btn { background: var(--board-dark); }
+    .green-btn:hover { background: var(--board-dark); }
+    .btn-help { grid-column: span 2; font-size: 2.2vh; }
+    .btn-top { font-size: 2.2vh; }
+
+    .btn-settings-small {
+        position: absolute;
+        top: 30%;
+        right: 5%;
+        background: transparent;
+        border: none;
+        color: var(--gm-btn-secondary-text);
+        cursor: pointer;
+        width: 3vw;
+        height: 3vw;
+        padding: 0;
+        transition: color 0.2s, transform 0.2s;
+        display: flex; align-items: center; justify-content: center;
+    }
+    .btn-settings-small:hover {
+        color: var(--text-main);
+        transform: rotate(45deg);
+    }
+    .btn-settings-small svg { width: 100%; height: 100%; }
+}
+
+
+
+
+
+body {
+    background-color: var(--gm-bg-base); 
+    background-image: 
+        radial-gradient(ellipse at 50% 50%, var(--gm-bg-base) 70%, transparent 100%),
+        linear-gradient(45deg, var(--gm-bg-pattern) 25%, transparent 25%, transparent 75%, var(--gm-bg-pattern) 75%, var(--gm-bg-pattern)),
+        linear-gradient(45deg, var(--gm-bg-pattern) 25%, transparent 25%, transparent 75%, var(--gm-bg-pattern) 75%, var(--gm-bg-pattern));
+    background-size: 100% 100%, 90px 90px, 90px 90px;
+    background-position: center, 0 0, 45px 45px;
+    background-repeat: no-repeat, repeat, repeat;
+}
+
+
+#main-menu {
+    position: fixed;
+    inset: 0;
+    background-color: var(--gm-bg-base); 
+    background-image: 
+        radial-gradient(ellipse at 50% 50%, var(--gm-bg-base) 60%, transparent 100%),
+        linear-gradient(45deg, var(--gm-bg-pattern) 25%, transparent 25%, transparent 75%, var(--gm-bg-pattern) 75%, var(--gm-bg-pattern)),
+        linear-gradient(45deg, var(--gm-bg-pattern) 25%, transparent 25%, transparent 75%, var(--gm-bg-pattern) 75%, var(--gm-bg-pattern));
+    background-size: 100% 100%, 90px 90px, 90px 90px;
+    background-position: center, 0 0, 45px 45px;
+    background-repeat: no-repeat, repeat, repeat;
+    z-index: 4000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+
+
+
+/* Текст рекорда на больших кнопках меню */
+.menu-record-text {
+    font-size: 2.6vw; /* Чуть меньше основного текста */
+    font-weight: 100;
+    color: rgba(255, 255, 255, 0.9); /* Белый с легкой прозрачностью */
+    margin: 1.3vw;
+    text-transform: none; /* Чтобы "Рекорд" не был капсом, если не нужно */
+    letter-spacing: 1px;
+}
+
+/* Для альбомной ориентации можно чуть увеличить */
+@media (orientation: landscape) {
+    .menu-record-text {
+    font-size: 1.7vh; /* Чуть меньше основного текста */
+    font-weight: 100;
+    color: rgba(255, 255, 255, 0.9); /* Белый с легкой прозрачностью */
+    margin: 1vh;
+    text-transform: none; /* Чтобы "Рекорд" не был капсом, если не нужно */
+    letter-spacing: 1px;
+    }
+}
+
+
+
+
+
+
+/* Основной контейнер внутри модалки */
+#leaderboard-container {
+    background: var(--gray-100);
+    /*border-radius: 24px;*/
+    /*padding: 10px;*/
+    display: flex;
+    flex-direction: column;
+    gap: 1S2px;
+}
+
+/* --- ПЬЕДЕСТАЛ (ТОП-3) --- */
+.podium-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 15px;
+    padding: 20px 0 10px;
+}
+
+.podium-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    width: 30%;
+}
+
+.podium-avatar-wrapper {
+    position: relative;
+    margin-bottom: 12px;
+}
+
+.podium-avatar {
+    width: 65px;
+    height: 65px;
+    border-radius: 50%;
+    border: 4px solid #81b64c; /* Зеленый из Chess.com */
+    object-fit: cover;
+    background: #eee;
+}
+
+/* Первое место крупнее */
+.podium-item.place-1 .podium-avatar {
+    width: 85px;
+    height: 85px;
+}
+
+/* Бейдж с номером места */
+.rank-badge {
+    position: absolute;
+    bottom: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #81b64c;
+    color: white;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid white;
+}
+
+/* Корона для 1 места */
+.crown-icon {
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 24px;
+    height: 24px;
+    fill: #81b64c;
+}
+
+.podium-name {
+    font-weight: 800;
+    font-size: 13px;
+    color: var(--gray-800);
+    max-width: 80px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.podium-score {
+    font-size: 12px;
+    color: var(--gray-800);
+    font-weight: 600;
+}
+
+/* --- СПИСОК (4-50 МЕСТА) --- */
+.leaderboard-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    overflow-y: auto;
+    max-height: 40vh;
+}
+
+.leaderboard-row {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    border-radius: 16px;
+    background: white;
+    transition: background 0.2s;
+}
+
+.leaderboard-row.is-me {
+    background: #e9f5db; /* Светло-зеленый Duolingo-style */
+}
+
+.row-rank {
+    /*width: 30px;*/
+    font-weight: 900;
+    color: var(--gray-800);
+    font-size: 15px;
+}
+
+.row-avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    /* margin: 0 12px; */
+    object-fit: cover;
+}
+
+.row-name {
+    flex-grow: 1;
+    font-weight: 700;
+    font-size: 17px;
+    color: var(--gray-800);
+}
+
+.row-score {
+    font-weight: 800;
+    font-size: 17px;
+    color: var(--gray-800);
+}
+
+
+
+
+
+
+
+
+/* Стили для выбора цвета в меню */
+.board-theme-picker {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.theme-dot {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 3px solid transparent;
+    transition: transform 0.2s, border-color 0.2s;
+}
+
+.theme-dot:active { transform: scale(0.9); }
+.theme-dot.active { border-color: #81b64c; } /* Подсветка выбранного цвета */
+
+/* Цвета кружочков (превью) */
+.dot-green { background: linear-gradient(135deg, #eeeed2 50%, #769656 50%); }
+.dot-brown { background: linear-gradient(135deg, #f0d9b5 50%, #b58863 50%); }
+.dot-blue  { background: linear-gradient(135deg, #dee3e6 50%, #8ca2ad 50%); }
+.dot-grey  { background: linear-gradient(135deg, #e2e2e2 50%, #949494 50%); }
+
+/* --- ТЕМЫ ДОСКИ --- */
+/* По умолчанию (Зеленая) */
+:root {
+    --board-light: #eeeed2;
+    --board-dark: #769656;
+    --gray-1010: #5c7147;
+}
+
+/* Коричневая */
+body.board-brown {
+    --board-light: #f0d9b5;
+    --board-dark: #b58863;
+    --gray-1010: #836953;
+}
+
+/* Голубая */
+body.board-blue {
+    --board-light: #dee3e6;
+    --board-dark: #8ca2ad;
+    --gray-1010: #616f76;
+}
+
+/* Серая */
+body.board-grey {
+    --board-light: #e2e2e2;
+    --board-dark: #949494;
+    --gray-1010: #6b6b6b;
+}
+
+/* ВАЖНО: Удаляем из .dark-mode принудительную смену цветов доски, 
+   чтобы она не перекрывала наш выбор! */
