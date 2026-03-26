@@ -18,6 +18,7 @@
             --gray-1200: #3d4041;
             --gray-1010: #836953;
             --dak-ui: #769656;
+            --gray-1001: #fff;
 
 
                 --gm-bg-base: #eeeeee;       
@@ -64,8 +65,8 @@
     background-image: none;
     background-color: #161512;
 
-        --gm-bg-base: #202020;
-    --gm-bg-pattern: #1c1c1ccc;
+        --gm-bg-base: #1d1d1d;
+    --gm-bg-pattern: #1c1c1c3f;
     --gm-vignette: #0f0f0f;
     
     --gm-title-color: #f0eeec;   
@@ -105,7 +106,7 @@
     margin-bottom: 3vw;
     padding: 1.5vh 3.3vw;
     box-sizing: border-box;
-    background-color: var(--gray-1000);
+    background-color: var(--gray-1001);
     border-radius: 8vw;
 }
 
@@ -143,7 +144,7 @@
 }
 
 #user-name {
-    font-size: min(4.5vw, 3vh); /* Чуть уменьшили, чтобы влезло две строки */
+    font-size: min(5vw, 3vh); /* Чуть уменьшили, чтобы влезло две строки */
     font-weight: 800;
     color: var(--gray-1200);
     max-width: 30vw;
@@ -538,7 +539,7 @@ html, body {
 .top-btn {
     border-radius: 1vw 5vw 7vw 1vw;
     font-size: 5vw;
-    padding: 4vw 7vw;
+    padding: 3.5vw 4.5vw;
     background-color: var(--gray-1000);
     border: none;
     box-shadow: 0 4px 0 #b9bdc3;
@@ -553,7 +554,7 @@ html, body {
     display: flex;
     align-items: center; 
     justify-content: center;
-    gap: 2vw;
+    gap: 1vw;
 }
 
 
@@ -562,7 +563,7 @@ html, body {
     border: none;
     box-shadow: 0 4px 0 var(--gray-1010);
     color: var(--gray-1000);
-    padding: 4vw 7vw;
+    padding: 3.5vw 4.5vw;
     border-radius: 7vw 1vw 1vw 7vw;
     font-weight: 800;
     font-size: 5vw;
@@ -575,16 +576,16 @@ html, body {
     display: flex;
     align-items: center;
     justify-content: center; 
-    gap: 2vw; 
+    gap: 1vw; 
 
 }
 .btn-stats svg{
-    width: 5vh;
-    height: 5vh;
+    width: 4.5vh;
+    height: 4.5vh;
 }
 .video-icon svg {
-    width: 5vh;
-    height: 5vh;
+    width: 4.5vh;
+    height: 4.5vh;
     display: block;
     fill: currentColor;
 }
@@ -912,17 +913,19 @@ html, body {
         display: flex;
         justify-content: center;
     }
-
+    .top-btn {
+        padding: 3.9vw 4.5vw;
+    }
     .btn-hint {
         font-size: 5vw;
-        padding: 3.5vw 6vw;
+        padding: 3.9vw 4.5vw;
         border-radius: 7vw 1vw 1vw 5vw;
     }
     .game-container {
         gap: 3vw;
     }
     #profile-header {
-        border-radius: 7vw 7vw 7vw 7vw;
+        border-radius: 8vw;
         margin-bottom: 4vw;
     }
 }
