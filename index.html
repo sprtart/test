@@ -334,7 +334,7 @@
 
 <div id="tutorial-modal" class="modal-overlay hidden">
     <div class="modal-box">
-        <h2 id="tut-title" data-i18n="howToPlay">Как играть?</h2>
+        <h2 id="tut-title" data-i18n="howToPlay" style="color: var(--gray-800);">Как играть?</h2>
         <div id="tut-content" style="font-size: 15px; color: var(--gray-800); line-height: 1.5;">
             <!-- Сюда будем динамически вставлять текст в зависимости от режима -->
             <p id="tut-text"></p>
@@ -993,6 +993,8 @@ function goHome() {
     const lbModal = document.getElementById('leaderboard-modal');
     if (lbModal) lbModal.classList.add('hidden');
     
+    updateMenuRecords();
+
     // 4. ПОКАЗЫВАЕМ ГЛАВНОЕ МЕНЮ
     const mainMenu = document.getElementById('main-menu');
     if (mainMenu) {
@@ -2026,6 +2028,7 @@ function updateRightPanelUI() {
     const winrate = totalAttempts > 0 ? Math.round((statsTotalSolved / totalAttempts) * 100) : 0;
     updateDualText('user-winrate', winrate + '%');
     updateDualColor('user-winrate', winrate > 70 ? '#16a34a' : '#8b8987');
+    updateMenuRecords();
 }
 
 function showPieceBadge(pos, type) {
@@ -2272,22 +2275,19 @@ function renderTopList(items) {
     }
 
     const myId = (Platform.user && Platform.user.id) ? String(Platform.user.id) : null;
+    let myOriginalRow = null; // Здесь сохраним ссылку на твою реальную строку в списке
 
-    // 1. СОЗДАЕМ ПЬЕДЕСТАЛ (Топ-3)
+    // 1. ПЬЕДЕСТАЛ (Топ-3)
     const podiumContainer = document.createElement('div');
     podiumContainer.className = 'podium-container';
-
-    // Порядок на пьедестале: 2-е место, 1-е место, 3-е место
     const podiumOrder = [1, 0, 2]; 
     
     podiumOrder.forEach(idx => {
         const p = items[idx];
         if (!p) return;
-
         const isMe = (myId && String(p.user_id) === myId);
         const item = document.createElement('div');
         item.className = `podium-item place-${idx + 1} ${isMe ? 'is-me' : ''}`;
-        
         item.innerHTML = `
             <div class="podium-avatar-wrapper">
                 ${idx === 0 ? '<svg class="crown-icon" viewBox="0 0 24 24"><path d="M5 16L3 5L8.5 10L12 4L15.5 10L21 5L19 16H5Z"/></svg>' : ''}
@@ -2299,20 +2299,18 @@ function renderTopList(items) {
         `;
         podiumContainer.appendChild(item);
     });
-
     container.appendChild(podiumContainer);
 
-    // 2. СОЗДАЕМ СПИСОК (с 4-го места)
+    // 2. СПИСОК (4-50 места)
     const listContainer = document.createElement('div');
     listContainer.className = 'leaderboard-list';
 
     items.forEach((item, index) => {
-        if (index < 3) return; // Пропускаем тех, кто на пьедестале
+        if (index < 3) return; 
 
         const isMe = (myId && String(item.user_id) === myId);
         const row = document.createElement('div');
         row.className = `leaderboard-row ${isMe ? 'is-me' : ''}`;
-        
         row.innerHTML = `
             <div class="row-rank">${index + 1}</div>
             <img class="row-avatar" src="${item.photo_100 || 'img/logo.png'}" alt="">
@@ -2320,11 +2318,42 @@ function renderTopList(items) {
             <div class="row-score">${item.score}</div>
         `;
         listContainer.appendChild(row);
+
+        // Если это строка текущего игрока - запоминаем её
+        if (isMe) myOriginalRow = row;
     });
-
     container.appendChild(listContainer);
-}
 
+    // 3. ЛОГИКА ЛИПКОЙ СТРОКИ
+    // Если игрок найден в списке (не на пьедестале), создаем "липкий" дубликат
+    if (myOriginalRow) {
+        const stickyRow = myOriginalRow.cloneNode(true);
+        stickyRow.classList.add('sticky-me');
+        container.appendChild(stickyRow);
+
+        // Настраиваем слежку: если реальная строка ушла из видимости - показываем липкую
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                // Если реальная строка НЕ видна
+                if (!entry.isIntersecting) {
+                    const rect = myOriginalRow.getBoundingClientRect();
+                    const contRect = listContainer.getBoundingClientRect();
+                    // Показываем липкую, только если мы ниже текущего экрана
+                    if (rect.top > contRect.bottom) {
+                        stickyRow.style.display = 'flex';
+                    } else {
+                        stickyRow.style.display = 'none';
+                    }
+                } else {
+                    // Если реальную строку видно - прячем дубликат
+                    stickyRow.style.display = 'none';
+                }
+            });
+        }, { root: listContainer, threshold: 0.1 });
+
+        observer.observe(myOriginalRow);
+    }
+}
 
 window.onload = initGame;
 
