@@ -2099,18 +2099,22 @@ body {
     font-size: 2.8vw;
     font-weight: 600;
     color: rgba(255, 255, 255, 0.9);
-    margin: 0.5vw 0 1.3vw;
+    margin: 0.5vw 0 .5vw;
     text-transform: none;
     letter-spacing: 1px;
+}
+
+#rank-standard-menu{
+    margin: 0 0 .8vw;
 }
 
 /* Для альбомной ориентации можно чуть увеличить */
 @media (orientation: landscape) {
     .menu-record-text {
     font-size: 1.7vh; /* Чуть меньше основного текста */
-    font-weight: 100;
+    font-weight: 600;
     color: rgba(255, 255, 255, 0.9); /* Белый с легкой прозрачностью */
-    margin: 1vh;
+    margin: 0.5vh 0 .1vh;
     text-transform: none; /* Чтобы "Рекорд" не был капсом, если не нужно */
     letter-spacing: 1px;
     }
@@ -2412,4 +2416,19 @@ img:focus {
     -webkit-touch-callout: none; /* Запрет вызова меню при долгом нажатии */
     -webkit-user-select: none;   /* Запрет выделения текста */
     user-select: none;
+}
+
+
+
+.menu-rank-text {
+    font-size: 2.8vw; /* Еще чуть меньше рекорда */
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.7); /* Более прозрачный */
+    margin-top: 0px;
+}
+
+@media (orientation: landscape) {
+    .menu-rank-text {
+        font-size: 1.7vh;
+    }
 }

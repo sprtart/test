@@ -51,15 +51,17 @@
     <button class="btn-play-big" onclick="startGameMode('standard')">
         <div class="btn-piece" style="background-image: url('img/p/wwQ.svg')"></div>
         <span data-i18n="playStandard">ЗАДАЧИ</span>
-        <!-- ДОБАВЛЕНО: Рекорд для обычного режима -->
         <div id="record-standard-menu" class="menu-record-text">Рекорд: 0</div>
+        <!-- ДОБАВЛЕНО: Место в топе -->
+        <div id="rank-standard-menu" class="menu-rank-text">Место: ---</div>
     </button>
 
     <button class="btn-play-big btn-survival" onclick="startGameMode('survival')">
         <div class="btn-piece" style="background-image: url('img/p/wwN.svg')"></div>
         <span data-i18n="playSurvival">ШТУРМ</span>
-        <!-- ДОБАВЛЕНО: Рекорд для штурма -->
         <div id="record-survival-menu" class="menu-record-text">Рекорд: 0</div>
+        <!-- ДОБАВЛЕНО: Место в топе -->
+        <div id="rank-survival-menu" class="menu-rank-text">Место: ---</div>
     </button>
 </div>
 
@@ -680,6 +682,7 @@ function translatePage() {
 
 const i18n = {
     ru: {
+        rankLabel: "Место",
         boardColor: "Цвет доски",
         title: "Шахматные задачи: найди лучший ход",
         loading: "Загрузка:",
@@ -734,6 +737,7 @@ const i18n = {
         tMaxStreak: "Рекорд серии"
     },
     en: {
+        rankLabel: "Rank",
         boardColor: "Board Color",
         title: "Chess Puzzles: Find the Best Move",
         loading: "Loading:",
@@ -994,6 +998,7 @@ function goHome() {
     if (lbModal) lbModal.classList.add('hidden');
     
     updateMenuRecords();
+    fetchUserRanks();
 
     // 4. ПОКАЗЫВАЕМ ГЛАВНОЕ МЕНЮ
     const mainMenu = document.getElementById('main-menu');
@@ -1165,9 +1170,10 @@ if (Platform.id === 'vk' && Platform.user) {
 
     // Вызываем обновление текста темы в дропдауне при старте
     updateDropdownThemeText();
- updateMenuRecords();
+    updateMenuRecords();
+    fetchUserRanks();
     loadData(); 
-updateRightPanelUI();
+    updateRightPanelUI();
 }
 
 function submitScore(newTotalScore) {
@@ -2492,6 +2498,43 @@ async function switchLeaderboardTab(mode) {
     
     // Вызываем загрузку данных
     await fetchAndRenderLeaderboard();
+}
+
+
+
+async function fetchUserRanks() {
+    if (!Platform.user || !Platform.user.id) return;
+
+    const t = i18n[lang];
+    const myVkId = String(Platform.user.id);
+
+    try {
+        // 1. Считаем место в режиме ЗАДАЧИ
+        // Считаем всех, у кого score больше, чем наш totalScore
+        const { count: standardCount, error: err1 } = await sb
+            .from('leaderboard')
+            .select('*', { count: 'exact', head: true })
+            .gt('score', totalScore);
+
+        if (!err1) {
+            const rank = standardCount + 1;
+            document.getElementById('rank-standard-menu').textContent = (t.rankLabel || "Место") + ": " + rank;
+        }
+
+        // 2. Считаем место в режиме ШТУРМ
+        // Считаем всех, у кого streak больше, чем наш statsMaxStreak
+        const { count: survivalCount, error: err2 } = await sb
+            .from('leaderboard_survival')
+            .select('*', { count: 'exact', head: true })
+            .gt('streak', statsMaxStreak);
+
+        if (!err2) {
+            const rank = survivalCount + 1;
+            document.getElementById('rank-survival-menu').textContent = (t.rankLabel || "Место") + ": " + rank;
+        }
+    } catch (e) {
+        console.error("Ошибка при получении мест в меню:", e);
+    }
 }
 
 </script>
