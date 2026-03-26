@@ -216,7 +216,7 @@
     box-shadow: 0 10px 25px rgba(0,0,0,0.2);
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 10px;
     animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 @keyframes popIn { 0% { transform: scale(0.8); } 100% { transform: scale(1); } }
@@ -2119,7 +2119,7 @@ body {
     display: flex;
     align-items: flex-end;
     /* gap: 1vw; */
-    padding: 3vh 0 2vh;
+    padding: 4vh 0 2vh;
     justify-content: space-around;
 }
 
@@ -2375,3 +2375,24 @@ body.board-grey {
 /* Firefox */
 .leaderboard-list { scrollbar-width: thin; scrollbar-color: rgba(120, 120, 120, 0.4) transparent; }
 
+
+
+* {
+    /* Убирает синий прямоугольник при клике на мобилках */
+    -webkit-tap-highlight-color: transparent;
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
+}
+
+button:focus, 
+button:active, 
+div:focus, 
+img:focus {
+    outline: none !important;
+    -webkit-appearance: none;
+}
+
+* {
+    -webkit-touch-callout: none; /* Запрет вызова меню при долгом нажатии */
+    -webkit-user-select: none;   /* Запрет выделения текста */
+    user-select: none;
+}
