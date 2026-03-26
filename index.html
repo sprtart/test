@@ -2382,13 +2382,13 @@ function updateMenuRecords() {
     // Для стандартного режима обычно рекордом считается Макс. Эло
     const standardRecord = document.getElementById('record-standard-menu');
     if (standardRecord) {
-        standardRecord.textContent = t.record + ": " + statsMaxElo;
+        standardRecord.textContent = t.record + " " + statsMaxElo;
     }
     
     // Для штурма рекордом считается Максимальная серия
     const survivalRecord = document.getElementById('record-survival-menu');
     if (survivalRecord) {
-        survivalRecord.textContent = t.record + ": " + statsMaxStreak;
+        survivalRecord.textContent = t.record + " " + statsMaxStreak;
     }
 }
 
