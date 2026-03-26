@@ -231,20 +231,32 @@
             
         </div> <!-- Конец landscape-only -->
 
-        <!-- Модалка Топа (одна на обе версии) -->
-        <div id="leaderboard-modal" class="modal-overlay hidden" onclick="hideTopModal()">
-            <div class="modal-box" onclick="event.stopPropagation()">
-            
-                <div id="leaderboard-container" style="max-height: 60vh; overflow-y: auto;">
-                    <div id="top-loading" style="text-align: center; ;">Загрузка...</div>
-                </div>
-                <button class="btn-close-modal" onclick="hideTopModal()" data-i18n="tClose">Закрыть</button>
-            </div>
-        </div>
+
 
     </div> <!-- Конец right-column -->
 </div>
+        <!-- Модалка Топа (одна на обе версии) -->
+<div id="leaderboard-modal" class="modal-overlay hidden" onclick="hideTopModal()">
+    <div class="modal-box" onclick="event.stopPropagation()">
+        
+        <!-- ПЕРЕКЛЮЧАТЕЛЬ (TABS) -->
+        <div class="leaderboard-tabs">
+            <button id="tab-standard" class="tab-btn active" onclick="switchLeaderboardTab('standard')">
+                <span data-i18n="playStandard">Задачи</span>
+            </button>
+            <button id="tab-survival" class="tab-btn" onclick="switchLeaderboardTab('survival')">
+                <span data-i18n="playSurvival">Штурм</span>
+            </button>
+        </div>
 
+        <div id="leaderboard-container">
+            <!-- Сюда JS вставит Пьедестал и Список -->
+            <div style="text-align:center; padding:40px;" id="top-loading">Загрузка...</div>
+        </div>
+
+        <button class="btn-close-modal" onclick="hideTopModal()" data-i18n="tClose">Закрыть</button>
+    </div>
+</div>
 <div id="stats-modal" class="modal-overlay hidden">
     <div class="modal-box" onclick="event.stopPropagation()">
         <h2 id="modal-title">Статистика</h2>
@@ -654,7 +666,7 @@ saveSolvedIds(idsArray) {
 }
 
 };
-
+let currentLeaderboardTab = 'standard'; // Глобальная переменная для отслеживания вкладки
 let lang = 'ru'; 
 
 function translatePage() {
@@ -2065,26 +2077,39 @@ function hideTopModal() {
     }
 }
 
-// Твоя существующая функция открытия (убедись, что она выглядит так)
+
+
 async function openLeaderboard() {
     const modal = document.getElementById('leaderboard-modal');
-    const container = document.getElementById('leaderboard-container');
-    const title = document.getElementById('top-title');
-    // Если заголовка нет в HTML, код просто пропустит эту строку и не выдаст ошибку
-    if (title) {
-        title.textContent = isSurvival ? i18n[lang].lbTitleSurvival : i18n[lang].lbTitle;
-    }
-        
-    modal.classList.remove('hidden');
-    container.innerHTML = `<div style="text-align:center; padding:20px;">${i18n[lang].lbLoading}</div>`;
+    if (!modal) return;
 
-    // Определяем, какую таблицу и колонку запрашивать
-    const isSurvival = (gameMode === 'survival');
+    modal.classList.remove('hidden');
+
+    // Если gameMode еще не задан (мы в меню), ставим 'standard'
+    // Если задан - ставим текущий режим
+    currentLeaderboardTab = gameMode || 'standard'; 
+
+    // Обновляем визуальное состояние вкладок
+    const tabS = document.getElementById('tab-standard');
+    const tabV = document.getElementById('tab-survival');
+    if (tabS) tabS.classList.toggle('active', currentLeaderboardTab === 'standard');
+    if (tabV) tabV.classList.toggle('active', currentLeaderboardTab === 'survival');
+
+    await fetchAndRenderLeaderboard();
+}
+
+// Убедись, что кнопка статистики в МЕНЮ вызывает именно openLeaderboard()
+function showStatsModal() {
+    openLeaderboard();
+}
+
+async function fetchAndRenderLeaderboard() {
+    const container = document.getElementById('leaderboard-container');
+    container.innerHTML = `<div style="text-align:center; padding:40px;">${i18n[lang].lbLoading}</div>`;
+
+    const isSurvival = (currentLeaderboardTab === 'survival');
     const tableName = isSurvival ? 'leaderboard_survival' : 'leaderboard';
     const orderBy = isSurvival ? 'streak' : 'score';
-    
-    // Меняем заголовок в зависимости от режима
-    //title.textContent = isSurvival ? i18n[lang].lbTitleSurvival : i18n[lang].lbTitle;
 
     try {
         const { data, error } = await sb
@@ -2095,7 +2120,6 @@ async function openLeaderboard() {
 
         if (error) throw error;
 
-        // Преобразуем данные (для выживания используем поле streak, для обычного - score)
         const items = data.map(item => ({
             user_id: item.vk_id,
             first_name: item.name,
@@ -2103,10 +2127,10 @@ async function openLeaderboard() {
             photo_100: item.avatar
         }));
 
-        renderTopList(items);
+        renderTopList(items); // Твоя функция с Пьедесталом, которую мы сделали раньше
 
     } catch (e) {
-        console.error("Ошибка загрузки топа:", e);
+        console.error("Ошибка:", e);
         container.innerHTML = `<div style="text-align:center; color:red; padding:20px;">${i18n[lang].lbError}</div>`;
     }
 }
@@ -2220,16 +2244,6 @@ document.addEventListener('touchmove', function(e) {
 }, { passive: false });
 
 
-function showStatsModal() {
-    document.getElementById('mdl-score').textContent = totalScore;
-    document.getElementById('mdl-solved').textContent = statsTotalSolved;
-    document.getElementById('mdl-flawless').textContent = statsFlawless; // <--- ДОБАВЛЕНО
-    document.getElementById('mdl-mistakes').textContent = statsTotalMistakes;
-    document.getElementById('mdl-max-elo').textContent = statsMaxElo;
-    document.getElementById('mdl-max-streak').textContent = statsMaxStreak;
-    document.getElementById('stats-modal').classList.remove('hidden');
-}
-
 function hideStatsModal() {
     document.getElementById('stats-modal').classList.add('hidden');
 }
@@ -2316,48 +2330,49 @@ window.onload = initGame;
 
 
 // Фикс скролла лидерборда на мобильных (из Яндекс-версии)
+// ОБНОВЛЕННЫЙ ФИКС СКРОЛЛА ЛИДЕРБОРДА
 (function() {
     let startY = 0;
     let startScrollTop = 0;
 
+    // Функция для поиска активного скролл-контейнера
+    const getScrollTarget = () => document.querySelector('.leaderboard-list');
+
     document.addEventListener('touchstart', function(e) {
-        const container = document.getElementById('leaderboard-container');
-        // Проверяем, что нажатие произошло внутри списка лидеров
-        if (container && container.contains(e.target)) {
+        const target = getScrollTarget();
+        // Если мы коснулись внутри списка лидеров
+        if (target && target.contains(e.target)) {
             startY = e.touches[0].clientY;
-            startScrollTop = container.scrollTop;
+            startScrollTop = target.scrollTop;
         }
     }, { passive: true });
 
     document.addEventListener('touchmove', function(e) {
-        const container = document.getElementById('leaderboard-container');
-        if (!container || !container.contains(e.target)) return;
+        const target = getScrollTarget();
+        if (!target || !target.contains(e.target)) return;
 
         const deltaY = startY - e.touches[0].clientY;
         const newScrollTop = startScrollTop + deltaY;
 
-        // Определяем границы прокрутки
-        const maxScroll = container.scrollHeight - container.clientHeight;
+        const maxScroll = target.scrollHeight - target.clientHeight;
         const atTop = newScrollTop <= 0;
         const atBottom = newScrollTop >= maxScroll;
 
-        // Если мы скроллим ВНУТРИ списка (не дошли до краев)
+        // Если скроллим внутри списка - блокируем системный скролл страницы
         if (!atTop && !atBottom) {
-            container.scrollTop = newScrollTop;
-            // Блокируем стандартный скролл всей страницы браузером
+            target.scrollTop = newScrollTop;
             if (e.cancelable) e.preventDefault();
         } 
-        // Если дошли до верха и тянем вниз
+        // Если уперлись в края - тоже блокируем, чтобы не дергалась вся игра
         else if (atTop && deltaY < 0) {
-            container.scrollTop = 0;
+            target.scrollTop = 0;
             if (e.cancelable) e.preventDefault();
         } 
-        // Если дошли до низа и тянем вверх
         else if (atBottom && deltaY > 0) {
-            container.scrollTop = maxScroll;
+            target.scrollTop = maxScroll;
             if (e.cancelable) e.preventDefault();
         }
-    }, { passive: false }); // Важно: false позволяет вызывать preventDefault
+    }, { passive: false });
 })();
 
 
@@ -2431,6 +2446,23 @@ function setBoardTheme(theme) {
 function loadSavedBoardTheme() {
     const savedTheme = localStorage.getItem('chess-board-theme') || 'green';
     setBoardTheme(savedTheme);
+}
+
+
+
+
+
+async function switchLeaderboardTab(mode) {
+    if (currentLeaderboardTab === mode) return; // Не грузим, если уже открыто
+    
+    currentLeaderboardTab = mode;
+    
+    // Переключаем визуально кнопки
+    document.getElementById('tab-standard').classList.toggle('active', mode === 'standard');
+    document.getElementById('tab-survival').classList.toggle('active', mode === 'survival');
+    
+    // Вызываем загрузку данных
+    await fetchAndRenderLeaderboard();
 }
 
 </script>
