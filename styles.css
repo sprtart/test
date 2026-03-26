@@ -1,4 +1,21 @@
-        :root {
+@font-face {
+    font-family: 'Nunito';
+    /* Проверь, чтобы путь и название файла точно совпадали */
+    src: url('fonts/Nunito-VariableFont_wght.ttf') format('truetype');
+    font-weight: 200 1000;
+    font-stretch: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* Применяем ко всем элементам игры */
+html, body, button, span, div, h1, h2, b {
+    font-family: 'Nunito', sans-serif !important;
+}
+
+
+
+:root {
             --board-light: #f0d9b5;
             --board-dark: #b58863;
             --highlight-yellow: rgba(204, 204, 80, 0.7); 
@@ -331,7 +348,7 @@
             display: flex; 
             align-items: center; 
             justify-content: center; 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            font-family: 'Nunito', sans-serif; 
             margin: 0; 
         }
 
@@ -544,7 +561,7 @@ html, body {
     border: none;
     box-shadow: 0 4px 0 #b9bdc3;
     color: var(--gray-1100);
-    font-weight: 800;
+    font-weight: 900;
     text-transform: uppercase;
     letter-spacing: 0.04em;
     transition: transform 0.1s, box-shadow 0.1s;
@@ -1700,7 +1717,7 @@ background: var(--board-dark);
     transition: transform 0.1s, box-shadow 0.1s;
 }
 .btn-play-big svg { width: 48px; height: 48px; }
-.btn-play-big span { font-weight: 900; font-size: 4.5vw; letter-spacing: 0.5px; margin-top: -2vw;}
+.btn-play-big span { font-weight: 900; font-size: 4.5vw; letter-spacing: 0.5px; margin-top: -1vw;}
 
 .btn-play-big.btn-survival {
     background-color: #ef4444; /* Красный для выживания */
@@ -2082,7 +2099,7 @@ body {
     font-size: 2.8vw;
     font-weight: 600;
     color: rgba(255, 255, 255, 0.9);
-    margin: 1.3vw;
+    margin: 0.5vw 0 1.3vw;
     text-transform: none;
     letter-spacing: 1px;
 }
